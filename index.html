@@ -907,7 +907,7 @@
     <div id="right-thumb-zone">
       <div id="crane-stick-col">
         <button type="button" id="btn-crane-lock" class="active" title="升降時自動壓角望實主角">鎖視線:開</button>
-        <div id="crane-track" title="上下推拉升降機位，放手即停">
+        <div id="crane-track" title="上下推拉升降機位，放手柔和收停">
           <span class="crane-arrow-top">▲</span>
           <div id="crane-knob"></div>
           <span class="crane-arrow-bot">▼</span>
@@ -1690,7 +1690,7 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（直接線性、放手快收停）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（頭段極慢漸進、起鏡與收尾柔和過渡）
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1762,24 +1762,24 @@
       function tickCraneMovement() {
         const absNorm = Math.abs(craneNormY);
         let targetVel = 0;
-        if (absNorm >= 0.03) {
+        if (absNorm >= 0.04) {
           const sign = craneNormY < 0 ? 1 : -1;
-          const activeMag = (absNorm - 0.03) / 0.97;
-          // 直接線性比例：推幾多升幾多，唔急衝亦唔拖泥帶水
-          targetVel = sign * activeMag * 0.017;
+          const activeMag = (absNorm - 0.04) / 0.96;
+          // 頭段極慢漸進曲線（2.2 次方），推深先平滑加快
+          targetVel = sign * Math.pow(activeMag, 2.2) * 0.015;
         }
 
-        // 推時穩健跟隨，放手快速收停（0.65），唔會坐落仲滑緊
-        const followRate = targetVel !== 0 ? 0.36 : 0.65;
+        // 柔和起鏡（0.09）與平滑慣性收尾（0.11），消除突然啟動與急停頓挫
+        const followRate = targetVel !== 0 ? 0.09 : 0.11;
         craneVelY += (targetVel - craneVelY) * followRate;
 
-        if (Math.abs(craneVelY) < 0.0001) {
+        if (Math.abs(craneVelY) < 0.00004) {
           craneVelY = 0;
           return;
         }
 
         const nextY = Math.max(0.25, Math.min(4.50, cam.y + craneVelY));
-        if (Math.abs(nextY - cam.y) > 0.00005) {
+        if (Math.abs(nextY - cam.y) > 0.00002) {
           cam.y = nextY;
           if (cam.cranePitchLock) {
             const lead = getLeadActor();
@@ -1787,7 +1787,7 @@
               const targetEyeY = (lead.height / 1.75) * 1.48;
               const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
               const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.45));
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.22));
             }
           }
           updateHUD();
