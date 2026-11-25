@@ -856,7 +856,7 @@
     </div>
   </div>
 
-  <!-- 可收合右側導演調度抽屜 -->
+  <!-- 可收合導演調度抽屜 -->
   <div id="drawer-backdrop"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
@@ -1607,13 +1607,15 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（起步即時響應 ＋ 鎖視線同步壓角）
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
       let craneTouchId = null;
       let craneMouseDown = false;
       let craneNormY = 0;
+      let craneVelY = 0;
+      let craneEngageTime = 0;
 
       function updateCraneStick(clientY) {
         const rect = craneTrack.getBoundingClientRect();
@@ -1621,7 +1623,10 @@
         const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
         craneNormY = dy / maxTravel;
         craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
-        craneTrack.classList.add('engaged');
+        if (!craneTrack.classList.contains('engaged')) {
+          craneEngageTime = performance.now();
+          craneTrack.classList.add('engaged');
+        }
       }
 
       function releaseCraneStick() {
@@ -1676,10 +1681,28 @@
       });
 
       function tickCraneMovement() {
-        if (Math.abs(craneNormY) < 0.08) return;
-        const liftDelta = -craneNormY * 0.026;
-        const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
-        if (Math.abs(nextY - cam.y) > 0.0001) {
+        const absNorm = Math.abs(craneNormY);
+        let targetVel = 0;
+        if (absNorm >= 0.03) {
+          const sign = craneNormY < 0 ? 1 : -1;
+          const activeMag = (absNorm - 0.03) / 0.97;
+          // 柔和起步曲線 + 頭 180ms 輕微起步助推，消除初始鈍感
+          const elapsed = performance.now() - craneEngageTime;
+          const startBoost = elapsed < 180 ? (1.35 - 0.35 * (elapsed / 180)) : 1.0;
+          targetVel = sign * Math.pow(activeMag, 0.85) * 0.028 * startBoost;
+        }
+
+        // 起步快跟上，放手快速阻尼收停
+        const lerpRate = targetVel !== 0 ? 0.48 : 0.32;
+        craneVelY += (targetVel - craneVelY) * lerpRate;
+
+        if (Math.abs(craneVelY) < 0.00015) {
+          craneVelY = 0;
+          return;
+        }
+
+        const nextY = Math.max(0.25, Math.min(4.50, cam.y + craneVelY));
+        if (Math.abs(nextY - cam.y) > 0.00005) {
           cam.y = nextY;
           if (cam.cranePitchLock) {
             const lead = getLeadActor();
@@ -1687,7 +1710,7 @@
               const targetEyeY = (lead.height / 1.75) * 1.48;
               const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
               const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.65));
             }
           }
           updateHUD();
