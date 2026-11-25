@@ -112,10 +112,10 @@
     #safe-frame {
       position: absolute;
       left: 50%;
-      top: 50%;
+      top: 47%;
       transform: translate(-50%, -50%);
-      width: 400px;
-      height: 225px;
+      width: 420px;
+      height: 236px;
       border: 1.5px solid rgba(255, 255, 255, 0.84);
       box-shadow: 0 0 0 9999px rgba(6, 8, 11, 0.58);
       transition: width 0.16s ease, height 0.16s ease, left 0.16s ease, top 0.16s ease;
@@ -274,7 +274,7 @@
       left: max(10px, var(--safe-left));
       top: calc(max(8px, var(--safe-top)) + 44px);
       z-index: 20;
-      width: 126px;
+      width: 124px;
       pointer-events: auto;
     }
     #left-rec-header {
@@ -328,7 +328,7 @@
       left: max(10px, var(--safe-left));
       bottom: max(10px, var(--safe-bottom));
       z-index: 20;
-      width: 126px;
+      width: 124px;
       pointer-events: auto;
     }
 
@@ -380,7 +380,7 @@
       border: 1px solid rgba(255, 255, 255, 0.24);
       color: #fff;
       border-radius: 9px;
-      height: 35px;
+      height: 34px;
       font-size: 10.5px;
       font-weight: 700;
       letter-spacing: 0.4px;
@@ -391,7 +391,7 @@
     }
     .dolly-dir-btn.wide-btn {
       width: 100%;
-      height: 35px;
+      height: 34px;
     }
     .dolly-dir-btn:active, .dolly-dir-btn.pressed {
       background: var(--accent-amber);
@@ -404,18 +404,18 @@
     #bottom-center-dock {
       position: absolute;
       left: 50%;
-      bottom: max(10px, var(--safe-bottom));
+      bottom: max(8px, var(--safe-bottom));
       transform: translateX(-50%);
       z-index: 19;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3.5px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 5px 8px;
+      padding: 4.5px 8px;
       border-radius: 13px;
     }
     .lens-strip, .ar-strip {
@@ -428,7 +428,7 @@
       border: 1px solid rgba(255, 255, 255, 0.14);
       color: var(--text-primary);
       border-radius: 7px;
-      padding: 3.5px 6px;
+      padding: 3px 6px;
       font-size: 9.5px;
       font-weight: 600;
       cursor: pointer;
@@ -439,7 +439,7 @@
       color: #0b0d10;
     }
 
-    /* 右手拇指區：直排上下疊放 — Pan/Tilt 雲台搖桿（上） + 垂直升降搖桿（下） */
+    /* 右手拇指區：直排上下疊放 — 垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） */
     #right-thumb-zone {
       position: absolute;
       right: max(10px, var(--safe-right));
@@ -453,7 +453,91 @@
       pointer-events: auto;
     }
 
-    /* Pan / Tilt 雲台搖桿（上） */
+    /* 垂直搖臂升降搖桿（上） */
+    #crane-stick-col {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 5px 6px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+    }
+    #btn-crane-lock {
+      font-size: 8.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #btn-crane-lock.active {
+      background: var(--accent-amber);
+      border-color: #f7c252;
+      color: #0b0d10;
+    }
+    #crane-track {
+      width: 36px;
+      height: 82px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(10,12,16,0.88) 50%, rgba(255,255,255,0.08) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.75);
+      position: relative;
+      touch-action: none;
+    }
+    #crane-track::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 50%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .crane-arrow-top, .crane-arrow-bot {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 7.5px;
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+    .crane-arrow-top { top: 3px; }
+    .crane-arrow-bot { bottom: 3px; }
+    #crane-knob {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    #crane-track.engaged #crane-knob {
+      border-color: var(--accent-amber);
+      background: radial-gradient(circle at 35% 30%, #f5b942, #b87b14);
+    }
+    #height-readout {
+      font-family: ui-monospace, monospace;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    /* Pan / Tilt 雲台搖桿（下） */
     #pantilt-stick-col {
       width: 100%;
       display: flex;
@@ -515,90 +599,6 @@
       font-weight: 700;
       color: var(--accent-amber);
       white-space: nowrap;
-    }
-
-    /* 垂直搖臂升降搖桿（下） */
-    #crane-stick-col {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      background: var(--bg-glass);
-      border: 1px solid var(--border-subtle);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 5px 6px;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
-    }
-    #btn-crane-lock {
-      font-size: 8.5px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-secondary);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    #btn-crane-lock.active {
-      background: var(--accent-amber);
-      border-color: #f7c252;
-      color: #0b0d10;
-    }
-    #crane-track {
-      width: 36px;
-      height: 84px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(10,12,16,0.88) 50%, rgba(255,255,255,0.08) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.75);
-      position: relative;
-      touch-action: none;
-    }
-    #crane-track::before {
-      content: "";
-      position: absolute;
-      left: 6px;
-      right: 6px;
-      top: 50%;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.22);
-    }
-    .crane-arrow-top, .crane-arrow-bot {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 7.5px;
-      color: var(--text-secondary);
-      pointer-events: none;
-    }
-    .crane-arrow-top { top: 3px; }
-    .crane-arrow-bot { bottom: 3px; }
-    #crane-knob {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
-      border: 1.5px solid rgba(255, 255, 255, 0.55);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    #crane-track.engaged #crane-knob {
-      border-color: var(--accent-amber);
-      background: radial-gradient(circle at 35% 30%, #f5b942, #b87b14);
-    }
-    #height-readout {
-      font-family: ui-monospace, monospace;
-      font-size: 8.5px;
-      font-weight: 700;
-      color: var(--accent-amber);
     }
 
     /* 可收合右側導演設定抽屜 */
@@ -834,16 +834,8 @@
       </div>
     </div>
 
-    <!-- 右手拇指區：直排上下疊放 — Pan/Tilt 雲台搖桿（上） + 垂直升降搖桿（下） -->
+    <!-- 右手拇指區：直排上下疊放 — 垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） -->
     <div id="right-thumb-zone">
-      <div id="pantilt-stick-col">
-        <span class="pt-top-label">Pan / Tilt</span>
-        <div id="pantilt-pad" title="上下控制 Tilt 俯仰、左右控制 Pan 水平轉向">
-          <div id="pantilt-knob"></div>
-        </div>
-        <span id="pt-readout">P 0° · T 0°</span>
-      </div>
-
       <div id="crane-stick-col">
         <button type="button" id="btn-crane-lock" class="active" title="升降時自動壓角望實主角">鎖視線:開</button>
         <div id="crane-track" title="上下推拉升降機位，放手自動回中">
@@ -852,6 +844,14 @@
           <span class="crane-arrow-bot">▼</span>
         </div>
         <span id="height-readout">1.60m</span>
+      </div>
+
+      <div id="pantilt-stick-col">
+        <span class="pt-top-label">Pan / Tilt</span>
+        <div id="pantilt-pad" title="上下控制 Tilt 俯仰、左右控制 Pan 水平轉向">
+          <div id="pantilt-knob"></div>
+        </div>
+        <span id="pt-readout">P 0° · T 0°</span>
       </div>
     </div>
   </div>
@@ -1091,24 +1091,22 @@
         updateSafeFrameLayout();
       }
 
-      // 動態實測左右控制區、頂部 HUD 同底部焦段列實際座標，徹底保證 2.39:1 都唔會撞入左右按鍵
+      // 保持安全畫框置中並避開左右控制區與底部焦段列
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
-        const leftRecRect = document.getElementById('left-rec-zone').getBoundingClientRect();
         const leftThumbRect = document.getElementById('left-thumb-zone').getBoundingClientRect();
         const rightThumbRect = document.getElementById('right-thumb-zone').getBoundingClientRect();
         const topHudRect = document.getElementById('top-hud-bar').getBoundingClientRect();
         const bottomDockRect = document.getElementById('bottom-center-dock').getBoundingClientRect();
 
-        const leftBound = Math.max(leftRecRect.right, leftThumbRect.right, 140) + 12;
-        const rightBound = (rightThumbRect.left > 0 ? rightThumbRect.left : W - 110) - 12;
-        const topBound = (topHudRect.bottom > 0 ? topHudRect.bottom : 42) + 8;
-        const bottomBound = (bottomDockRect.top > 0 ? bottomDockRect.top : H - 68) - 8;
+        const leftClear = (leftThumbRect.right > 0 ? leftThumbRect.right : 134) + 14;
+        const rightClear = (rightThumbRect.left > 0 ? (W - rightThumbRect.left) : 102) + 14;
+        const maxSideClear = Math.max(leftClear, rightClear);
+        const availW = Math.max(200, W - maxSideClear * 2);
 
-        const availW = Math.max(180, rightBound - leftBound);
-        const availH = Math.max(110, bottomBound - topBound);
-        const centerX = (leftBound + rightBound) / 2;
-        const centerY = (topBound + bottomBound) / 2;
+        const topClear = (topHudRect.bottom > 0 ? topHudRect.bottom : 42) + 10;
+        const bottomClear = (bottomDockRect.top > 0 ? (H - bottomDockRect.top) : 64) + 10;
+        const availH = Math.max(120, H - topClear - bottomClear);
 
         const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
         let fw = availW;
@@ -1118,8 +1116,9 @@
           fw = fh * r;
         }
 
-        sf.style.left = `${Math.round(centerX)}px`;
-        sf.style.top = `${Math.round(centerY)}px`;
+        const centerY = Math.round((topClear + (H - bottomClear)) / 2);
+        sf.style.left = '50%';
+        sf.style.top = `${centerY}px`;
         sf.style.width = `${Math.round(fw)}px`;
         sf.style.height = `${Math.round(fh)}px`;
       }
@@ -1622,7 +1621,95 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：Pan / Tilt 雲台搖桿（預設 0.10°/幀 ＋ 漸進曲線）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
+      // ==========================
+      const craneTrack = document.getElementById('crane-track');
+      const craneKnob = document.getElementById('crane-knob');
+      let craneTouchId = null;
+      let craneMouseDown = false;
+      let craneNormY = 0;
+
+      function updateCraneStick(clientY) {
+        const rect = craneTrack.getBoundingClientRect();
+        const maxTravel = (rect.height - 28) / 2;
+        const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
+        craneNormY = dy / maxTravel;
+        craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
+        craneTrack.classList.add('engaged');
+      }
+
+      function releaseCraneStick() {
+        craneTouchId = null;
+        craneMouseDown = false;
+        craneNormY = 0;
+        craneKnob.style.transform = 'translate(-50%, -50%)';
+        craneTrack.classList.remove('engaged');
+      }
+
+      craneTrack.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (craneTouchId === null && e.changedTouches.length > 0) {
+          const t = e.changedTouches[0];
+          craneTouchId = t.identifier;
+          updateCraneStick(t.clientY);
+        }
+      }, { passive: false });
+
+      craneTrack.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === craneTouchId) {
+            updateCraneStick(e.changedTouches[i].clientY);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      craneTrack.addEventListener('touchend', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === craneTouchId) {
+            releaseCraneStick();
+            break;
+          }
+        }
+      });
+      craneTrack.addEventListener('touchcancel', releaseCraneStick);
+
+      craneTrack.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        craneMouseDown = true;
+        updateCraneStick(e.clientY);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (craneMouseDown) updateCraneStick(e.clientY);
+      });
+      window.addEventListener('mouseup', () => {
+        if (craneMouseDown) releaseCraneStick();
+      });
+
+      function tickCraneMovement() {
+        if (Math.abs(craneNormY) < 0.08) return;
+        const liftDelta = -craneNormY * 0.026;
+        const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
+        if (Math.abs(nextY - cam.y) > 0.0001) {
+          cam.y = nextY;
+          if (cam.cranePitchLock) {
+            const lead = getLeadActor();
+            if (lead) {
+              const targetEyeY = (lead.height / 1.75) * 1.48;
+              const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
+              const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
+            }
+          }
+          updateHUD();
+        }
+      }
+
+      // ==========================
+      // 3B. 右手拇指區（下）：Pan / Tilt 雲台搖桿（預設 0.10°/幀 ＋ 漸進曲線）
       // ==========================
       const ptPad = document.getElementById('pantilt-pad');
       const ptKnob = document.getElementById('pantilt-knob');
@@ -1706,94 +1793,6 @@
         cam.pan = +((((cam.pan + dirX * curveScale * ptStickSpeed + 540) % 360) - 180).toFixed(2));
         cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dirY * curveScale * (ptStickSpeed * 0.85))).toFixed(2);
         updateHUD();
-      }
-
-      // ==========================
-      // 3B. 右手拇指區（下）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
-      // ==========================
-      const craneTrack = document.getElementById('crane-track');
-      const craneKnob = document.getElementById('crane-knob');
-      let craneTouchId = null;
-      let craneMouseDown = false;
-      let craneNormY = 0;
-
-      function updateCraneStick(clientY) {
-        const rect = craneTrack.getBoundingClientRect();
-        const maxTravel = (rect.height - 30) / 2;
-        const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
-        craneNormY = dy / maxTravel;
-        craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
-        craneTrack.classList.add('engaged');
-      }
-
-      function releaseCraneStick() {
-        craneTouchId = null;
-        craneMouseDown = false;
-        craneNormY = 0;
-        craneKnob.style.transform = 'translate(-50%, -50%)';
-        craneTrack.classList.remove('engaged');
-      }
-
-      craneTrack.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (craneTouchId === null && e.changedTouches.length > 0) {
-          const t = e.changedTouches[0];
-          craneTouchId = t.identifier;
-          updateCraneStick(t.clientY);
-        }
-      }, { passive: false });
-
-      craneTrack.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          if (e.changedTouches[i].identifier === craneTouchId) {
-            updateCraneStick(e.changedTouches[i].clientY);
-            break;
-          }
-        }
-      }, { passive: false });
-
-      craneTrack.addEventListener('touchend', (e) => {
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          if (e.changedTouches[i].identifier === craneTouchId) {
-            releaseCraneStick();
-            break;
-          }
-        }
-      });
-      craneTrack.addEventListener('touchcancel', releaseCraneStick);
-
-      craneTrack.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        craneMouseDown = true;
-        updateCraneStick(e.clientY);
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (craneMouseDown) updateCraneStick(e.clientY);
-      });
-      window.addEventListener('mouseup', () => {
-        if (craneMouseDown) releaseCraneStick();
-      });
-
-      function tickCraneMovement() {
-        if (Math.abs(craneNormY) < 0.08) return;
-        const liftDelta = -craneNormY * 0.026;
-        const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
-        if (Math.abs(nextY - cam.y) > 0.0001) {
-          cam.y = nextY;
-          if (cam.cranePitchLock) {
-            const lead = getLeadActor();
-            if (lead) {
-              const targetEyeY = (lead.height / 1.75) * 1.48;
-              const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
-              const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
-            }
-          }
-          updateHUD();
-        }
       }
 
       // ==========================
@@ -2538,8 +2537,8 @@
 
       function mainLoop() {
         tickDollyMovement();
-        tickPanTiltStick();
         tickCraneMovement();
+        tickPanTiltStick();
         renderFrame();
         requestAnimationFrame(mainLoop);
       }
