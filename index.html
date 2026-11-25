@@ -223,7 +223,7 @@
       50%, 100% { opacity: 0.2; }
     }
 
-    /* 左手拇指區：電影定速推軌控制台 (慢推/勻速/快推 + 方向按鍵) + 高度升降 */
+    /* 左手拇指區：電影定速推軌控制台 + 高度升降 */
     #left-thumb-zone {
       position: absolute;
       left: max(14px, var(--safe-left));
@@ -422,7 +422,7 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: min(390px, 86vw);
+      width: min(400px, 88vw);
       z-index: 50;
       background: var(--bg-panel);
       border-left: 1px solid var(--border-subtle);
@@ -554,7 +554,7 @@
     <!-- 頂部取景器狀態與核心快捷鍵 -->
     <div id="top-hud-bar">
       <div class="hud-pill-group">
-        <span id="hud-info" class="osd-readout">35mm · 16:9 · H 1.60m · Pan 0°</span>
+        <span id="hud-info" class="osd-readout">35mm · 16:9 · F 3.6m · H 1.60m</span>
         <div id="rec-badge"><span class="rec-dot"></span><span id="rec-timer">00:00</span></div>
       </div>
 
@@ -563,7 +563,7 @@
         <button type="button" class="hud-btn" onclick="recenterCamera()">校正正中</button>
         <button type="button" id="btn-clay" class="hud-btn" onclick="toggleClayMode()">Previz灰模</button>
         <button type="button" class="hud-btn" onclick="exportCleanFrame()">純淨圖</button>
-        <button type="button" class="hud-btn active" onclick="openDrawer()">調度 / V2V指令 ☰</button>
+        <button type="button" class="hud-btn active" onclick="openDrawer()">調度 / 景深 / 指令 ☰</button>
       </div>
     </div>
 
@@ -592,7 +592,7 @@
       </div>
     </div>
 
-    <!-- 底部中央：焦段快選（亦可雙指縮放）+ 畫幅比例 -->
+    <!-- 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換 -->
     <div id="bottom-center-dock">
       <div class="lens-strip">
         <button type="button" class="chip-btn lens-btn" data-mm="16" onclick="setFocal(16)">16mm</button>
@@ -624,13 +624,13 @@
   <div id="drawer-backdrop" onclick="closeDrawer()"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
-      <strong style="font-size:13px;">導演調度與 V2V 質感指令</strong>
+      <strong style="font-size:13px;">調度、光學透視與景深</strong>
       <button type="button" class="hud-btn" onclick="closeDrawer()">完成 ✕</button>
     </div>
 
     <div class="drawer-tabs">
       <button type="button" class="dtab-btn active" data-dp="dp-cast" onclick="switchDrawerTab('dp-cast')">角色走位</button>
-      <button type="button" class="dtab-btn" data-dp="dp-set" onclick="switchDrawerTab('dp-set')">2.5D 實景與光影</button>
+      <button type="button" class="dtab-btn" data-dp="dp-set" onclick="switchDrawerTab('dp-set')">透視與景深</button>
       <button type="button" class="dtab-btn" data-dp="dp-prompt" onclick="switchDrawerTab('dp-prompt')">V2V 指令</button>
     </div>
 
@@ -655,22 +655,36 @@
         <div id="cast-controls-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
 
-      <!-- 分頁 2：2.5D 實景底圖與光影 -->
+      <!-- 分頁 2：光學透視同步、背景景深距離與景深模擬 -->
       <div id="dp-set" class="dpane">
         <div class="sec-box">
-          <div class="sec-title">2.5D 實景相片底圖（帶反向視差同步）</div>
+          <div class="sec-title">實景相片底圖與光學透視同步</div>
           <div class="row-grid-2">
             <button type="button" class="chip-btn active" onclick="document.getElementById('bg-photo-input').click()">上傳實景相片</button>
             <button type="button" class="chip-btn" onclick="clearBackdropPhoto()">清除底圖</button>
           </div>
           <input type="file" id="bg-photo-input" accept="image/*" style="display:none" onchange="handleBackdropUpload(event)" />
+
+          <div class="slider-line">
+            <div class="slider-head"><span>背景景深距離（窄室 ↔ 遠景）</span><span id="bg-dist-val">10.0m</span></div>
+            <input type="range" id="rng-bg-dist" min="2.0" max="30.0" step="0.5" value="10.0" oninput="setBackdropDepthDist(this.value)" />
+          </div>
+
           <div class="slider-line">
             <div class="slider-head"><span>底圖透明度</span><span id="bg-op-val">88%</span></div>
             <input type="range" min="0.2" max="1.0" step="0.05" value="0.88" oninput="setBackdropOpacity(this.value)" />
           </div>
+        </div>
+
+        <div class="sec-box">
+          <div class="sec-title">焦段聯動景深模擬（DoF / Bokeh）</div>
           <div class="slider-line">
-            <div class="slider-head"><span>視差同步強度（減少飄浮感）</span><span id="bg-px-val">1.0x</span></div>
-            <input type="range" min="0" max="2.0" step="0.1" value="1.0" oninput="setParallaxStrength(this.value)" />
+            <div class="slider-head"><span>焦點距離 Focus Dist</span><span id="focus-dist-val">3.6m</span></div>
+            <input type="range" id="rng-focus-dist" min="0.8" max="12.0" step="0.1" value="3.6" oninput="setFocusDistance(this.value)" />
+          </div>
+          <div class="slider-line">
+            <div class="slider-head"><span>景深模糊強度</span><span id="dof-str-val">1.0x</span></div>
+            <input type="range" id="rng-dof-str" min="0" max="2.5" step="0.1" value="1.0" oninput="setDofStrength(this.value)" />
           </div>
         </div>
 
@@ -753,14 +767,16 @@
       pan: 0,
       tilt: 0,
       roll: 0,
-      focal: 35
+      focal: 35,
+      focusDist: 3.6,
+      dofStrength: 1.0
     };
 
     const env = {
       sky: 'darkgrey',
       bgImage: null,
       bgOpacity: 0.88,
-      parallaxStrength: 1.0
+      bgDepthDist: 10.0
     };
 
     const light = {
@@ -959,6 +975,15 @@
       ctx.restore();
     }
 
+    // 計算焦段聯動景深模糊半徑（px）
+    function calcBlurPx(subjectDist) {
+      if (cam.dofStrength <= 0.01) return 0;
+      const lensFactor = Math.pow(cam.focal / 35, 1.35);
+      const distDiff = Math.abs(subjectDist - cam.focusDist);
+      const rawPx = distDiff * lensFactor * cam.dofStrength * 2.2;
+      return Math.max(0, Math.min(14, +rawPx.toFixed(1)));
+    }
+
     function renderFrame() {
       ctx.clearRect(0, 0, W, H);
 
@@ -970,19 +995,24 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // 2. 2.5D 實景相片底圖（帶反向微幅視差位移＋焦距／推軌比例同步，減少人物飄浮感）
+      // 2. 光學透視公式同步之實景底圖（背景深度距離 bgDepthDist + 焦距/距離光學縮放 + 景深模糊）
       if (env.bgImage) {
         const sf = document.getElementById('safe-frame').getBoundingClientRect();
         ctx.save();
         ctx.globalAlpha = env.bgOpacity;
 
+        // 基準視角：35mm 鏡頭、攝影機距離背景牆 (3.6 + bgDepthDist) 米
+        const refFocal = 35;
+        const refDist = 3.6 + env.bgDepthDist;
+        const curDist = Math.max(1.2, cam.z + env.bgDepthDist);
+
+        // 光學透視放大比例：與焦距成正比、與背景距離成反比
+        const opticalZoom = (cam.focal / refFocal) * (refDist / curDist);
+        const baseBleed = 1.25;
+        const totalScale = Math.max(1.05, baseBleed * opticalZoom);
+
         const imgR = env.bgImage.width / env.bgImage.height;
         const boxR = sf.width / sf.height;
-
-        // 基礎安全出血放大 1.24 倍，加上跟隨焦距與推軌深度嘅遠景透視縮放
-        const focalScale = 1 + ((cam.focal - 35) / 140) * 0.25 * env.parallaxStrength;
-        const dollyScale = 1 + ((3.60 - cam.z) / 8.0) * 0.28 * env.parallaxStrength;
-        const totalScale = Math.max(1.08, 1.24 * focalScale * dollyScale);
 
         let dw = sf.width * totalScale;
         let dh = sf.height * totalScale;
@@ -992,14 +1022,16 @@
           dh = dw / imgR;
         }
 
-        // 反向視差位移：鏡頭向右轉或向右移，遠景背景向左微幅移動
-        const panShiftX = (-cam.pan * 2.2 - cam.x * 26) * env.parallaxStrength;
-        const tiltShiftY = (cam.tilt * 2.0 + (cam.y - 1.60) * 28) * env.parallaxStrength;
+        // 光學角度平移：Pan 與 Tilt 正切投影對應畫面像素偏移
+        const focalPx = (cam.focal / 24) * H;
+        const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.45 - cam.x * (focalPx / curDist) * 0.35;
+        const tiltRad = (cam.tilt * Math.PI) / 180;
+        const tiltPx = Math.tan(tiltRad) * focalPx * 0.45 + ((cam.y - 1.60) / curDist) * focalPx * 0.35;
 
-        const maxShiftX = (dw - sf.width) * 0.48;
-        const maxShiftY = (dh - sf.height) * 0.48;
-        const clampedX = Math.max(-maxShiftX, Math.min(maxShiftX, panShiftX));
-        const clampedY = Math.max(-maxShiftY, Math.min(maxShiftY, tiltShiftY));
+        const maxShiftX = Math.max(0, (dw - sf.width) * 0.49);
+        const maxShiftY = Math.max(0, (dh - sf.height) * 0.49);
+        const clampedX = Math.max(-maxShiftX, Math.min(maxShiftX, panPx));
+        const clampedY = Math.max(-maxShiftY, Math.min(maxShiftY, tiltPx));
 
         const dx = sf.left - (dw - sf.width) / 2 + clampedX;
         const dy = sf.top - (dh - sf.height) / 2 + clampedY;
@@ -1007,7 +1039,14 @@
         ctx.beginPath();
         ctx.rect(sf.left, sf.top, sf.width, sf.height);
         ctx.clip();
+
+        // 背景景深模糊（背景距相機約 curDist 米）
+        const bgBlur = calcBlurPx(curDist);
+        if (bgBlur > 0.3) {
+          ctx.filter = `blur(${bgBlur}px)`;
+        }
         ctx.drawImage(env.bgImage, dx, dy, dw, dh);
+        ctx.filter = 'none';
         ctx.restore();
       }
 
@@ -1021,7 +1060,7 @@
         }
       }
 
-      // 4. 繪製角色
+      // 4. 繪製角色（支援焦點距離與焦段聯動景深）
       const activeList = actors.filter(a => a.active);
       activeList.forEach(a => {
         const pb = projectPoint(a.x, 0.01, a.z);
@@ -1047,10 +1086,23 @@
       });
 
       const polys = [];
-      activeList.forEach(a => buildActorGeometry(polys, a));
+      activeList.forEach(a => {
+        const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
+        const actorBlur = calcBlurPx(distToCam);
+        const subPolys = [];
+        buildActorGeometry(subPolys, a);
+        subPolys.forEach(sp => {
+          sp.blur = actorBlur;
+          polys.push(sp);
+        });
+      });
       polys.sort((a, b) => b.depth - a.depth);
 
       polys.forEach(p => {
+        ctx.save();
+        if (p.blur > 0.4) {
+          ctx.filter = `blur(${p.blur}px)`;
+        }
         ctx.fillStyle = p.fill;
         ctx.beginPath();
         ctx.moveTo(p.pts[0].sx, p.pts[0].sy);
@@ -1062,6 +1114,7 @@
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
+        ctx.restore();
       });
 
       // 5. 角色浮動名牌（純淨圖／錄影時隱藏）
@@ -1100,7 +1153,7 @@
 
     function updateHUD() {
       document.getElementById('hud-info').textContent =
-        `${Math.round(cam.focal)}mm · ${currentAspect} · H ${cam.y.toFixed(2)}m · Pan ${cam.pan.toFixed(0)}° · Tilt ${cam.tilt.toFixed(0)}°`;
+        `${Math.round(cam.focal)}mm · ${currentAspect} · F ${cam.focusDist.toFixed(1)}m · H ${cam.y.toFixed(2)}m`;
       document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
       updatePromptText();
     }
@@ -1177,7 +1230,7 @@
     }
 
     // ==========================
-    // 2. 左手拇指區：電影定速推軌檔位（慢推 / 勻速 / 快推 + 平滑加減速）
+    // 2. 左手拇指區：電影定速推軌檔位
     // ==========================
     let dollySpeed = 0.015;
     let activeDollyDir = null;
@@ -1218,7 +1271,6 @@
       if (activeDollyDir === 'right') targetRight = dollySpeed;
       if (activeDollyDir === 'left') targetRight = -dollySpeed;
 
-      // 平滑電影軌道加減速曲線（Ease-in / Ease-out）
       currentVel.fwd += (targetFwd - currentVel.fwd) * 0.18;
       currentVel.right += (targetRight - currentVel.right) * 0.18;
 
@@ -1239,7 +1291,7 @@
     }
 
     // ==========================
-    // 3. 單指拖曳雲台/角色 + 雙指開合調焦距 (Pinch-to-Zoom)
+    // 3. 單指拖曳雲台/角色 + 雙指開合調焦距
     // ==========================
     let singleTouchId = null;
     let prevTouchPt = { x: 0, y: 0 };
@@ -1441,7 +1493,7 @@
     }
 
     // ==========================
-    // 5. 控制與精簡版 V2V 質感指令生成
+    // 5. 控制、透視景深與精簡版 V2V 指令
     // ==========================
     function setFocal(mm) {
       cam.focal = mm;
@@ -1469,8 +1521,28 @@
     function resetAllCam() {
       cam.x = 0; cam.y = 1.60; cam.z = 3.60;
       cam.pan = 0; cam.tilt = 0; cam.roll = 0;
+      cam.focusDist = 3.6;
+      document.getElementById('rng-focus-dist').value = '3.6';
+      document.getElementById('focus-dist-val').textContent = '3.6m';
       gyroBase = null;
       updateHUD();
+    }
+
+    function setBackdropDepthDist(val) {
+      env.bgDepthDist = parseFloat(val);
+      document.getElementById('bg-dist-val').textContent = `${env.bgDepthDist.toFixed(1)}m`;
+    }
+
+    function setFocusDistance(val) {
+      cam.focusDist = parseFloat(val);
+      document.getElementById('focus-dist-val').textContent = `${cam.focusDist.toFixed(1)}m`;
+      updateHUD();
+    }
+
+    function setDofStrength(val) {
+      cam.dofStrength = parseFloat(val);
+      document.getElementById('dof-str-val').textContent = `${cam.dofStrength.toFixed(1)}x`;
+      updatePromptText();
     }
 
     function setActorCount(cnt) {
@@ -1582,11 +1654,6 @@
       document.getElementById('bg-op-val').textContent = `${Math.round(env.bgOpacity * 100)}%`;
     }
 
-    function setParallaxStrength(val) {
-      env.parallaxStrength = parseFloat(val);
-      document.getElementById('bg-px-val').textContent = `${env.parallaxStrength.toFixed(1)}x`;
-    }
-
     function setSky(s) {
       env.sky = s;
       document.querySelectorAll('.sky-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
@@ -1612,7 +1679,6 @@
       updatePromptText();
     }
 
-    // 精簡版 V2V 質感指令（只描述造型風格、光影色溫同 V2V 運鏡鎖定，唔同 V2V 影片重複鏡位）
     function updatePromptText() {
       const actives = actors.filter(a => a.active);
       const styleText = document.getElementById('inp-style').value.trim();
@@ -1622,16 +1688,18 @@
 
       const namesZh = actives.map(a => a.tag || a.name).join('、');
       const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
+      const dofZh = cam.dofStrength > 0.1 && cam.focal >= 50 ? '，明顯大光圈淺景深柔化遠景' : '，自然電影景深層次';
+      const dofEn = cam.dofStrength > 0.1 && cam.focal >= 50 ? ', pronounced shallow depth of field with soft background bokeh' : ', natural cinematic depth of field';
 
       const zh = [
         `【造型與時代質感】${styleText}。場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節；動作神態：${actionText}。`,
-        `【光影與環境色調】${env.bgImage ? '實景現場空間質感' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，自然電影淺景深，24fps。`,
+        `【光影與環境色調】${env.bgImage ? '實景現場空間質感' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
         `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
       ].join('\n');
 
       const en = [
         `[Style & Character Consistency] ${styleText}. Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn}); action: ${actionText}.`,
-        `[Lighting & Atmosphere] ${env.bgImage ? 'Realistic matched location environment' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, cinematic shallow depth of field, 24fps.`,
+        `[Lighting & Atmosphere] ${env.bgImage ? 'Realistic matched location environment' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
         `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
       ].join('\n');
 
