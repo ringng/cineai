@@ -601,6 +601,66 @@
       white-space: nowrap;
     }
 
+    /* 錄完即刻彈出影片預覽與儲存／分享面板 */
+    #video-preview-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(5, 7, 10, 0.86);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    #video-preview-modal.open { display: flex; }
+    .preview-card {
+      width: min(460px, 92vw);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+    }
+    .preview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    #v2v-preview-player {
+      width: 100%;
+      max-height: 52dvh;
+      border-radius: 10px;
+      background: #000;
+      border: 1px solid var(--border-hairline);
+    }
+    .preview-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .preview-btn {
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .preview-btn.primary {
+      background: var(--accent-amber);
+      border-color: #f7c252;
+      color: #0b0d10;
+    }
+
     /* 可收合右側導演設定抽屜 */
     #drawer-backdrop {
       display: none;
@@ -856,7 +916,22 @@
     </div>
   </div>
 
-  <!-- 可收合導演調度抽屜 -->
+  <!-- 錄完即刻彈出影片預覽與儲存／分享面板 -->
+  <div id="video-preview-modal">
+    <div class="preview-card">
+      <div class="preview-head">
+        <span id="preview-file-title">V2V 運鏡影片已完成</span>
+        <button type="button" id="btn-close-preview" class="hud-btn">關閉 ✕</button>
+      </div>
+      <video id="v2v-preview-player" controls playsinline webkit-playsinline loop></video>
+      <div class="preview-actions">
+        <button type="button" id="btn-share-v2v" class="preview-btn primary">儲存 / 分享影片</button>
+        <button type="button" id="btn-download-v2v" class="preview-btn">直接下載檔案</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 可收合右側導演調度抽屜 -->
   <div id="drawer-backdrop"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
@@ -1091,7 +1166,6 @@
         updateSafeFrameLayout();
       }
 
-      // 保持安全畫框置中於畫面中間並避開四周控制區
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
         const availW = Math.max(200, W - 304);
@@ -1607,7 +1681,7 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（起步即時響應 ＋ 鎖視線同步壓角）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（平順起鏡不急衝、坐落柔順）
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1615,7 +1689,6 @@
       let craneMouseDown = false;
       let craneNormY = 0;
       let craneVelY = 0;
-      let craneEngageTime = 0;
 
       function updateCraneStick(clientY) {
         const rect = craneTrack.getBoundingClientRect();
@@ -1623,10 +1696,7 @@
         const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
         craneNormY = dy / maxTravel;
         craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
-        if (!craneTrack.classList.contains('engaged')) {
-          craneEngageTime = performance.now();
-          craneTrack.classList.add('engaged');
-        }
+        craneTrack.classList.add('engaged');
       }
 
       function releaseCraneStick() {
@@ -1683,20 +1753,17 @@
       function tickCraneMovement() {
         const absNorm = Math.abs(craneNormY);
         let targetVel = 0;
-        if (absNorm >= 0.03) {
+        if (absNorm >= 0.04) {
           const sign = craneNormY < 0 ? 1 : -1;
-          const activeMag = (absNorm - 0.03) / 0.97;
-          // 柔和起步曲線 + 頭 180ms 輕微起步助推，消除初始鈍感
-          const elapsed = performance.now() - craneEngageTime;
-          const startBoost = elapsed < 180 ? (1.35 - 0.35 * (elapsed / 180)) : 1.0;
-          targetVel = sign * Math.pow(activeMag, 0.85) * 0.028 * startBoost;
+          const activeMag = (absNorm - 0.04) / 0.96;
+          // 平順線性微帶柔順曲線，無急衝 boost
+          targetVel = sign * Math.pow(activeMag, 1.15) * 0.018;
         }
 
-        // 起步快跟上，放手快速阻尼收停
-        const lerpRate = targetVel !== 0 ? 0.48 : 0.32;
-        craneVelY += (targetVel - craneVelY) * lerpRate;
+        // 柔和阻尼追隨，避免起鏡過急與坐落頓挫
+        craneVelY += (targetVel - craneVelY) * 0.16;
 
-        if (Math.abs(craneVelY) < 0.00015) {
+        if (Math.abs(craneVelY) < 0.00008) {
           craneVelY = 0;
           return;
         }
@@ -1710,7 +1777,7 @@
               const targetEyeY = (lead.height / 1.75) * 1.48;
               const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
               const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.65));
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.35));
             }
           }
           updateHUD();
@@ -1957,7 +2024,7 @@
       window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
       // ==========================
-      // 5. 鎖定倒數 2 秒後穩定開錄 + 首幀同步儲存
+      // 5. 鎖定倒數 2 秒後穩定開錄 + 錄完彈出預覽／分享／下載面板
       // ==========================
       let isRecordingV2V = false;
       let isPrerolling = false;
@@ -1966,6 +2033,9 @@
 
       let mediaRecorder = null;
       let recordedChunks = [];
+      let latestVideoBlob = null;
+      let latestVideoFilename = '';
+      let latestVideoUrl = '';
       let offscreenCanvas = null;
       let offscreenCtx = null;
       let recStartTime = 0;
@@ -1985,6 +2055,61 @@
         document.getElementById('rec-label-text').innerHTML =
           '錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span>';
         document.getElementById('rec-timer').textContent = '00:00';
+      }
+
+      function openVideoPreviewModal(blob, filename) {
+        if (!blob || blob.size === 0) {
+          alert('錄影資料為空，請再試一次。');
+          return;
+        }
+        if (latestVideoUrl) {
+          URL.revokeObjectURL(latestVideoUrl);
+        }
+        latestVideoBlob = blob;
+        latestVideoFilename = filename;
+        latestVideoUrl = URL.createObjectURL(blob);
+
+        const player = document.getElementById('v2v-preview-player');
+        player.src = latestVideoUrl;
+        player.load();
+        player.play().catch(() => {});
+
+        const kb = Math.max(1, Math.round(blob.size / 1024));
+        document.getElementById('preview-file-title').textContent = `${filename} (${kb} KB)`;
+        document.getElementById('video-preview-modal').classList.add('open');
+      }
+
+      function closeVideoPreviewModal() {
+        const player = document.getElementById('v2v-preview-player');
+        player.pause();
+        document.getElementById('video-preview-modal').classList.remove('open');
+      }
+
+      async function shareOrSaveVideo() {
+        if (!latestVideoBlob) return;
+        const file = new File([latestVideoBlob], latestVideoFilename, { type: latestVideoBlob.type || 'video/mp4' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: latestVideoFilename
+            });
+            return;
+          } catch (err) {
+            if (err && err.name === 'AbortError') return;
+          }
+        }
+        triggerDirectVideoDownload();
+      }
+
+      function triggerDirectVideoDownload() {
+        if (!latestVideoUrl || !latestVideoFilename) return;
+        const a = document.createElement('a');
+        a.href = latestVideoUrl;
+        a.download = latestVideoFilename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       }
 
       function toggleV2VRecording() {
@@ -2082,11 +2207,8 @@
             const isMp4 = (chosenMime || '').includes('mp4');
             const ext = isMp4 ? 'mp4' : 'webm';
             const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
-            a.click();
+            const filename = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
+            openVideoPreviewModal(blob, filename);
           };
           recorder.start(200);
           mediaRecorder = recorder;
@@ -2353,6 +2475,10 @@
         document.getElementById('drawer-backdrop').classList.remove('open');
         document.getElementById('director-drawer').classList.remove('open');
       });
+
+      document.getElementById('btn-close-preview').addEventListener('click', closeVideoPreviewModal);
+      document.getElementById('btn-share-v2v').addEventListener('click', shareOrSaveVideo);
+      document.getElementById('btn-download-v2v').addEventListener('click', triggerDirectVideoDownload);
 
       document.querySelectorAll('.dtab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
