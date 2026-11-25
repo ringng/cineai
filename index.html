@@ -439,26 +439,31 @@
       color: #0b0d10;
     }
 
-    /* 右手拇指區：直排上下疊放 — 垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） */
+    /* 右手拇指區：直排上下疊放 — 加長行程垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） */
     #right-thumb-zone {
       position: absolute;
       right: max(10px, var(--safe-right));
       bottom: max(10px, var(--safe-bottom));
+      top: calc(max(8px, var(--safe-top)) + 42px);
       z-index: 20;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      width: 92px;
-      gap: 6px;
+      width: 90px;
+      gap: 5px;
       pointer-events: auto;
     }
 
-    /* 垂直搖臂升降搖桿（上） */
+    /* 垂直搖臂升降搖桿（上，行程拉長） */
     #crane-stick-col {
       width: 100%;
+      flex: 1;
+      min-height: 128px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: space-between;
       gap: 3px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
@@ -478,6 +483,7 @@
       color: var(--text-secondary);
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     #btn-crane-lock.active {
       background: var(--accent-amber);
@@ -486,7 +492,8 @@
     }
     #crane-track {
       width: 36px;
-      height: 82px;
+      flex: 1;
+      min-height: 92px;
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(10,12,16,0.88) 50%, rgba(255,255,255,0.08) 100%);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -535,20 +542,22 @@
       font-size: 8.5px;
       font-weight: 700;
       color: var(--accent-amber);
+      flex-shrink: 0;
     }
 
     /* Pan / Tilt 雲台搖桿（下） */
     #pantilt-stick-col {
       width: 100%;
+      flex-shrink: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 5px 6px;
+      padding: 4px 6px;
       border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
     }
@@ -559,8 +568,8 @@
       letter-spacing: 0.2px;
     }
     #pantilt-pad {
-      width: 64px;
-      height: 64px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #1d222c 0%, #0b0e14 80%);
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -574,11 +583,11 @@
       background: rgba(255, 255, 255, 0.14);
       pointer-events: none;
     }
-    #pantilt-pad::before { left: 50%; top: 8px; bottom: 8px; width: 1px; }
-    #pantilt-pad::after { top: 50%; left: 8px; right: 8px; height: 1px; }
+    #pantilt-pad::before { left: 50%; top: 7px; bottom: 7px; width: 1px; }
+    #pantilt-pad::after { top: 50%; left: 7px; right: 7px; height: 1px; }
     #pantilt-knob {
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
       border: 1.5px solid rgba(255, 255, 255, 0.55);
@@ -595,7 +604,7 @@
     }
     #pt-readout {
       font-family: ui-monospace, monospace;
-      font-size: 8.5px;
+      font-size: 8px;
       font-weight: 700;
       color: var(--accent-amber);
       white-space: nowrap;
@@ -894,11 +903,11 @@
       </div>
     </div>
 
-    <!-- 右手拇指區：直排上下疊放 — 垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） -->
+    <!-- 右手拇指區：直排上下疊放 — 加長行程垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） -->
     <div id="right-thumb-zone">
       <div id="crane-stick-col">
         <button type="button" id="btn-crane-lock" class="active" title="升降時自動壓角望實主角">鎖視線:開</button>
-        <div id="crane-track" title="上下推拉升降機位，放手自動回中">
+        <div id="crane-track" title="上下推拉升降機位，放手即停">
           <span class="crane-arrow-top">▲</span>
           <div id="crane-knob"></div>
           <span class="crane-arrow-bot">▼</span>
@@ -1681,7 +1690,7 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（平順起鏡不急衝、坐落柔順）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（直接線性、放手快收停）
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1692,7 +1701,7 @@
 
       function updateCraneStick(clientY) {
         const rect = craneTrack.getBoundingClientRect();
-        const maxTravel = (rect.height - 28) / 2;
+        const maxTravel = Math.max(16, (rect.height - 28) / 2);
         const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
         craneNormY = dy / maxTravel;
         craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
@@ -1753,17 +1762,18 @@
       function tickCraneMovement() {
         const absNorm = Math.abs(craneNormY);
         let targetVel = 0;
-        if (absNorm >= 0.04) {
+        if (absNorm >= 0.03) {
           const sign = craneNormY < 0 ? 1 : -1;
-          const activeMag = (absNorm - 0.04) / 0.96;
-          // 平順線性微帶柔順曲線，無急衝 boost
-          targetVel = sign * Math.pow(activeMag, 1.15) * 0.018;
+          const activeMag = (absNorm - 0.03) / 0.97;
+          // 直接線性比例：推幾多升幾多，唔急衝亦唔拖泥帶水
+          targetVel = sign * activeMag * 0.017;
         }
 
-        // 柔和阻尼追隨，避免起鏡過急與坐落頓挫
-        craneVelY += (targetVel - craneVelY) * 0.16;
+        // 推時穩健跟隨，放手快速收停（0.65），唔會坐落仲滑緊
+        const followRate = targetVel !== 0 ? 0.36 : 0.65;
+        craneVelY += (targetVel - craneVelY) * followRate;
 
-        if (Math.abs(craneVelY) < 0.00008) {
+        if (Math.abs(craneVelY) < 0.0001) {
           craneVelY = 0;
           return;
         }
@@ -1777,7 +1787,7 @@
               const targetEyeY = (lead.height / 1.75) * 1.48;
               const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
               const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.35));
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.45));
             }
           }
           updateHUD();
@@ -1796,7 +1806,7 @@
 
       function updatePanTiltStick(clientX, clientY) {
         const rect = ptPad.getBoundingClientRect();
-        const maxR = (rect.width - 26) / 2;
+        const maxR = (rect.width - 22) / 2;
         let dx = clientX - (rect.left + rect.width / 2);
         let dy = clientY - (rect.top + rect.height / 2);
         const dist = Math.hypot(dx, dy);
@@ -2024,7 +2034,7 @@
       window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
       // ==========================
-      // 5. 鎖定倒數 2 秒後穩定開錄 + 錄完彈出預覽／分享／下載面板
+      // 5. 鎖定倒數 2 秒後穩定開錄（預熱畫格防眨） + 錄完彈出預覽／分享／下載面板
       // ==========================
       let isRecordingV2V = false;
       let isPrerolling = false;
@@ -2162,16 +2172,19 @@
         offscreenCanvas.height = Math.max(180, Math.round(sf.height * DPR));
         offscreenCtx = offscreenCanvas.getContext('2d');
 
+        // 先切好純淨渲染狀態並預熱畫格，避免開錄第一幀跳格閃爍
         cleanRenderFlag = true;
         updateHorizonGuidePosition();
-        renderFrame();
-
-        if (autoSaveStartFrame) {
+        for (let i = 0; i < 3; i++) {
+          renderFrame();
           offscreenCtx.drawImage(
             canvas,
             sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
             0, 0, offscreenCanvas.width, offscreenCanvas.height
           );
+        }
+
+        if (autoSaveStartFrame) {
           const startLink = document.createElement('a');
           startLink.href = offscreenCanvas.toDataURL('image/png');
           startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
