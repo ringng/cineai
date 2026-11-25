@@ -102,7 +102,7 @@
       display: block;
     }
 
-    /* 安全畫框遮罩 */
+    /* 安全畫框遮罩（置中於畫面中間） */
     #safe-frame-layer {
       position: absolute;
       inset: 0;
@@ -112,13 +112,13 @@
     #safe-frame {
       position: absolute;
       left: 50%;
-      top: 47%;
+      top: 50%;
       transform: translate(-50%, -50%);
       width: 420px;
       height: 236px;
       border: 1.5px solid rgba(255, 255, 255, 0.84);
       box-shadow: 0 0 0 9999px rgba(6, 8, 11, 0.58);
-      transition: width 0.16s ease, height 0.16s ease, left 0.16s ease, top 0.16s ease;
+      transition: width 0.16s ease, height 0.16s ease;
     }
     .grid-v1, .grid-v2, .grid-h1, .grid-h2 {
       position: absolute;
@@ -856,7 +856,7 @@
     </div>
   </div>
 
-  <!-- 可收合導演調度抽屜 -->
+  <!-- 可收合右側導演調度抽屜 -->
   <div id="drawer-backdrop"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
@@ -1091,23 +1091,11 @@
         updateSafeFrameLayout();
       }
 
-      // 保持安全畫框置中並避開左右控制區與底部焦段列
+      // 保持安全畫框置中於畫面中間並避開四周控制區
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
-        const leftThumbRect = document.getElementById('left-thumb-zone').getBoundingClientRect();
-        const rightThumbRect = document.getElementById('right-thumb-zone').getBoundingClientRect();
-        const topHudRect = document.getElementById('top-hud-bar').getBoundingClientRect();
-        const bottomDockRect = document.getElementById('bottom-center-dock').getBoundingClientRect();
-
-        const leftClear = (leftThumbRect.right > 0 ? leftThumbRect.right : 134) + 14;
-        const rightClear = (rightThumbRect.left > 0 ? (W - rightThumbRect.left) : 102) + 14;
-        const maxSideClear = Math.max(leftClear, rightClear);
-        const availW = Math.max(200, W - maxSideClear * 2);
-
-        const topClear = (topHudRect.bottom > 0 ? topHudRect.bottom : 42) + 10;
-        const bottomClear = (bottomDockRect.top > 0 ? (H - bottomDockRect.top) : 64) + 10;
-        const availH = Math.max(120, H - topClear - bottomClear);
-
+        const availW = Math.max(200, W - 304);
+        const availH = Math.max(120, H - 156);
         const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
         let fw = availW;
         let fh = fw / r;
@@ -1115,10 +1103,8 @@
           fh = availH;
           fw = fh * r;
         }
-
-        const centerY = Math.round((topClear + (H - bottomClear)) / 2);
         sf.style.left = '50%';
-        sf.style.top = `${centerY}px`;
+        sf.style.top = '50%';
         sf.style.width = `${Math.round(fw)}px`;
         sf.style.height = `${Math.round(fh)}px`;
       }
@@ -2530,7 +2516,6 @@
       });
 
       window.addEventListener('resize', resizeStage);
-      requestAnimationFrame(() => resizeStage());
       resizeStage();
       renderCastControls();
       updateHUD();
