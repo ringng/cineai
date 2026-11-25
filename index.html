@@ -11,8 +11,8 @@
   <style>
     :root {
       --bg-void: #0b0d10;
-      --bg-panel: rgba(16, 19, 26, 0.95);
-      --bg-glass: rgba(20, 24, 32, 0.82);
+      --bg-panel: rgba(16, 19, 26, 0.96);
+      --bg-glass: rgba(20, 24, 32, 0.84);
       --border-hairline: rgba(255, 255, 255, 0.12);
       --border-subtle: rgba(255, 255, 255, 0.24);
       --text-primary: #f3f5f8;
@@ -142,6 +142,44 @@
     .center-mark::before { left: 8.5px; top: 0; width: 1px; height: 18px; }
     .center-mark::after { top: 8.5px; left: 0; height: 1px; width: 18px; }
 
+    /* 可拖曳實景地平線基準線 */
+    #horizon-guide-line {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 22px;
+      transform: translateY(-50%);
+      pointer-events: auto;
+      cursor: ns-resize;
+      z-index: 8;
+      align-items: center;
+      justify-content: center;
+    }
+    #horizon-guide-line.visible { display: flex; }
+    #horizon-guide-line::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1.5px;
+      background: repeating-linear-gradient(90deg, var(--accent-amber) 0 8px, transparent 8px 14px);
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+    }
+    #horizon-guide-pill {
+      position: relative;
+      background: rgba(14, 17, 23, 0.92);
+      border: 1px solid var(--accent-amber);
+      color: var(--accent-amber);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+    }
+
     /* 頂部資訊與功能列 */
     #top-hud-bar {
       position: absolute;
@@ -197,7 +235,7 @@
       color: #061710;
     }
 
-    /* 錄影狀態指示燈 */
+    /* 錄影狀態與預備倒數指示燈 */
     #rec-badge {
       display: none;
       align-items: center;
@@ -211,11 +249,16 @@
       font-weight: 700;
     }
     #rec-badge.recording { display: flex; }
+    #rec-badge.preroll {
+      display: flex;
+      background: rgba(229, 163, 36, 0.95);
+      color: #0b0d10;
+    }
     .rec-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #fff;
+      background: currentColor;
       animation: blinkRec 1s infinite;
     }
     @keyframes blinkRec {
@@ -223,7 +266,7 @@
       50%, 100% { opacity: 0.2; }
     }
 
-    /* 左手拇指區：電影定速推軌控制台 + 高度升降 */
+    /* 左手拇指區：電影定速推軌控制台 */
     #left-thumb-zone {
       position: absolute;
       left: max(14px, var(--safe-left));
@@ -270,8 +313,8 @@
 
     .dolly-dpad {
       display: grid;
-      grid-template-columns: repeat(3, 34px);
-      grid-template-rows: repeat(2, 32px);
+      grid-template-columns: repeat(3, 35px);
+      grid-template-rows: repeat(2, 33px);
       gap: 4px;
     }
     .dolly-dir-btn {
@@ -293,38 +336,7 @@
       transform: scale(0.95);
     }
 
-    #height-pillar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      background: var(--bg-glass);
-      border: 1px solid var(--border-subtle);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 5px 4px;
-      border-radius: 14px;
-    }
-    .mini-round-btn {
-      width: 26px;
-      height: 24px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .mini-round-btn:active { background: var(--accent-amber); color: #000; }
-    #height-readout {
-      font-family: ui-monospace, monospace;
-      font-size: 9.5px;
-      font-weight: 700;
-      color: var(--accent-amber);
-    }
-
-    /* 底部中央：焦段快選條 + 比例切換 */
+    /* 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換 */
     #bottom-center-dock {
       position: absolute;
       left: 50%;
@@ -363,20 +375,134 @@
       color: #0b0d10;
     }
 
-    /* 右手拇指區：大紅錄影掣 (錄 V2V) */
+    /* 右手拇指區：垂直升降搖桿 (Crane Joystick) + 鏡長與大紅錄影掣 */
     #right-thumb-zone {
       position: absolute;
-      right: max(16px, var(--safe-right));
-      bottom: max(14px, var(--safe-bottom));
+      right: max(14px, var(--safe-right));
+      bottom: max(12px, var(--safe-bottom));
       z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    /* 垂直搖臂升降搖桿 */
+    #crane-stick-col {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 6px 5px;
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+    }
+    #btn-crane-lock {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #btn-crane-lock.active {
+      background: var(--accent-amber);
+      border-color: #f7c252;
+      color: #0b0d10;
+    }
+    #crane-track {
+      width: 38px;
+      height: 112px;
+      border-radius: 19px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(10,12,16,0.85) 50%, rgba(255,255,255,0.08) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.75);
+      position: relative;
+      touch-action: none;
+    }
+    #crane-track::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 50%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .crane-arrow-top, .crane-arrow-bot {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+    .crane-arrow-top { top: 4px; }
+    .crane-arrow-bot { bottom: 4px; }
+    #crane-knob {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    #crane-track.engaged #crane-knob {
+      border-color: var(--accent-amber);
+      background: radial-gradient(circle at 35% 30%, #f5b942, #b87b14);
+    }
+    #height-readout {
+      font-family: ui-monospace, monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    /* 錄影與鏡長控制柱 */
+    #rec-control-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .dur-strip {
+      display: flex;
+      gap: 3px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(10px);
+      padding: 3px;
+      border-radius: 999px;
+    }
+    .dur-btn {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 9.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .dur-btn.active {
+      background: var(--accent-amber);
+      color: #0b0d10;
     }
     #btn-record-v2v {
-      width: 68px;
-      height: 68px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
       border: 3px solid rgba(255, 255, 255, 0.88);
       background: rgba(15, 18, 24, 0.72);
@@ -388,8 +514,8 @@
       position: relative;
     }
     #rec-inner-shape {
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       background: var(--accent-red);
       transition: all 0.18s ease;
@@ -422,7 +548,7 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: min(400px, 88vw);
+      width: min(410px, 88vw);
       z-index: 50;
       background: var(--bg-panel);
       border-left: 1px solid var(--border-subtle);
@@ -524,6 +650,29 @@
       font-size: 10.5px;
       line-height: 1.45;
     }
+
+    /* 多組實景相片縮圖條 */
+    #bg-slot-strip {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .bg-thumb-chip {
+      flex-shrink: 0;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-size: 10.5px;
+      cursor: pointer;
+    }
+    .bg-thumb-chip.active {
+      background: var(--accent-amber);
+      color: #0b0d10;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -533,14 +682,14 @@
     <div class="rotate-phone-icon"></div>
     <h2 style="font-size:17px; color:#f3f5f8;">請將 iPhone 打橫使用</h2>
     <p style="font-size:13px; color:#9aa3b2; max-width:260px; line-height:1.5;">
-      CineAI 導演取景器專為橫向雙手掌鏡設計，打橫後即可使用體感轉向、定速推軌與 V2V 錄影。
+      CineAI 導演取景器專為橫向雙手掌鏡設計，打橫後即可同步推軌、搖臂升降與錄製 V2V 影片。
     </p>
   </div>
 
   <div id="app-stage">
     <canvas id="stage-canvas"></canvas>
 
-    <!-- 安全畫框與三分線 -->
+    <!-- 安全畫框與三分線 + 可拖曳地平線對位線 -->
     <div id="safe-frame-layer">
       <div id="safe-frame">
         <div class="grid-v1"></div>
@@ -548,6 +697,9 @@
         <div class="grid-h1"></div>
         <div class="grid-h2"></div>
         <div class="center-mark"></div>
+        <div id="horizon-guide-line">
+          <span id="horizon-guide-pill">↕ 拖曳對齊實景地平線 (0%)</span>
+        </div>
       </div>
     </div>
 
@@ -563,11 +715,11 @@
         <button type="button" class="hud-btn" onclick="recenterCamera()">校正正中</button>
         <button type="button" id="btn-clay" class="hud-btn" onclick="toggleClayMode()">Previz灰模</button>
         <button type="button" class="hud-btn" onclick="exportCleanFrame()">純淨圖</button>
-        <button type="button" class="hud-btn active" onclick="openDrawer()">調度 / 景深 / 指令 ☰</button>
+        <button type="button" class="hud-btn active" onclick="openDrawer()">調度 / 實景 / 指令 ☰</button>
       </div>
     </div>
 
-    <!-- 左手拇指區：電影定速推軌控制台 + 高度升降 -->
+    <!-- 左手拇指區：電影定速推軌控制台 -->
     <div id="left-thumb-zone">
       <div id="dolly-console">
         <div class="speed-tier-row">
@@ -583,12 +735,6 @@
           <button type="button" class="dolly-dir-btn" data-dir="back">拉遠</button>
           <button type="button" class="dolly-dir-btn" data-dir="right">右移</button>
         </div>
-      </div>
-
-      <div id="height-pillar">
-        <button type="button" class="mini-round-btn" onclick="stepHeight(0.10)">▲</button>
-        <span id="height-readout">1.60m</span>
-        <button type="button" class="mini-round-btn" onclick="stepHeight(-0.10)">▼</button>
       </div>
     </div>
 
@@ -611,12 +757,30 @@
       </div>
     </div>
 
-    <!-- 右手拇指區：大紅錄影掣（錄製純淨 V2V 運鏡片） -->
+    <!-- 右手拇指區：垂直搖臂升降搖桿 + 定時鏡長 + 大紅錄影掣 -->
     <div id="right-thumb-zone">
-      <button type="button" id="btn-record-v2v" onclick="toggleV2VRecording()" aria-label="錄製 V2V 運鏡影片">
-        <div id="rec-inner-shape"></div>
-      </button>
-      <span id="rec-label-text" class="rec-caption">錄 V2V</span>
+      <div id="crane-stick-col">
+        <button type="button" id="btn-crane-lock" class="active" onclick="toggleCranePitchLock()" title="升降時自動壓角望實主角">鎖視線:開</button>
+        <div id="crane-track" title="上下推拉升降機位，放手自動回中">
+          <span class="crane-arrow-top">▲</span>
+          <div id="crane-knob"></div>
+          <span class="crane-arrow-bot">▼</span>
+        </div>
+        <span id="height-readout">1.60m</span>
+      </div>
+
+      <div id="rec-control-col">
+        <div class="dur-strip">
+          <button type="button" class="dur-btn active" data-sec="0" onclick="setRecDuration(0, this)">自由</button>
+          <button type="button" class="dur-btn" data-sec="4" onclick="setRecDuration(4, this)">4s</button>
+          <button type="button" class="dur-btn" data-sec="6" onclick="setRecDuration(6, this)">6s</button>
+          <button type="button" class="dur-btn" data-sec="8" onclick="setRecDuration(8, this)">8s</button>
+        </div>
+        <button type="button" id="btn-record-v2v" onclick="toggleV2VRecording()" aria-label="錄製 V2V 運鏡影片">
+          <div id="rec-inner-shape"></div>
+        </button>
+        <span id="rec-label-text" class="rec-caption">錄 V2V</span>
+      </div>
     </div>
   </div>
 
@@ -624,14 +788,14 @@
   <div id="drawer-backdrop" onclick="closeDrawer()"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
-      <strong style="font-size:13px;">調度、人景透視與散景</strong>
+      <strong style="font-size:13px;">調度、實景視差與操控手感</strong>
       <button type="button" class="hud-btn" onclick="closeDrawer()">完成 ✕</button>
     </div>
 
     <div class="drawer-tabs">
       <button type="button" class="dtab-btn active" data-dp="dp-cast" onclick="switchDrawerTab('dp-cast')">角色走位</button>
-      <button type="button" class="dtab-btn" data-dp="dp-set" onclick="switchDrawerTab('dp-set')">人景與散景</button>
-      <button type="button" class="dtab-btn" data-dp="dp-prompt" onclick="switchDrawerTab('dp-prompt')">V2V 指令</button>
+      <button type="button" class="dtab-btn" data-dp="dp-set" onclick="switchDrawerTab('dp-set')">真實背景</button>
+      <button type="button" class="dtab-btn" data-dp="dp-prompt" onclick="switchDrawerTab('dp-prompt')">手感 / 指令</button>
     </div>
 
     <div class="drawer-body">
@@ -655,29 +819,35 @@
         <div id="cast-controls-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
 
-      <!-- 分頁 2：人景空間關係、地平線對位與散景模糊 -->
+      <!-- 分頁 2：真實背景動態變化、光影同步與散景 -->
       <div id="dp-set" class="dpane">
         <div class="sec-box">
-          <div class="sec-title">實景相片底圖與人景透視對位</div>
+          <div class="sec-title">實景相片底圖（支援多張切換與光影同步）</div>
           <div class="row-grid-2">
-            <button type="button" class="chip-btn active" onclick="document.getElementById('bg-photo-input').click()">上傳實景相片</button>
-            <button type="button" class="chip-btn" onclick="clearBackdropPhoto()">清除底圖</button>
+            <button type="button" class="chip-btn active" onclick="document.getElementById('bg-photo-input').click()">+ 加入實景相片</button>
+            <button type="button" class="chip-btn" onclick="clearBackdropPhoto()">清除目前底圖</button>
           </div>
-          <input type="file" id="bg-photo-input" accept="image/*" style="display:none" onchange="handleBackdropUpload(event)" />
+          <input type="file" id="bg-photo-input" accept="image/*" multiple style="display:none" onchange="handleBackdropUpload(event)" />
+          <div id="bg-slot-strip"></div>
 
           <div class="slider-line">
-            <div class="slider-head"><span>背景景深距離（窄室 ↔ 遠景壓縮）</span><span id="bg-dist-val">10.0m</span></div>
+            <div class="slider-head"><span>背景景深距離（窄室 ↔ 遠景視差）</span><span id="bg-dist-val">10.0m</span></div>
             <input type="range" id="rng-bg-dist" min="2.0" max="30.0" step="0.5" value="10.0" oninput="setBackdropDepthDist(this.value)" />
           </div>
 
           <div class="slider-line">
-            <div class="slider-head"><span>實景地平線上下對位（踩實地面）</span><span id="bg-hor-val">0%</span></div>
+            <div class="slider-head"><span>實景地平線上下對位（亦可直接拖畫框虛線）</span><span id="bg-hor-val">0%</span></div>
             <input type="range" id="rng-bg-hor" min="-35" max="35" step="1" value="0" oninput="setHorizonOffset(this.value)" />
           </div>
 
           <div class="slider-line">
-            <div class="slider-head"><span>底圖透明度</span><span id="bg-op-val">90%</span></div>
-            <input type="range" min="0.2" max="1.0" step="0.05" value="0.90" oninput="setBackdropOpacity(this.value)" />
+            <div class="slider-head"><span>底圖透明度</span><span id="bg-op-val">92%</span></div>
+            <input type="range" min="0.2" max="1.0" step="0.05" value="0.92" oninput="setBackdropOpacity(this.value)" />
+          </div>
+
+          <div class="row-grid-2">
+            <button type="button" id="btn-bg-light-sync" class="chip-btn active" onclick="toggleBgLightSync()">實景光影色溫同步: 開</button>
+            <button type="button" id="btn-horizon-guide" class="chip-btn active" onclick="toggleHorizonGuide()">地平線基準線: 顯</button>
           </div>
         </div>
 
@@ -698,19 +868,7 @@
         </div>
 
         <div class="sec-box">
-          <div class="sec-title">無實景時影棚天色</div>
-          <div class="row-grid-3">
-            <button type="button" class="chip-btn sky-btn active" data-s="darkgrey" onclick="setSky('darkgrey')">深灰影棚</button>
-            <button type="button" class="chip-btn sky-btn" data-s="black" onclick="setSky('black')">純黑背景</button>
-            <button type="button" class="chip-btn sky-btn" data-s="day" onclick="setSky('day')">日間藍天</button>
-            <button type="button" class="chip-btn sky-btn" data-s="dusk" onclick="setSky('dusk')">黃昏晚霞</button>
-            <button type="button" class="chip-btn sky-btn" data-s="night" onclick="setSky('night')">冷藍夜空</button>
-            <button type="button" class="chip-btn sky-btn" data-s="white" onclick="setSky('white')">純白棚</button>
-          </div>
-        </div>
-
-        <div class="sec-box">
-          <div class="sec-title">主光方向與色溫</div>
+          <div class="sec-title">主光方向與色溫氛圍（同時作用於人物與實景）</div>
           <div class="row-grid-2">
             <button type="button" id="btn-l-left" class="chip-btn active" onclick="setLightSide(-1)">主光在左側</button>
             <button type="button" id="btn-l-right" class="chip-btn" onclick="setLightSide(1)">主光在右側</button>
@@ -721,11 +879,35 @@
             <button type="button" class="chip-btn mood-btn" data-m="tungsten" onclick="setMood('tungsten')">鎢絲燈 (暖琥珀)</button>
             <button type="button" class="chip-btn mood-btn" data-m="overcast" onclick="setMood('overcast')">陰天漫射光</button>
           </div>
+          <div class="row-grid-3">
+            <button type="button" class="chip-btn sky-btn active" data-s="darkgrey" onclick="setSky('darkgrey')">深灰影棚</button>
+            <button type="button" class="chip-btn sky-btn" data-s="black" onclick="setSky('black')">純黑背景</button>
+            <button type="button" class="chip-btn sky-btn" data-s="day" onclick="setSky('day')">日間藍天</button>
+            <button type="button" class="chip-btn sky-btn" data-s="dusk" onclick="setSky('dusk')">黃昏晚霞</button>
+            <button type="button" class="chip-btn sky-btn" data-s="night" onclick="setSky('night')">冷藍夜空</button>
+            <button type="button" class="chip-btn sky-btn" data-s="white" onclick="setSky('white')">純白棚</button>
+          </div>
         </div>
       </div>
 
-      <!-- 分頁 3：精簡版 V2V 質感 AI 指令 -->
+      <!-- 分頁 3：操控手感微調 + V2V 指令 -->
       <div id="dp-prompt" class="dpane">
+        <div class="sec-box">
+          <div class="sec-title">掌鏡手感與 V2V 錄影偏好</div>
+          <div class="slider-line">
+            <div class="slider-head"><span>推軌阻尼柔順度</span><span id="damping-val">標準電影阻尼</span></div>
+            <input type="range" min="0.06" max="0.30" step="0.02" value="0.14" oninput="setDollyDamping(this.value)" />
+          </div>
+          <div class="slider-line">
+            <div class="slider-head"><span>體感掌鏡靈敏度</span><span id="gyro-sens-val">0.85x</span></div>
+            <input type="range" min="0.35" max="1.50" step="0.05" value="0.85" oninput="setGyroSens(this.value)" />
+          </div>
+          <div class="row-grid-2">
+            <button type="button" id="btn-start-frame-auto" class="chip-btn active" onclick="toggleAutoStartFrame()">錄影同步存首幀圖: 開</button>
+            <button type="button" id="btn-preroll-toggle" class="chip-btn active" onclick="togglePreroll()">1秒預備緩衝: 開</button>
+          </div>
+        </div>
+
         <div class="sec-box">
           <div class="sec-title">年代風格與動作神態（不重複鏡位）</div>
           <input type="text" id="inp-style" value="1950年代香港街頭寫實電影質感，35mm膠片顆粒" oninput="updatePromptText()" />
@@ -779,15 +961,20 @@
       focal: 35,
       autoFocus: true,
       focusDist: 3.6,
-      dofStrength: 1.2
+      dofStrength: 1.2,
+      cranePitchLock: true
     };
 
     const env = {
       sky: 'darkgrey',
+      bgSlots: [],
+      activeBgIdx: -1,
       bgImage: null,
-      bgOpacity: 0.90,
+      bgOpacity: 0.92,
       bgDepthDist: 10.0,
-      horizonOffsetPct: 0
+      horizonOffsetPct: 0,
+      bgLightSync: true,
+      showHorizonGuide: true
     };
 
     const light = {
@@ -805,10 +992,10 @@
     };
 
     const MOOD_MAP = {
-      golden:    { key: [255, 218, 165], amb: [82, 102, 132], zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
-      moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
-      tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
-      overcast:  { key: [236, 240, 246], amb: [132, 140, 152],zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
+      golden:    { key: [255, 218, 165], amb: [82, 102, 132], tint: 'rgba(255, 178, 88, 0.22)', contrast: 1.08, bright: 1.02, zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
+      moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   tint: 'rgba(56, 118, 224, 0.34)', contrast: 1.18, bright: 0.72, zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
+      tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   tint: 'rgba(245, 142, 48, 0.28)', contrast: 1.12, bright: 0.88, zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
+      overcast:  { key: [236, 240, 246], amb: [132, 140, 152],tint: 'rgba(210, 220, 235, 0.08)', contrast: 0.96, bright: 1.00, zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
     };
 
     const actors = [
@@ -842,16 +1029,25 @@
       sf.style.height = `${Math.round(fh)}px`;
     }
 
-    // 取得場上主角距離（用於 AF 自動鎖焦與人景比例計算）
-    function getLeadActorDistance() {
+    function getLeadActor() {
       const actives = actors.filter(a => a.active);
-      if (!actives.length) return Math.max(1.0, cam.z);
+      if (!actives.length) return null;
+      let best = actives[0];
       let minDist = Infinity;
       actives.forEach(a => {
         const d = Math.hypot(a.x - cam.x, a.z - cam.z);
-        if (d < minDist) minDist = d;
+        if (d < minDist) {
+          minDist = d;
+          best = a;
+        }
       });
-      return Math.max(0.6, minDist);
+      return best;
+    }
+
+    function getLeadActorDistance() {
+      const lead = getLeadActor();
+      if (!lead) return Math.max(1.0, cam.z);
+      return Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
     }
 
     // 3D 投影核心
@@ -873,7 +1069,7 @@
       const rRad = -cam.roll * Math.PI / 180;
       const cosR = Math.cos(rRad), sinR = Math.sin(rRad);
       const x3 = x1 * cosR - y2 * sinR;
-      const y3 = x1 * sinR + y2 * cosR;
+      y3 = x1 * sinR + y2 * cosR;
 
       return { cx: x3, cy: y3, depth: -z2 };
     }
@@ -998,7 +1194,6 @@
       ctx.restore();
     }
 
-    // 計算焦段聯動散景模糊半徑（px）
     function calcBlurPx(subjectDist) {
       if (cam.dofStrength <= 0.01) return 0;
       const lensFactor = Math.pow(cam.focal / 35, 1.4);
@@ -1008,7 +1203,6 @@
     }
 
     function renderFrame() {
-      // 若啟用自動鎖焦主角（AF），實時同步焦點距離至最近主角
       if (cam.autoFocus) {
         const leadDist = getLeadActorDistance();
         if (Math.abs(leadDist - cam.focusDist) > 0.05) {
@@ -1030,21 +1224,20 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // 2. 光學透視同步之實景底圖（廣角空間感 vs 長焦壓縮感 + 地平線對位 + 散景模糊）
+      // 2. 光學視差 + 光影色溫同步之真實背景底圖
       if (env.bgImage) {
         const sf = document.getElementById('safe-frame').getBoundingClientRect();
+        const mood = MOOD_MAP[light.mood];
         ctx.save();
         ctx.globalAlpha = env.bgOpacity;
 
-        // 基準視角：35mm 鏡頭、攝影機距離背景牆 (3.6 + bgDepthDist) 米
         const refFocal = 35;
         const refDist = 3.6 + env.bgDepthDist;
         const curDist = Math.max(1.2, cam.z + env.bgDepthDist);
 
-        // 光學透視放大比例：焦距越長（壓縮感越強）或越貼近背景牆（窄室），背景放大越明顯
+        // 遠近景深視差放大比例
         const opticalZoom = (cam.focal / refFocal) * (refDist / curDist);
-        const baseBleed = 1.28;
-        const totalScale = Math.max(1.06, baseBleed * opticalZoom);
+        const totalScale = Math.max(1.10, 1.32 * opticalZoom);
 
         const imgR = env.bgImage.width / env.bgImage.height;
         const boxR = sf.width / sf.height;
@@ -1057,12 +1250,13 @@
           dh = dw / imgR;
         }
 
-        // 光學視差偏移 + 實景地平線上下基準對位
+        // 水平與垂直視差 + 地平線對位偏移
         const focalPx = (cam.focal / 24) * H;
-        const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.45 - cam.x * (focalPx / curDist) * 0.38;
+        const parallaxFactor = Math.max(0.22, Math.min(0.85, 6.5 / curDist));
+        const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.48 - cam.x * (focalPx / curDist) * parallaxFactor;
         const tiltRad = (cam.tilt * Math.PI) / 180;
         const horizonPx = (env.horizonOffsetPct / 100) * sf.height;
-        const tiltPx = Math.tan(tiltRad) * focalPx * 0.45 + ((cam.y - 1.60) / curDist) * focalPx * 0.38 + horizonPx;
+        const tiltPx = Math.tan(tiltRad) * focalPx * 0.48 + ((cam.y - 1.60) / curDist) * focalPx * parallaxFactor + horizonPx;
 
         const maxShiftX = Math.max(0, (dw - sf.width) * 0.49);
         const maxShiftY = Math.max(0, (dh - sf.height) * 0.49);
@@ -1076,13 +1270,31 @@
         ctx.rect(sf.left, sf.top, sf.width, sf.height);
         ctx.clip();
 
-        // 背景散景模糊（背景距相機約 curDist 米）
         const bgBlur = calcBlurPx(curDist);
-        if (bgBlur > 0.3) {
-          ctx.filter = `blur(${bgBlur}px)`;
+        const filterParts = [];
+        if (bgBlur > 0.3) filterParts.push(`blur(${bgBlur}px)`);
+        if (env.bgLightSync) {
+          filterParts.push(`brightness(${mood.bright}) contrast(${mood.contrast})`);
         }
+        ctx.filter = filterParts.length ? filterParts.join(' ') : 'none';
         ctx.drawImage(env.bgImage, dx, dy, dw, dh);
         ctx.filter = 'none';
+
+        // 實景光影方向與色溫同步疊層（主光左／右方向明暗 + 暖冷色溫）
+        if (env.bgLightSync) {
+          ctx.fillStyle = mood.tint;
+          ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
+
+          const dirGrad = light.side === -1
+            ? ctx.createLinearGradient(sf.left, 0, sf.right, 0)
+            : ctx.createLinearGradient(sf.right, 0, sf.left, 0);
+          dirGrad.addColorStop(0, 'rgba(255, 240, 210, 0.12)');
+          dirGrad.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
+          dirGrad.addColorStop(1, 'rgba(4, 8, 16, 0.34)');
+          ctx.fillStyle = dirGrad;
+          ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
+        }
+
         ctx.restore();
       }
 
@@ -1096,7 +1308,7 @@
         }
       }
 
-      // 4. 繪製角色（支援焦點距離與焦段聯動散景）
+      // 4. 繪製角色
       const activeList = actors.filter(a => a.active);
       activeList.forEach(a => {
         const pb = projectPoint(a.x, 0.01, a.z);
@@ -1196,11 +1408,18 @@
     }
 
     // ==========================
-    // 1. iPhone 橫向陀螺儀體感掌鏡
+    // 1. iPhone 橫向陀螺儀體感掌鏡（含防手震死區與 Roll 水平鎖定）
     // ==========================
     let gyroActive = false;
     let gyroBase = null;
     let gyroLatest = null;
+    let gyroSens = 0.85;
+    const GYRO_DEADZONE = 0.45;
+
+    function setGyroSens(val) {
+      gyroSens = parseFloat(val);
+      document.getElementById('gyro-sens-val').textContent = `${gyroSens.toFixed(2)}x`;
+    }
 
     function handleDeviceOrientation(e) {
       if (e.alpha === null || e.beta === null || e.gamma === null) return;
@@ -1217,15 +1436,19 @@
       if (dAlpha < -180) dAlpha += 360;
 
       const isLandscapeRight = (window.orientation === -90);
-      const tiltDelta = isLandscapeRight
+      const rawTiltDelta = isLandscapeRight
         ? (gyroLatest.gamma - gyroBase.gamma)
         : -(gyroLatest.gamma - gyroBase.gamma);
 
-      const targetPan = gyroBase.camPan - dAlpha * 0.85;
-      const targetTilt = Math.max(-55, Math.min(55, gyroBase.camTilt + tiltDelta * 0.75));
+      const effAlpha = Math.abs(dAlpha) < GYRO_DEADZONE ? 0 : dAlpha;
+      const effTilt = Math.abs(rawTiltDelta) < GYRO_DEADZONE ? 0 : rawTiltDelta;
 
-      cam.pan += (targetPan - cam.pan) * 0.25;
-      cam.tilt += (targetTilt - cam.tilt) * 0.25;
+      const targetPan = gyroBase.camPan - effAlpha * gyroSens;
+      const targetTilt = Math.max(-55, Math.min(55, gyroBase.camTilt + effTilt * (gyroSens * 0.88)));
+
+      cam.pan += (targetPan - cam.pan) * 0.22;
+      cam.tilt += (targetTilt - cam.tilt) * 0.22;
+      cam.roll = 0; // 水平鎖定防止歪斜
       updateHUD();
     }
 
@@ -1267,9 +1490,10 @@
     }
 
     // ==========================
-    // 2. 左手拇指區：電影定速推軌檔位
+    // 2. 左手拇指區：電影定速推軌（含阻尼柔順度）
     // ==========================
     let dollySpeed = 0.015;
+    let dollyDamping = 0.14;
     let activeDollyDir = null;
     let currentVel = { fwd: 0, right: 0 };
 
@@ -1277,6 +1501,12 @@
       dollySpeed = sp;
       document.querySelectorAll('.speed-tier-btn').forEach(b => b.classList.remove('active'));
       if (el) el.classList.add('active');
+    }
+
+    function setDollyDamping(val) {
+      dollyDamping = parseFloat(val);
+      const label = dollyDamping <= 0.10 ? '重型軌道滑順' : (dollyDamping >= 0.22 ? '敏捷即時跟手' : '標準電影阻尼');
+      document.getElementById('damping-val').textContent = label;
     }
 
     document.querySelectorAll('.dolly-dir-btn').forEach(btn => {
@@ -1308,10 +1538,10 @@
       if (activeDollyDir === 'right') targetRight = dollySpeed;
       if (activeDollyDir === 'left') targetRight = -dollySpeed;
 
-      currentVel.fwd += (targetFwd - currentVel.fwd) * 0.18;
-      currentVel.right += (targetRight - currentVel.right) * 0.18;
+      currentVel.fwd += (targetFwd - currentVel.fwd) * dollyDamping;
+      currentVel.right += (targetRight - currentVel.right) * dollyDamping;
 
-      if (Math.abs(currentVel.fwd) > 0.0002 || Math.abs(currentVel.right) > 0.0002) {
+      if (Math.abs(currentVel.fwd) > 0.00015 || Math.abs(currentVel.right) > 0.00015) {
         const pRad = cam.pan * Math.PI / 180;
         const fwdX = Math.sin(pRad), fwdZ = -Math.cos(pRad);
         const rightX = Math.cos(pRad), rightZ = Math.sin(pRad);
@@ -1322,16 +1552,150 @@
       }
     }
 
-    function stepHeight(delta) {
-      cam.y = +Math.max(0.25, Math.min(4.50, cam.y + delta)).toFixed(2);
-      updateHUD();
+    // ==========================
+    // 3. 右手拇指區：垂直搖臂升降搖桿 (支援多點觸控同步推軌) + 自動壓角鎖定視線
+    // ==========================
+    const craneTrack = document.getElementById('crane-track');
+    const craneKnob = document.getElementById('crane-knob');
+    let craneTouchId = null;
+    let craneMouseDown = false;
+    let craneNormY = 0; // -1 (向上推升高) 至 +1 (向下推降低)
+
+    function toggleCranePitchLock() {
+      cam.cranePitchLock = !cam.cranePitchLock;
+      const btn = document.getElementById('btn-crane-lock');
+      btn.textContent = cam.cranePitchLock ? '鎖視線:開' : '鎖視線:關';
+      btn.classList.toggle('active', cam.cranePitchLock);
+    }
+
+    function updateCraneStick(clientY) {
+      const rect = craneTrack.getBoundingClientRect();
+      const maxTravel = (rect.height - 34) / 2;
+      const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
+      craneNormY = dy / maxTravel;
+      craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
+      craneTrack.classList.add('engaged');
+    }
+
+    function releaseCraneStick() {
+      craneTouchId = null;
+      craneMouseDown = false;
+      craneNormY = 0;
+      craneKnob.style.transform = 'translate(-50%, -50%)';
+      craneTrack.classList.remove('engaged');
+    }
+
+    craneTrack.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (craneTouchId === null && e.changedTouches.length > 0) {
+        const t = e.changedTouches[0];
+        craneTouchId = t.identifier;
+        updateCraneStick(t.clientY);
+      }
+    }, { passive: false });
+
+    craneTrack.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === craneTouchId) {
+          updateCraneStick(e.changedTouches[i].clientY);
+          break;
+        }
+      }
+    }, { passive: false });
+
+    craneTrack.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === craneTouchId) {
+          releaseCraneStick();
+          break;
+        }
+      }
+    });
+    craneTrack.addEventListener('touchcancel', releaseCraneStick);
+
+    craneTrack.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      craneMouseDown = true;
+      updateCraneStick(e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (craneMouseDown) updateCraneStick(e.clientY);
+    });
+    window.addEventListener('mouseup', () => {
+      if (craneMouseDown) releaseCraneStick();
+    });
+
+    function tickCraneMovement() {
+      if (Math.abs(craneNormY) < 0.06) return;
+      const liftDelta = -craneNormY * 0.032;
+      const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
+      if (Math.abs(nextY - cam.y) > 0.0001) {
+        cam.y = nextY;
+        if (cam.cranePitchLock) {
+          const lead = getLeadActor();
+          if (lead) {
+            const targetEyeY = (lead.height / 1.75) * 1.48;
+            const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
+            const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
+            cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
+          }
+        }
+        updateHUD();
+      }
     }
 
     // ==========================
-    // 3. 單指拖曳雲台/角色 + 雙指開合調焦距
+    // 4. 可拖曳實景地平線基準線 + 防誤觸單指拖曳/雙指縮放
     // ==========================
+    const horizonLineEl = document.getElementById('horizon-guide-line');
+    const horizonPillEl = document.getElementById('horizon-guide-pill');
+    let draggingHorizon = false;
+
+    function updateHorizonGuidePosition() {
+      const hasBg = !!env.bgImage && env.showHorizonGuide && !cleanRenderFlag;
+      horizonLineEl.classList.toggle('visible', hasBg);
+      const topPct = 50 + env.horizonOffsetPct;
+      horizonLineEl.style.top = `${Math.max(12, Math.min(88, topPct))}%`;
+      horizonPillEl.textContent = `↕ 拖曳對齊實景地平線 (${env.horizonOffsetPct > 0 ? '+' : ''}${env.horizonOffsetPct}%)`;
+    }
+
+    function dragHorizonFromClientY(clientY) {
+      const sf = document.getElementById('safe-frame').getBoundingClientRect();
+      const relPct = Math.round(((clientY - sf.top) / sf.height - 0.5) * 100);
+      const clamped = Math.max(-35, Math.min(35, relPct));
+      setHorizonOffset(clamped);
+      document.getElementById('rng-bg-hor').value = clamped;
+    }
+
+    horizonLineEl.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      draggingHorizon = true;
+    }, { passive: false });
+    horizonLineEl.addEventListener('touchmove', (e) => {
+      if (!draggingHorizon) return;
+      e.preventDefault();
+      e.stopPropagation();
+      dragHorizonFromClientY(e.touches[0].clientY);
+    }, { passive: false });
+    horizonLineEl.addEventListener('touchend', () => { draggingHorizon = false; });
+
+    horizonLineEl.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      draggingHorizon = true;
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (draggingHorizon) dragHorizonFromClientY(e.clientY);
+    });
+    window.addEventListener('mouseup', () => { draggingHorizon = false; });
+
     let singleTouchId = null;
+    let touchStartPt = { x: 0, y: 0 };
     let prevTouchPt = { x: 0, y: 0 };
+    let candidateActor = null;
     let draggedActor = null;
     let pinchStartDist = 0;
     let pinchStartFocal = 35;
@@ -1339,6 +1703,7 @@
     canvas.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         singleTouchId = null;
+        candidateActor = null;
         draggedActor = null;
         pinchStartDist = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
@@ -1350,17 +1715,19 @@
       if (e.touches.length === 1) {
         const t = e.touches[0];
         singleTouchId = t.identifier;
+        touchStartPt = { x: t.clientX, y: t.clientY };
         prevTouchPt = { x: t.clientX, y: t.clientY };
+        candidateActor = null;
+        draggedActor = null;
 
         const actives = actors.filter(a => a.active && a._hit);
         for (let i = actives.length - 1; i >= 0; i--) {
           const h = actives[i]._hit;
-          if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.25) {
-            draggedActor = actives[i];
-            return;
+          if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.1) {
+            candidateActor = actives[i];
+            break;
           }
         }
-        draggedActor = null;
       }
     }, { passive: true });
 
@@ -1378,18 +1745,23 @@
 
       if (e.touches.length === 1 && singleTouchId !== null) {
         const t = e.touches[0];
+        const totalMove = Math.hypot(t.clientX - touchStartPt.x, t.clientY - touchStartPt.y);
         const dx = t.clientX - prevTouchPt.x;
         const dy = t.clientY - prevTouchPt.y;
         prevTouchPt = { x: t.clientX, y: t.clientY };
 
+        if (candidateActor && !draggedActor && totalMove > 10) {
+          draggedActor = candidateActor;
+        }
+
         if (draggedActor) {
           const pRad = cam.pan * Math.PI / 180;
-          const sens = 0.008;
-          draggedActor.x = +(draggedActor.x + (Math.cos(pRad) * dx - Math.sin(pRad) * dy) * sens).toFixed(2);
-          draggedActor.z = +(draggedActor.z + (Math.sin(pRad) * dx + Math.cos(pRad) * dy) * sens).toFixed(2);
+          const sens = 0.0075;
+          draggedActor.x = +Math.max(-5, Math.min(5, draggedActor.x + (Math.cos(pRad) * dx - Math.sin(pRad) * dy) * sens)).toFixed(2);
+          draggedActor.z = +Math.max(-5, Math.min(5, draggedActor.z + (Math.sin(pRad) * dx + Math.cos(pRad) * dy) * sens)).toFixed(2);
           renderCastControls();
           updateHUD();
-        } else {
+        } else if (!candidateActor) {
           cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
           cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
           updateHUD();
@@ -1399,14 +1771,22 @@
 
     canvas.addEventListener('touchend', () => {
       singleTouchId = null;
+      candidateActor = null;
       draggedActor = null;
       pinchStartDist = 0;
     });
 
     // ==========================
-    // 4. 純淨安全畫框 V2V 錄影 (優先 MP4 兼容 iPhone Safari)
+    // 5. 定時鏡長 + 1秒預備緩衝 + 首幀同步儲存 V2V 錄影
     // ==========================
     let isRecordingV2V = false;
+    let isPrerolling = false;
+    let prerollTimeout = null;
+    let autoStopTimeout = null;
+    let targetRecSec = 0;
+    let autoSaveStartFrame = true;
+    let usePreroll = true;
+
     let mediaRecorder = null;
     let recordedChunks = [];
     let offscreenCanvas = null;
@@ -1414,9 +1794,51 @@
     let recStartTime = 0;
     let recTimerInterval = null;
 
+    function setRecDuration(sec, el) {
+      targetRecSec = sec;
+      document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    function toggleAutoStartFrame() {
+      autoSaveStartFrame = !autoSaveStartFrame;
+      const btn = document.getElementById('btn-start-frame-auto');
+      btn.textContent = autoSaveStartFrame ? '錄影同步存首幀圖: 開' : '錄影同步存首幀圖: 關';
+      btn.classList.toggle('active', autoSaveStartFrame);
+    }
+
+    function togglePreroll() {
+      usePreroll = !usePreroll;
+      const btn = document.getElementById('btn-preroll-toggle');
+      btn.textContent = usePreroll ? '1秒預備緩衝: 開' : '1秒預備緩衝: 關';
+      btn.classList.toggle('active', usePreroll);
+    }
+
     function toggleV2VRecording() {
+      if (isPrerolling) {
+        clearTimeout(prerollTimeout);
+        isPrerolling = false;
+        const badge = document.getElementById('rec-badge');
+        badge.classList.remove('preroll', 'recording');
+        document.getElementById('rec-label-text').textContent = '錄 V2V';
+        return;
+      }
       if (isRecordingV2V) {
         stopV2VRecording();
+        return;
+      }
+
+      if (usePreroll) {
+        isPrerolling = true;
+        const badge = document.getElementById('rec-badge');
+        badge.classList.remove('recording');
+        badge.classList.add('preroll');
+        document.getElementById('rec-timer').textContent = '預備 1s';
+        document.getElementById('rec-label-text').textContent = '取消預備';
+        prerollTimeout = setTimeout(() => {
+          isPrerolling = false;
+          startV2VRecording();
+        }, 1000);
       } else {
         startV2VRecording();
       }
@@ -1435,7 +1857,21 @@
       offscreenCtx = offscreenCanvas.getContext('2d');
 
       cleanRenderFlag = true;
+      updateHorizonGuidePosition();
       renderFrame();
+
+      // 若開啟首幀同步儲存，第 0 秒先輸出起點純淨首幀圖
+      if (autoSaveStartFrame) {
+        offscreenCtx.drawImage(
+          canvas,
+          sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
+          0, 0, offscreenCanvas.width, offscreenCanvas.height
+        );
+        const startLink = document.createElement('a');
+        startLink.href = offscreenCanvas.toDataURL('image/png');
+        startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
+        startLink.click();
+      }
 
       const stream = offscreenCanvas.captureStream(30);
       const candidates = [
@@ -1459,6 +1895,7 @@
           : new MediaRecorder(stream);
       } catch (err) {
         cleanRenderFlag = false;
+        updateHorizonGuidePosition();
         alert('無法啟動錄影：' + err.message);
         return;
       }
@@ -1469,6 +1906,7 @@
 
       mediaRecorder.onstop = () => {
         cleanRenderFlag = false;
+        updateHorizonGuidePosition();
         const isMp4 = (chosenMime || '').includes('mp4');
         const ext = isMp4 ? 'mp4' : 'webm';
         const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
@@ -1483,23 +1921,33 @@
       isRecordingV2V = true;
       recStartTime = Date.now();
 
+      const badge = document.getElementById('rec-badge');
+      badge.classList.remove('preroll');
+      badge.classList.add('recording');
       document.getElementById('btn-record-v2v').classList.add('recording');
-      document.getElementById('rec-badge').classList.add('recording');
-      document.getElementById('rec-label-text').textContent = '停止並存片';
+      document.getElementById('rec-label-text').textContent = '停止存片';
 
       recTimerInterval = setInterval(() => {
         const sec = Math.floor((Date.now() - recStartTime) / 1000);
         const mm = String(Math.floor(sec / 60)).padStart(2, '0');
         const ss = String(sec % 60).padStart(2, '0');
-        document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
-      }, 250);
+        document.getElementById('rec-timer').textContent = targetRecSec > 0 ? `${ss}s / ${targetRecSec}s` : `${mm}:${ss}`;
+      }, 200);
+
+      if (targetRecSec > 0) {
+        clearTimeout(autoStopTimeout);
+        autoStopTimeout = setTimeout(() => {
+          if (isRecordingV2V) stopV2VRecording();
+        }, targetRecSec * 1000);
+      }
     }
 
     function stopV2VRecording() {
       isRecordingV2V = false;
       clearInterval(recTimerInterval);
+      clearTimeout(autoStopTimeout);
       document.getElementById('btn-record-v2v').classList.remove('recording');
-      document.getElementById('rec-badge').classList.remove('recording');
+      document.getElementById('rec-badge').classList.remove('recording', 'preroll');
       document.getElementById('rec-label-text').textContent = '錄 V2V';
       document.getElementById('rec-timer').textContent = '00:00';
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -1510,6 +1958,7 @@
     function exportCleanFrame() {
       const prevClean = cleanRenderFlag;
       cleanRenderFlag = true;
+      updateHorizonGuidePosition();
       renderFrame();
 
       const sf = document.getElementById('safe-frame').getBoundingClientRect();
@@ -1523,6 +1972,7 @@
       );
 
       cleanRenderFlag = prevClean;
+      updateHorizonGuidePosition();
       const a = document.createElement('a');
       a.href = out.toDataURL('image/png');
       a.download = `CineAI_Clean_${Math.round(cam.focal)}mm.png`;
@@ -1530,7 +1980,7 @@
     }
 
     // ==========================
-    // 5. 控制、人景空間關係、散景與 V2V 指令
+    // 6. 控制、多實景相片切換、散景與 V2V 指令
     // ==========================
     function setFocal(mm) {
       cam.focal = mm;
@@ -1570,6 +2020,22 @@
     function setHorizonOffset(val) {
       env.horizonOffsetPct = parseInt(val);
       document.getElementById('bg-hor-val').textContent = `${env.horizonOffsetPct}%`;
+      updateHorizonGuidePosition();
+    }
+
+    function toggleBgLightSync() {
+      env.bgLightSync = !env.bgLightSync;
+      const btn = document.getElementById('btn-bg-light-sync');
+      btn.textContent = env.bgLightSync ? '實景光影色溫同步: 開' : '實景光影色溫同步: 關';
+      btn.classList.toggle('active', env.bgLightSync);
+    }
+
+    function toggleHorizonGuide() {
+      env.showHorizonGuide = !env.showHorizonGuide;
+      const btn = document.getElementById('btn-horizon-guide');
+      btn.textContent = env.showHorizonGuide ? '地平線基準線: 顯' : '地平線基準線: 隱';
+      btn.classList.toggle('active', env.showHorizonGuide);
+      updateHorizonGuidePosition();
     }
 
     function toggleAutoFocus() {
@@ -1687,25 +2153,60 @@
       });
     }
 
+    function renderBgSlotStrip() {
+      const strip = document.getElementById('bg-slot-strip');
+      strip.innerHTML = '';
+      env.bgSlots.forEach((slot, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bg-thumb-chip' + (idx === env.activeBgIdx ? ' active' : '');
+        btn.textContent = slot.label;
+        btn.onclick = () => selectBgSlot(idx);
+        strip.appendChild(btn);
+      });
+    }
+
+    function selectBgSlot(idx) {
+      if (idx < 0 || idx >= env.bgSlots.length) {
+        env.activeBgIdx = -1;
+        env.bgImage = null;
+      } else {
+        env.activeBgIdx = idx;
+        env.bgImage = env.bgSlots[idx].img;
+      }
+      renderBgSlotStrip();
+      updateHorizonGuidePosition();
+      updatePromptText();
+    }
+
     function handleBackdropUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          env.bgImage = img;
-          updatePromptText();
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const label = `實景 ${env.bgSlots.length + 1}`;
+            env.bgSlots.push({ label, img });
+            selectBgSlot(env.bgSlots.length - 1);
+          };
+          img.src = ev.target.result;
         };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
       e.target.value = '';
     }
 
     function clearBackdropPhoto() {
-      env.bgImage = null;
-      updatePromptText();
+      if (env.activeBgIdx >= 0) {
+        env.bgSlots.splice(env.activeBgIdx, 1);
+      }
+      if (env.bgSlots.length > 0) {
+        selectBgSlot(Math.min(env.activeBgIdx, env.bgSlots.length - 1));
+      } else {
+        selectBgSlot(-1);
+      }
     }
 
     function setBackdropOpacity(val) {
@@ -1752,14 +2253,14 @@
 
       const zh = [
         `【造型與時代質感】${styleText}。場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節；動作神態：${actionText}。`,
-        `【光影與環境色調】${env.bgImage ? '實景現場空間質感' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
-        `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
+        `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
+        `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
       ].join('\n');
 
       const en = [
         `[Style & Character Consistency] ${styleText}. Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn}); action: ${actionText}.`,
-        `[Lighting & Atmosphere] ${env.bgImage ? 'Realistic matched location environment' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
-        `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
+        `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
+        `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
       ].join('\n');
 
       document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
@@ -1794,6 +2295,7 @@
 
     function mainLoop() {
       tickDollyMovement();
+      tickCraneMovement();
       renderFrame();
       requestAnimationFrame(mainLoop);
     }
