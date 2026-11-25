@@ -113,6 +113,8 @@
       z-index: 4;
     }
     #safe-frame {
+      width: 480px;
+      height: 270px;
       border: 1.5px solid rgba(255, 255, 255, 0.84);
       box-shadow: 0 0 0 9999px rgba(6, 8, 11, 0.58);
       position: relative;
@@ -266,7 +268,7 @@
       50%, 100% { opacity: 0.2; }
     }
 
-    /* 左手拇指區：精簡錄影掣（無時間選擇）置於定速推軌控制台正上方，完全位於畫框左側外 */
+    /* 左手拇指區：精簡錄影掣（鎖定倒數 2 秒）置於定速推軌控制台正上方，完全位於畫框左側外 */
     #left-thumb-zone {
       position: absolute;
       left: max(10px, var(--safe-left));
@@ -757,18 +759,18 @@
       </div>
 
       <div class="hud-pill-group">
-        <button type="button" id="btn-gyro" class="hud-btn" onclick="toggleGyroMode()">體感掌鏡: 關</button>
-        <button type="button" class="hud-btn" onclick="recenterCamera()">校正正中</button>
-        <button type="button" id="btn-clay" class="hud-btn" onclick="toggleClayMode()">Previz灰模</button>
-        <button type="button" class="hud-btn" onclick="exportCleanFrame()">純淨圖</button>
-        <button type="button" class="hud-btn active" onclick="openDrawer()">調度 / 實景 / 指令 ☰</button>
+        <button type="button" id="btn-gyro" class="hud-btn">體感掌鏡: 關</button>
+        <button type="button" id="btn-recenter" class="hud-btn">校正正中</button>
+        <button type="button" id="btn-clay" class="hud-btn">Previz灰模</button>
+        <button type="button" id="btn-clean-shot" class="hud-btn">純淨圖</button>
+        <button type="button" id="btn-open-drawer" class="hud-btn active">調度 / 實景 / 指令 ☰</button>
       </div>
     </div>
 
-    <!-- 左手拇指區：精簡錄影掣（鎖定倒數 2 秒開錄，無時間選擇）＋ 定速推軌控制台 -->
+    <!-- 左手拇指區：精簡錄影掣（鎖定倒數 2 秒開錄）＋ 定速推軌控制台 -->
     <div id="left-thumb-zone">
       <div id="left-rec-header">
-        <button type="button" id="btn-record-v2v" onclick="toggleV2VRecording()" aria-label="倒數 2 秒後錄製 V2V 運鏡影片">
+        <button type="button" id="btn-record-v2v" aria-label="倒數 2 秒後錄製 V2V 運鏡影片">
           <div id="rec-inner-shape"></div>
         </button>
         <span id="rec-label-text" class="rec-caption">錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span></span>
@@ -776,9 +778,9 @@
 
       <div id="dolly-console">
         <div class="speed-tier-row">
-          <button type="button" class="speed-tier-btn active" data-sp="0.015" onclick="setDollySpeed(0.015, this)">慢推</button>
-          <button type="button" class="speed-tier-btn" data-sp="0.032" onclick="setDollySpeed(0.032, this)">勻速</button>
-          <button type="button" class="speed-tier-btn" data-sp="0.058" onclick="setDollySpeed(0.058, this)">快推</button>
+          <button type="button" class="speed-tier-btn active" data-sp="0.015">慢推</button>
+          <button type="button" class="speed-tier-btn" data-sp="0.032">勻速</button>
+          <button type="button" class="speed-tier-btn" data-sp="0.058">快推</button>
         </div>
         <div class="dolly-dpad">
           <div></div>
@@ -794,19 +796,19 @@
     <!-- 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換（完全留於畫框下方） -->
     <div id="bottom-center-dock">
       <div class="lens-strip">
-        <button type="button" class="chip-btn lens-btn" data-mm="16" onclick="setFocal(16)">16mm</button>
-        <button type="button" class="chip-btn lens-btn" data-mm="24" onclick="setFocal(24)">24mm</button>
-        <button type="button" class="chip-btn lens-btn active" data-mm="35" onclick="setFocal(35)">35mm</button>
-        <button type="button" class="chip-btn lens-btn" data-mm="50" onclick="setFocal(50)">50mm</button>
-        <button type="button" class="chip-btn lens-btn" data-mm="85" onclick="setFocal(85)">85mm</button>
-        <button type="button" class="chip-btn lens-btn" data-mm="135" onclick="setFocal(135)">135mm</button>
+        <button type="button" class="chip-btn lens-btn" data-mm="16">16mm</button>
+        <button type="button" class="chip-btn lens-btn" data-mm="24">24mm</button>
+        <button type="button" class="chip-btn lens-btn active" data-mm="35">35mm</button>
+        <button type="button" class="chip-btn lens-btn" data-mm="50">50mm</button>
+        <button type="button" class="chip-btn lens-btn" data-mm="85">85mm</button>
+        <button type="button" class="chip-btn lens-btn" data-mm="135">135mm</button>
       </div>
       <div class="ar-strip">
-        <button type="button" class="chip-btn ar-btn active" data-ar="16:9" onclick="setAspect('16:9')">16:9</button>
-        <button type="button" class="chip-btn ar-btn" data-ar="2.39:1" onclick="setAspect('2.39:1')">2.39:1</button>
-        <button type="button" class="chip-btn ar-btn" data-ar="1.85:1" onclick="setAspect('1.85:1')">1.85:1</button>
-        <button type="button" class="chip-btn ar-btn" data-ar="4:3" onclick="setAspect('4:3')">4:3</button>
-        <button type="button" class="chip-btn" onclick="resetAllCam()">歸零機位</button>
+        <button type="button" class="chip-btn ar-btn active" data-ar="16:9">16:9</button>
+        <button type="button" class="chip-btn ar-btn" data-ar="2.39:1">2.39:1</button>
+        <button type="button" class="chip-btn ar-btn" data-ar="1.85:1">1.85:1</button>
+        <button type="button" class="chip-btn ar-btn" data-ar="4:3">4:3</button>
+        <button type="button" id="btn-reset-cam" class="chip-btn">歸零機位</button>
       </div>
     </div>
 
@@ -821,7 +823,7 @@
       </div>
 
       <div id="crane-stick-col">
-        <button type="button" id="btn-crane-lock" class="active" onclick="toggleCranePitchLock()" title="升降時自動壓角望實主角">鎖視線:開</button>
+        <button type="button" id="btn-crane-lock" class="active" title="升降時自動壓角望實主角">鎖視線:開</button>
         <div id="crane-track" title="上下推拉升降機位，放手自動回中">
           <span class="crane-arrow-top">▲</span>
           <div id="crane-knob"></div>
@@ -833,17 +835,17 @@
   </div>
 
   <!-- 可收合導演調度抽屜 -->
-  <div id="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div id="drawer-backdrop"></div>
   <aside id="director-drawer">
     <div class="drawer-head">
       <strong style="font-size:13px;">調度、實景視差與操控手感</strong>
-      <button type="button" class="hud-btn" onclick="closeDrawer()">完成 ✕</button>
+      <button type="button" id="btn-close-drawer" class="hud-btn">完成 ✕</button>
     </div>
 
     <div class="drawer-tabs">
-      <button type="button" class="dtab-btn active" data-dp="dp-cast" onclick="switchDrawerTab('dp-cast')">角色走位</button>
-      <button type="button" class="dtab-btn" data-dp="dp-set" onclick="switchDrawerTab('dp-set')">真實背景</button>
-      <button type="button" class="dtab-btn" data-dp="dp-prompt" onclick="switchDrawerTab('dp-prompt')">手感 / 指令</button>
+      <button type="button" class="dtab-btn active" data-dp="dp-cast">角色走位</button>
+      <button type="button" class="dtab-btn" data-dp="dp-set">真實背景</button>
+      <button type="button" class="dtab-btn" data-dp="dp-prompt">手感 / 指令</button>
     </div>
 
     <div class="drawer-body">
@@ -852,15 +854,15 @@
         <div class="sec-box">
           <div class="sec-title">場上人數與鏡頭預設</div>
           <div class="row-grid-3">
-            <button type="button" class="chip-btn cnt-btn" data-c="1" onclick="setActorCount(1)">1 人</button>
-            <button type="button" class="chip-btn cnt-btn active" data-c="2" onclick="setActorCount(2)">2 人</button>
-            <button type="button" class="chip-btn cnt-btn" data-c="3" onclick="setActorCount(3)">3 人</button>
+            <button type="button" class="chip-btn cnt-btn" data-c="1">1 人</button>
+            <button type="button" class="chip-btn cnt-btn active" data-c="2">2 人</button>
+            <button type="button" class="chip-btn cnt-btn" data-c="3">3 人</button>
           </div>
           <div class="row-grid-2">
-            <button type="button" class="chip-btn" onclick="applyQuickPreset('two_shot')">雙人中景</button>
-            <button type="button" class="chip-btn" onclick="applyQuickPreset('ots')">過肩正打 OTS</button>
-            <button type="button" class="chip-btn" onclick="applyQuickPreset('solo_cu')">單人特寫 CU</button>
-            <button type="button" class="chip-btn" onclick="autoReverse()">對稱反打</button>
+            <button type="button" class="chip-btn preset-btn" data-preset="two_shot">雙人中景</button>
+            <button type="button" class="chip-btn preset-btn" data-preset="ots">過肩正打 OTS</button>
+            <button type="button" class="chip-btn preset-btn" data-preset="solo_cu">單人特寫 CU</button>
+            <button type="button" id="btn-auto-reverse" class="chip-btn">對稱反打</button>
           </div>
         </div>
 
@@ -872,68 +874,68 @@
         <div class="sec-box">
           <div class="sec-title">實景相片底圖（支援多張切換與光影同步）</div>
           <div class="row-grid-2">
-            <button type="button" class="chip-btn active" onclick="document.getElementById('bg-photo-input').click()">+ 加入實景相片</button>
-            <button type="button" class="chip-btn" onclick="clearBackdropPhoto()">清除目前底圖</button>
+            <button type="button" id="btn-add-bg" class="chip-btn active">+ 加入實景相片</button>
+            <button type="button" id="btn-clear-bg" class="chip-btn">清除目前底圖</button>
           </div>
-          <input type="file" id="bg-photo-input" accept="image/*" multiple style="display:none" onchange="handleBackdropUpload(event)" />
+          <input type="file" id="bg-photo-input" accept="image/*" multiple style="display:none" />
           <div id="bg-slot-strip"></div>
 
           <div class="slider-line">
             <div class="slider-head"><span>背景景深距離（窄室 ↔ 遠景視差）</span><span id="bg-dist-val">10.0m</span></div>
-            <input type="range" id="rng-bg-dist" min="2.0" max="30.0" step="0.5" value="10.0" oninput="setBackdropDepthDist(this.value)" />
+            <input type="range" id="rng-bg-dist" min="2.0" max="30.0" step="0.5" value="10.0" />
           </div>
 
           <div class="slider-line">
             <div class="slider-head"><span>實景地平線上下對位（亦可直接拖畫框虛線）</span><span id="bg-hor-val">0%</span></div>
-            <input type="range" id="rng-bg-hor" min="-35" max="35" step="1" value="0" oninput="setHorizonOffset(this.value)" />
+            <input type="range" id="rng-bg-hor" min="-35" max="35" step="1" value="0" />
           </div>
 
           <div class="slider-line">
             <div class="slider-head"><span>底圖透明度</span><span id="bg-op-val">92%</span></div>
-            <input type="range" min="0.2" max="1.0" step="0.05" value="0.92" oninput="setBackdropOpacity(this.value)" />
+            <input type="range" id="rng-bg-op" min="0.2" max="1.0" step="0.05" value="0.92" />
           </div>
 
           <div class="row-grid-2">
-            <button type="button" id="btn-bg-light-sync" class="chip-btn active" onclick="toggleBgLightSync()">實景光影色溫同步: 開</button>
-            <button type="button" id="btn-horizon-guide" class="chip-btn active" onclick="toggleHorizonGuide()">地平線基準線: 顯</button>
+            <button type="button" id="btn-bg-light-sync" class="chip-btn active">實景光影色溫同步: 開</button>
+            <button type="button" id="btn-horizon-guide" class="chip-btn active">地平線基準線: 顯</button>
           </div>
         </div>
 
         <div class="sec-box">
           <div class="sec-title">焦段聯動散景模糊（Optical Bokeh / DoF）</div>
           <div class="row-grid-2">
-            <button type="button" id="btn-af-mode" class="chip-btn active" onclick="toggleAutoFocus()">自動鎖焦主角: 開</button>
-            <button type="button" class="chip-btn" onclick="snapFocusToLead()">立即對焦主角</button>
+            <button type="button" id="btn-af-mode" class="chip-btn active">自動鎖焦主角: 開</button>
+            <button type="button" id="btn-snap-focus" class="chip-btn">立即對焦主角</button>
           </div>
           <div class="slider-line">
             <div class="slider-head"><span>焦點距離 Focus Dist</span><span id="focus-dist-val">3.6m</span></div>
-            <input type="range" id="rng-focus-dist" min="0.8" max="12.0" step="0.1" value="3.6" oninput="setFocusDistance(this.value)" />
+            <input type="range" id="rng-focus-dist" min="0.8" max="12.0" step="0.1" value="3.6" />
           </div>
           <div class="slider-line">
             <div class="slider-head"><span>散景模糊強度</span><span id="dof-str-val">1.2x</span></div>
-            <input type="range" id="rng-dof-str" min="0" max="2.5" step="0.1" value="1.2" oninput="setDofStrength(this.value)" />
+            <input type="range" id="rng-dof-str" min="0" max="2.5" step="0.1" value="1.2" />
           </div>
         </div>
 
         <div class="sec-box">
           <div class="sec-title">主光方向與色溫氛圍（同時作用於人物與實景）</div>
           <div class="row-grid-2">
-            <button type="button" id="btn-l-left" class="chip-btn active" onclick="setLightSide(-1)">主光在左側</button>
-            <button type="button" id="btn-l-right" class="chip-btn" onclick="setLightSide(1)">主光在右側</button>
+            <button type="button" id="btn-l-left" class="chip-btn active">主光在左側</button>
+            <button type="button" id="btn-l-right" class="chip-btn">主光在右側</button>
           </div>
           <div class="row-grid-2">
-            <button type="button" class="chip-btn mood-btn active" data-m="golden" onclick="setMood('golden')">魔幻斜陽 (暖金)</button>
-            <button type="button" class="chip-btn mood-btn" data-m="moonlight" onclick="setMood('moonlight')">冷月夜戲 (冷藍)</button>
-            <button type="button" class="chip-btn mood-btn" data-m="tungsten" onclick="setMood('tungsten')">鎢絲燈 (暖琥珀)</button>
-            <button type="button" class="chip-btn mood-btn" data-m="overcast" onclick="setMood('overcast')">陰天漫射光</button>
+            <button type="button" class="chip-btn mood-btn active" data-m="golden">魔幻斜陽 (暖金)</button>
+            <button type="button" class="chip-btn mood-btn" data-m="moonlight">冷月夜戲 (冷藍)</button>
+            <button type="button" class="chip-btn mood-btn" data-m="tungsten">鎢絲燈 (暖琥珀)</button>
+            <button type="button" class="chip-btn mood-btn" data-m="overcast">陰天漫射光</button>
           </div>
           <div class="row-grid-3">
-            <button type="button" class="chip-btn sky-btn active" data-s="darkgrey" onclick="setSky('darkgrey')">深灰影棚</button>
-            <button type="button" class="chip-btn sky-btn" data-s="black" onclick="setSky('black')">純黑背景</button>
-            <button type="button" class="chip-btn sky-btn" data-s="day" onclick="setSky('day')">日間藍天</button>
-            <button type="button" class="chip-btn sky-btn" data-s="dusk" onclick="setSky('dusk')">黃昏晚霞</button>
-            <button type="button" class="chip-btn sky-btn" data-s="night" onclick="setSky('night')">冷藍夜空</button>
-            <button type="button" class="chip-btn sky-btn" data-s="white" onclick="setSky('white')">純白棚</button>
+            <button type="button" class="chip-btn sky-btn active" data-s="darkgrey">深灰影棚</button>
+            <button type="button" class="chip-btn sky-btn" data-s="black">純黑背景</button>
+            <button type="button" class="chip-btn sky-btn" data-s="day">日間藍天</button>
+            <button type="button" class="chip-btn sky-btn" data-s="dusk">黃昏晚霞</button>
+            <button type="button" class="chip-btn sky-btn" data-s="night">冷藍夜空</button>
+            <button type="button" class="chip-btn sky-btn" data-s="white">純白棚</button>
           </div>
         </div>
       </div>
@@ -944,1493 +946,1561 @@
           <div class="sec-title">掌鏡手感與 V2V 錄影設定</div>
           <div class="slider-line">
             <div class="slider-head"><span>推軌阻尼柔順度</span><span id="damping-val">標準電影阻尼</span></div>
-            <input type="range" min="0.06" max="0.30" step="0.02" value="0.14" oninput="setDollyDamping(this.value)" />
+            <input type="range" id="rng-damping" min="0.06" max="0.30" step="0.02" value="0.14" />
           </div>
           <div class="slider-line">
             <div class="slider-head"><span>雲台搖桿轉向速度</span><span id="pt-speed-val">1.1°/幀</span></div>
-            <input type="range" min="0.4" max="2.2" step="0.1" value="1.1" oninput="setPanTiltStickSpeed(this.value)" />
+            <input type="range" id="rng-pt-speed" min="0.4" max="2.2" step="0.1" value="1.1" />
           </div>
           <div class="slider-line">
             <div class="slider-head"><span>體感掌鏡靈敏度</span><span id="gyro-sens-val">0.85x</span></div>
-            <input type="range" min="0.35" max="1.50" step="0.05" value="0.85" oninput="setGyroSens(this.value)" />
+            <input type="range" id="rng-gyro-sens" min="0.35" max="1.50" step="0.05" value="0.85" />
           </div>
           <div class="row-grid-2">
-            <button type="button" id="btn-start-frame-auto" class="chip-btn active" onclick="toggleAutoStartFrame()">錄影同步存首幀圖: 開</button>
+            <button type="button" id="btn-start-frame-auto" class="chip-btn active">錄影同步存首幀圖: 開</button>
             <span style="font-size:10px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; border:1px solid var(--border-hairline); border-radius:7px; padding:4px;">錄影已鎖定倒數 2 秒開錄</span>
           </div>
         </div>
 
         <div class="sec-box">
           <div class="sec-title">年代風格與動作神態（不重複鏡位）</div>
-          <input type="text" id="inp-style" value="1950年代香港街頭寫實電影質感，35mm膠片顆粒" oninput="updatePromptText()" />
-          <input type="text" id="inp-action" value="characters conversing naturally with subtle head and eye movement" oninput="updatePromptText()" />
+          <input type="text" id="inp-style" value="1950年代香港街頭寫實電影質感，35mm膠片顆粒" />
+          <input type="text" id="inp-action" value="characters conversing naturally with subtle head and eye movement" />
         </div>
 
         <div class="sec-box">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="sec-title">精簡版 V2V 質感指令</span>
             <div style="display:flex; gap:4px;">
-              <button type="button" class="chip-btn plang-btn active" data-l="zh" onclick="setPromptLang('zh')">中文</button>
-              <button type="button" class="chip-btn plang-btn" data-l="en" onclick="setPromptLang('en')">英文</button>
+              <button type="button" class="chip-btn plang-btn active" data-l="zh">中文</button>
+              <button type="button" class="chip-btn plang-btn" data-l="en">英文</button>
             </div>
           </div>
           <textarea id="prompt-box" readonly></textarea>
-          <button type="button" class="chip-btn active" style="padding:8px; font-size:12px;" onclick="copyPromptText()">一鍵複製 V2V 指令</button>
+          <button type="button" id="btn-copy-prompt" class="chip-btn active" style="padding:8px; font-size:12px;">一鍵複製 V2V 指令</button>
         </div>
       </div>
     </div>
   </aside>
 
   <script>
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {});
-    }
-
-    const canvas = document.getElementById('stage-canvas');
-    const ctx = canvas.getContext('2d');
-    let W = window.innerWidth;
-    let H = window.innerHeight;
-    let DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-    const ASPECT_RATIOS = {
-      '16:9': 16 / 9,
-      '2.39:1': 2.39,
-      '1.85:1': 1.85,
-      '4:3': 4 / 3
-    };
-    let currentAspect = '16:9';
-    let clayMode = false;
-    let cleanRenderFlag = false;
-    let promptLang = 'zh';
-
-    const cam = {
-      x: 0,
-      y: 1.60,
-      z: 3.60,
-      pan: 0,
-      tilt: 0,
-      roll: 0,
-      focal: 35,
-      autoFocus: true,
-      focusDist: 3.6,
-      dofStrength: 1.2,
-      cranePitchLock: true
-    };
-
-    const env = {
-      sky: 'darkgrey',
-      bgSlots: [],
-      activeBgIdx: -1,
-      bgImage: null,
-      bgOpacity: 0.92,
-      bgDepthDist: 10.0,
-      horizonOffsetPct: 0,
-      bgLightSync: true,
-      showHorizonGuide: true
-    };
-
-    const light = {
-      side: -1,
-      mood: 'golden'
-    };
-
-    const SKY_MAP = {
-      darkgrey: { top: '#232730', bot: '#14171d', zh: '深灰色影棚背景', en: 'neutral dark grey studio backdrop' },
-      black:    { top: '#050608', bot: '#090b0f', zh: '純黑色影棚背景', en: 'pitch-black studio background' },
-      white:    { top: '#eef2f7', bot: '#dce2ec', zh: '純白色無縫影棚', en: 'bright white cyclorama background' },
-      day:      { top: '#2563eb', bot: '#93c5fd', zh: '晴朗日間藍天', en: 'clear daytime blue sky' },
-      dusk:     { top: '#3b0764', bot: '#ea580c', zh: '黃昏晚霞漸層天空', en: 'warm golden-orange sunset sky' },
-      night:    { top: '#030712', bot: '#0f172a', zh: '深藍夜空背景', en: 'deep dark blue night sky' }
-    };
-
-    const MOOD_MAP = {
-      golden:    { key: [255, 218, 165], amb: [82, 102, 132], tint: 'rgba(255, 178, 88, 0.22)', contrast: 1.08, bright: 1.02, zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
-      moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   tint: 'rgba(56, 118, 224, 0.34)', contrast: 1.18, bright: 0.72, zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
-      tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   tint: 'rgba(245, 142, 48, 0.28)', contrast: 1.12, bright: 0.88, zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
-      overcast:  { key: [236, 240, 246], amb: [132, 140, 152],tint: 'rgba(210, 220, 235, 0.08)', contrast: 0.96, bright: 1.00, zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
-    };
-
-    const actors = [
-      { id: 'A', name: '角色 A', tag: '', archetype: 'male',   height: 1.78, x: -0.85, z: 0, rot: 65,  headTurn: 15,  color: [79, 134, 247], hex: '#4f86f7', active: true },
-      { id: 'B', name: '角色 B', tag: '', archetype: 'female', height: 1.64, x: 0.85,  z: 0, rot: -65, headTurn: -15, color: [224, 82, 99],  hex: '#e05263', active: true },
-      { id: 'C', name: '角色 C', tag: '', archetype: 'elder',  height: 1.68, x: 0,     z: -1.3, rot: 0, headTurn: 0,   color: [43, 182, 115], hex: '#2bb673', active: false }
-    ];
-
-    function resizeStage() {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      DPR = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = W * DPR;
-      canvas.height = H * DPR;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      updateSafeFrameLayout();
-    }
-
-    function updateSafeFrameLayout() {
-      const sf = document.getElementById('safe-frame');
-      // 預留足夠左右與下方黑邊空間，確保左右控制區與下方焦段列完全唔入畫框
-      const availW = Math.max(220, W - 292);
-      const availH = Math.max(140, H - 144);
-      const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
-      let fw = availW;
-      let fh = fw / r;
-      if (fh > availH) {
-        fh = availH;
-        fw = fh * r;
+    document.addEventListener('DOMContentLoaded', () => {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
       }
-      sf.style.width = `${Math.round(fw)}px`;
-      sf.style.height = `${Math.round(fh)}px`;
-    }
 
-    function getLeadActor() {
-      const actives = actors.filter(a => a.active);
-      if (!actives.length) return null;
-      let best = actives[0];
-      let minDist = Infinity;
-      actives.forEach(a => {
-        const d = Math.hypot(a.x - cam.x, a.z - cam.z);
-        if (d < minDist) {
-          minDist = d;
-          best = a;
-        }
-      });
-      return best;
-    }
+      const canvas = document.getElementById('stage-canvas');
+      const ctx = canvas.getContext('2d');
+      let W = window.innerWidth;
+      let H = window.innerHeight;
+      let DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-    function getLeadActorDistance() {
-      const lead = getLeadActor();
-      if (!lead) return Math.max(1.0, cam.z);
-      return Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
-    }
-
-    function worldToCam(wx, wy, wz) {
-      const dx = wx - cam.x;
-      const dy = wy - cam.y;
-      const dz = wz - cam.z;
-
-      const pRad = cam.pan * Math.PI / 180;
-      const cosP = Math.cos(pRad), sinP = Math.sin(pRad);
-      const x1 = dx * cosP + dz * sinP;
-      const z1 = -dx * sinP + dz * cosP;
-
-      const tRad = cam.tilt * Math.PI / 180;
-      const cosT = Math.cos(tRad), sinT = Math.sin(tRad);
-      const y2 = dy * cosT + z1 * sinT;
-      const z2 = -dy * sinT + z1 * cosT;
-
-      const rRad = -cam.roll * Math.PI / 180;
-      const cosR = Math.cos(rRad), sinR = Math.sin(rRad);
-      const x3 = x1 * cosR - y2 * sinR;
-      const y3 = x1 * sinR + y2 * cosR;
-
-      return { cx: x3, cy: y3, depth: -z2 };
-    }
-
-    function projectPoint(wx, wy, wz) {
-      const c = worldToCam(wx, wy, wz);
-      if (c.depth <= 0.15) return null;
-      const focalPx = (cam.focal / 24) * H;
-      return {
-        sx: W / 2 + (c.cx / c.depth) * focalPx,
-        sy: H / 2 - (c.cy / c.depth) * focalPx,
-        depth: c.depth,
-        scale: focalPx / c.depth
+      const ASPECT_RATIOS = {
+        '16:9': 16 / 9,
+        '2.39:1': 2.39,
+        '1.85:1': 1.85,
+        '4:3': 4 / 3
       };
-    }
+      let currentAspect = '16:9';
+      let clayMode = false;
+      let cleanRenderFlag = false;
+      let promptLang = 'zh';
 
-    function shadeRGB(baseRGB, nx, ny, nz) {
-      const rgb = clayMode ? [205, 210, 218] : baseRGB;
-      const pal = MOOD_MAP[light.mood];
-      const pRad = cam.pan * Math.PI / 180;
-      const lx = Math.cos(pRad) * 0.78 * light.side + Math.sin(pRad) * (-0.35);
-      const ly = 0.52;
-      const lz = Math.sin(pRad) * 0.78 * light.side - Math.cos(pRad) * (-0.35);
-      const len = Math.hypot(lx, ly, lz) || 1;
-      const diff = Math.max(0, nx * (lx / len) + ny * (ly / len) + nz * (lz / len));
-      const r = Math.min(255, Math.round(rgb[0] * (0.28 * (pal.amb[0] / 120) + diff * 1.05 * (pal.key[0] / 195))));
-      const g = Math.min(255, Math.round(rgb[1] * (0.28 * (pal.amb[1] / 120) + diff * 1.05 * (pal.key[1] / 195))));
-      const b = Math.min(255, Math.round(rgb[2] * (0.28 * (pal.amb[2] / 120) + diff * 1.05 * (pal.key[2] / 195))));
-      return `rgb(${r},${g},${b})`;
-    }
+      const cam = {
+        x: 0,
+        y: 1.60,
+        z: 3.60,
+        pan: 0,
+        tilt: 0,
+        roll: 0,
+        focal: 35,
+        autoFocus: true,
+        focusDist: 3.6,
+        dofStrength: 1.2,
+        cranePitchLock: true
+      };
 
-    function draw3DBox(polyList, ox, oy, oz, rotDeg, lx, ly, lz, w, h, d, rgb) {
-      const rRad = rotDeg * Math.PI / 180;
-      const sinR = Math.sin(rRad), cosR = Math.cos(rRad);
-      const hw = w / 2, hh = h / 2, hd = d / 2;
-      const localV = [
-        [-hw, -hh, -hd], [hw, -hh, -hd], [hw, hh, -hd], [-hw, hh, -hd],
-        [-hw, -hh,  hd], [hw, -hh,  hd], [hw, hh,  hd], [-hw, hh,  hd]
+      const env = {
+        sky: 'darkgrey',
+        bgSlots: [],
+        activeBgIdx: -1,
+        bgImage: null,
+        bgOpacity: 0.92,
+        bgDepthDist: 10.0,
+        horizonOffsetPct: 0,
+        bgLightSync: true,
+        showHorizonGuide: true
+      };
+
+      const light = {
+        side: -1,
+        mood: 'golden'
+      };
+
+      const SKY_MAP = {
+        darkgrey: { top: '#232730', bot: '#14171d', zh: '深灰色影棚背景', en: 'neutral dark grey studio backdrop' },
+        black:    { top: '#050608', bot: '#090b0f', zh: '純黑色影棚背景', en: 'pitch-black studio background' },
+        white:    { top: '#eef2f7', bot: '#dce2ec', zh: '純白色無縫影棚', en: 'bright white cyclorama background' },
+        day:      { top: '#2563eb', bot: '#93c5fd', zh: '晴朗日間藍天', en: 'clear daytime blue sky' },
+        dusk:     { top: '#3b0764', bot: '#ea580c', zh: '黃昏晚霞漸層天空', en: 'warm golden-orange sunset sky' },
+        night:    { top: '#030712', bot: '#0f172a', zh: '深藍夜空背景', en: 'deep dark blue night sky' }
+      };
+
+      const MOOD_MAP = {
+        golden:    { key: [255, 218, 165], amb: [82, 102, 132], tint: 'rgba(255, 178, 88, 0.22)', contrast: 1.08, bright: 1.02, zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
+        moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   tint: 'rgba(56, 118, 224, 0.34)', contrast: 1.18, bright: 0.72, zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
+        tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   tint: 'rgba(245, 142, 48, 0.28)', contrast: 1.12, bright: 0.88, zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
+        overcast:  { key: [236, 240, 246], amb: [132, 140, 152],tint: 'rgba(210, 220, 235, 0.08)', contrast: 0.96, bright: 1.00, zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
+      };
+
+      const actors = [
+        { id: 'A', name: '角色 A', tag: '', archetype: 'male',   height: 1.78, x: -0.85, z: 0, rot: 65,  headTurn: 15,  color: [79, 134, 247], hex: '#4f86f7', active: true },
+        { id: 'B', name: '角色 B', tag: '', archetype: 'female', height: 1.64, x: 0.85,  z: 0, rot: -65, headTurn: -15, color: [224, 82, 99],  hex: '#e05263', active: true },
+        { id: 'C', name: '角色 C', tag: '', archetype: 'elder',  height: 1.68, x: 0,     z: -1.3, rot: 0, headTurn: 0,   color: [43, 182, 115], hex: '#2bb673', active: false }
       ];
-      const worldV = localV.map(([vx, vy, vz]) => {
-        const px = lx + vx, pz = lz + vz;
-        return {
-          x: ox + px * cosR + pz * sinR,
-          y: oy + ly + vy,
-          z: oz - px * sinR + pz * cosR
-        };
-      });
-      const faces = [
-        { idx: [4, 5, 6, 7], n: [0, 0, 1] },
-        { idx: [1, 0, 3, 2], n: [0, 0, -1] },
-        { idx: [5, 1, 2, 6], n: [1, 0, 0] },
-        { idx: [0, 4, 7, 3], n: [-1, 0, 0] },
-        { idx: [7, 6, 2, 3], n: [0, 1, 0] }
-      ];
-      faces.forEach(f => {
-        const wnX = f.n[0] * cosR + f.n[2] * sinR;
-        const wnY = f.n[1];
-        const wnZ = -f.n[0] * sinR + f.n[2] * cosR;
-        const fv = f.idx.map(i => worldV[i]);
-        const cx = (fv[0].x + fv[2].x) / 2;
-        const cy = (fv[0].y + fv[2].y) / 2;
-        const cz = (fv[0].z + fv[2].z) / 2;
-        if (wnX * (cam.x - cx) + wnY * (cam.y - cy) + wnZ * (cam.z - cz) <= 0) return;
 
-        const pts = fv.map(v => projectPoint(v.x, v.y, v.z));
-        if (pts.some(p => !p)) return;
-        const avgD = pts.reduce((s, p) => s + p.depth, 0) / pts.length;
-        polyList.push({
-          pts,
-          depth: avgD,
-          fill: shadeRGB(rgb, wnX, wnY, wnZ),
-          stroke: clayMode ? 'rgba(20,24,30,0.42)' : 'rgba(0,0,0,0.22)'
+      function resizeStage() {
+        W = window.innerWidth;
+        H = window.innerHeight;
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = W * DPR;
+        canvas.height = H * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        updateSafeFrameLayout();
+      }
+
+      function updateSafeFrameLayout() {
+        const sf = document.getElementById('safe-frame');
+        const availW = Math.max(220, W - 296);
+        const availH = Math.max(140, H - 146);
+        const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
+        let fw = availW;
+        let fh = fw / r;
+        if (fh > availH) {
+          fh = availH;
+          fw = fh * r;
+        }
+        sf.style.width = `${Math.round(fw)}px`;
+        sf.style.height = `${Math.round(fh)}px`;
+      }
+
+      function getLeadActor() {
+        const actives = actors.filter(a => a.active);
+        if (!actives.length) return null;
+        let best = actives[0];
+        let minDist = Infinity;
+        actives.forEach(a => {
+          const d = Math.hypot(a.x - cam.x, a.z - cam.z);
+          if (d < minDist) {
+            minDist = d;
+            best = a;
+          }
         });
-      });
-    }
-
-    function buildActorGeometry(polyList, a) {
-      const hs = a.height / 1.75;
-      const pantsRGB = [34, 40, 52];
-      const skinRGB = [240, 196, 160];
-      const hairRGB = a.archetype === 'elder' ? [195, 200, 208] : [26, 22, 24];
-
-      draw3DBox(polyList, a.x, 0, a.z, a.rot, -0.09, 0.45 * hs, 0, 0.12, 0.90 * hs, 0.13, pantsRGB);
-      draw3DBox(polyList, a.x, 0, a.z, a.rot,  0.09, 0.45 * hs, 0, 0.12, 0.90 * hs, 0.13, pantsRGB);
-
-      const torsoW = a.archetype === 'female' ? 0.32 : 0.38;
-      draw3DBox(polyList, a.x, 0, a.z, a.rot, 0, 1.18 * hs, 0, torsoW, 0.56 * hs, 0.21, a.color);
-
-      draw3DBox(polyList, a.x, 0, a.z, a.rot, -(torsoW / 2 + 0.055), 1.16 * hs, 0, 0.09, 0.52 * hs, 0.10, a.color);
-      draw3DBox(polyList, a.x, 0, a.z, a.rot,  (torsoW / 2 + 0.055), 1.16 * hs, 0, 0.09, 0.52 * hs, 0.10, a.color);
-
-      const headRot = a.rot + a.headTurn;
-      const headY = 1.60 * hs;
-      draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY, 0, 0.19 * hs, 0.23 * hs, 0.20 * hs, skinRGB);
-      draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY + 0.09 * hs, -0.01 * hs, 0.20 * hs, 0.08 * hs, 0.21 * hs, hairRGB);
-
-      if (!clayMode) {
-        draw3DBox(polyList, a.x, 0, a.z, headRot, -0.042 * hs, headY + 0.015 * hs, 0.102 * hs, 0.028 * hs, 0.016 * hs, 0.01, [20, 22, 28]);
-        draw3DBox(polyList, a.x, 0, a.z, headRot,  0.042 * hs, headY + 0.015 * hs, 0.102 * hs, 0.028 * hs, 0.016 * hs, 0.01, [20, 22, 28]);
-        draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY - 0.015 * hs, 0.108 * hs, 0.022 * hs, 0.036 * hs, 0.02, skinRGB);
+        return best;
       }
 
-      const pTop = projectPoint(a.x, headY + 0.18 * hs, a.z);
-      const pBase = projectPoint(a.x, 0.8 * hs, a.z);
-      if (pTop && pBase) {
-        a._hit = { sx: pBase.sx, sy: pBase.sy, r: Math.max(28, 0.38 * pBase.scale), top: pTop };
-      }
-    }
-
-    function drawLine3D(x1, y1, z1, x2, y2, z2, stroke, width = 1, dash = []) {
-      const p1 = projectPoint(x1, y1, z1);
-      const p2 = projectPoint(x2, y2, z2);
-      if (!p1 || !p2) return;
-      ctx.save();
-      ctx.strokeStyle = stroke;
-      ctx.lineWidth = width;
-      ctx.setLineDash(dash);
-      ctx.beginPath();
-      ctx.moveTo(p1.sx, p1.sy);
-      ctx.lineTo(p2.sx, p2.sy);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function calcBlurPx(subjectDist) {
-      if (cam.dofStrength <= 0.01) return 0;
-      const lensFactor = Math.pow(cam.focal / 35, 1.4);
-      const distDiff = Math.abs(subjectDist - cam.focusDist);
-      const rawPx = distDiff * lensFactor * cam.dofStrength * 2.1;
-      return Math.max(0, Math.min(15, +rawPx.toFixed(1)));
-    }
-
-    function renderFrame() {
-      if (cam.autoFocus) {
-        const leadDist = getLeadActorDistance();
-        if (Math.abs(leadDist - cam.focusDist) > 0.05) {
-          cam.focusDist = +leadDist.toFixed(1);
-          const rng = document.getElementById('rng-focus-dist');
-          const lbl = document.getElementById('focus-dist-val');
-          if (rng) rng.value = cam.focusDist;
-          if (lbl) lbl.textContent = `${cam.focusDist.toFixed(1)}m`;
-        }
+      function getLeadActorDistance() {
+        const lead = getLeadActor();
+        if (!lead) return Math.max(1.0, cam.z);
+        return Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
       }
 
-      ctx.clearRect(0, 0, W, H);
+      function worldToCam(wx, wy, wz) {
+        const dx = wx - cam.x;
+        const dy = wy - cam.y;
+        const dz = wz - cam.z;
 
-      const sky = SKY_MAP[env.sky];
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, sky.top);
-      grad.addColorStop(1, sky.bot);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
+        const pRad = cam.pan * Math.PI / 180;
+        const cosP = Math.cos(pRad), sinP = Math.sin(pRad);
+        const x1 = dx * cosP + dz * sinP;
+        const z1 = -dx * sinP + dz * cosP;
 
-      if (env.bgImage) {
-        const sf = document.getElementById('safe-frame').getBoundingClientRect();
-        const mood = MOOD_MAP[light.mood];
-        ctx.save();
-        ctx.globalAlpha = env.bgOpacity;
+        const tRad = cam.tilt * Math.PI / 180;
+        const cosT = Math.cos(tRad), sinT = Math.sin(tRad);
+        const y2 = dy * cosT + z1 * sinT;
+        const z2 = -dy * sinT + z1 * cosT;
 
-        const refFocal = 35;
-        const refDist = 3.6 + env.bgDepthDist;
-        const curDist = Math.max(1.2, cam.z + env.bgDepthDist);
+        const rRad = -cam.roll * Math.PI / 180;
+        const cosR = Math.cos(rRad), sinR = Math.sin(rRad);
+        const x3 = x1 * cosR - y2 * sinR;
+        const y3 = x1 * sinR + y2 * cosR;
 
-        const opticalZoom = (cam.focal / refFocal) * (refDist / curDist);
-        const totalScale = Math.max(1.10, 1.32 * opticalZoom);
+        return { cx: x3, cy: y3, depth: -z2 };
+      }
 
-        const imgR = env.bgImage.width / env.bgImage.height;
-        const boxR = sf.width / sf.height;
-
-        let dw = sf.width * totalScale;
-        let dh = sf.height * totalScale;
-        if (imgR > boxR) {
-          dw = dh * imgR;
-        } else {
-          dh = dw / imgR;
-        }
-
+      function projectPoint(wx, wy, wz) {
+        const c = worldToCam(wx, wy, wz);
+        if (c.depth <= 0.15) return null;
         const focalPx = (cam.focal / 24) * H;
-        const parallaxFactor = Math.max(0.22, Math.min(0.85, 6.5 / curDist));
-        const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.48 - cam.x * (focalPx / curDist) * parallaxFactor;
-        const tiltRad = (cam.tilt * Math.PI) / 180;
-        const horizonPx = (env.horizonOffsetPct / 100) * sf.height;
-        const tiltPx = Math.tan(tiltRad) * focalPx * 0.48 + ((cam.y - 1.60) / curDist) * focalPx * parallaxFactor + horizonPx;
+        return {
+          sx: W / 2 + (c.cx / c.depth) * focalPx,
+          sy: H / 2 - (c.cy / c.depth) * focalPx,
+          depth: c.depth,
+          scale: focalPx / c.depth
+        };
+      }
 
-        const maxShiftX = Math.max(0, (dw - sf.width) * 0.49);
-        const maxShiftY = Math.max(0, (dh - sf.height) * 0.49);
-        const clampedX = Math.max(-maxShiftX, Math.min(maxShiftX, panPx));
-        const clampedY = Math.max(-maxShiftY, Math.min(maxShiftY, tiltPx));
+      function shadeRGB(baseRGB, nx, ny, nz) {
+        const rgb = clayMode ? [205, 210, 218] : baseRGB;
+        const pal = MOOD_MAP[light.mood];
+        const pRad = cam.pan * Math.PI / 180;
+        const lx = Math.cos(pRad) * 0.78 * light.side + Math.sin(pRad) * (-0.35);
+        const ly = 0.52;
+        const lz = Math.sin(pRad) * 0.78 * light.side - Math.cos(pRad) * (-0.35);
+        const len = Math.hypot(lx, ly, lz) || 1;
+        const diff = Math.max(0, nx * (lx / len) + ny * (ly / len) + nz * (lz / len));
+        const r = Math.min(255, Math.round(rgb[0] * (0.28 * (pal.amb[0] / 120) + diff * 1.05 * (pal.key[0] / 195))));
+        const g = Math.min(255, Math.round(rgb[1] * (0.28 * (pal.amb[1] / 120) + diff * 1.05 * (pal.key[1] / 195))));
+        const b = Math.min(255, Math.round(rgb[2] * (0.28 * (pal.amb[2] / 120) + diff * 1.05 * (pal.key[2] / 195))));
+        return `rgb(${r},${g},${b})`;
+      }
 
-        const dx = sf.left - (dw - sf.width) / 2 + clampedX;
-        const dy = sf.top - (dh - sf.height) / 2 + clampedY;
+      function draw3DBox(polyList, ox, oy, oz, rotDeg, lx, ly, lz, w, h, d, rgb) {
+        const rRad = rotDeg * Math.PI / 180;
+        const sinR = Math.sin(rRad), cosR = Math.cos(rRad);
+        const hw = w / 2, hh = h / 2, hd = d / 2;
+        const localV = [
+          [-hw, -hh, -hd], [hw, -hh, -hd], [hw, hh, -hd], [-hw, hh, -hd],
+          [-hw, -hh,  hd], [hw, -hh,  hd], [hw, hh,  hd], [-hw, hh,  hd]
+        ];
+        const worldV = localV.map(([vx, vy, vz]) => {
+          const px = lx + vx, pz = lz + vz;
+          return {
+            x: ox + px * cosR + pz * sinR,
+            y: oy + ly + vy,
+            z: oz - px * sinR + pz * cosR
+          };
+        });
+        const faces = [
+          { idx: [4, 5, 6, 7], n: [0, 0, 1] },
+          { idx: [1, 0, 3, 2], n: [0, 0, -1] },
+          { idx: [5, 1, 2, 6], n: [1, 0, 0] },
+          { idx: [0, 4, 7, 3], n: [-1, 0, 0] },
+          { idx: [7, 6, 2, 3], n: [0, 1, 0] }
+        ];
+        faces.forEach(f => {
+          const wnX = f.n[0] * cosR + f.n[2] * sinR;
+          const wnY = f.n[1];
+          const wnZ = -f.n[0] * sinR + f.n[2] * cosR;
+          const fv = f.idx.map(i => worldV[i]);
+          const cx = (fv[0].x + fv[2].x) / 2;
+          const cy = (fv[0].y + fv[2].y) / 2;
+          const cz = (fv[0].z + fv[2].z) / 2;
+          if (wnX * (cam.x - cx) + wnY * (cam.y - cy) + wnZ * (cam.z - cz) <= 0) return;
 
+          const pts = fv.map(v => projectPoint(v.x, v.y, v.z));
+          if (pts.some(p => !p)) return;
+          const avgD = pts.reduce((s, p) => s + p.depth, 0) / pts.length;
+          polyList.push({
+            pts,
+            depth: avgD,
+            fill: shadeRGB(rgb, wnX, wnY, wnZ),
+            stroke: clayMode ? 'rgba(20,24,30,0.42)' : 'rgba(0,0,0,0.22)'
+          });
+        });
+      }
+
+      function buildActorGeometry(polyList, a) {
+        const hs = a.height / 1.75;
+        const pantsRGB = [34, 40, 52];
+        const skinRGB = [240, 196, 160];
+        const hairRGB = a.archetype === 'elder' ? [195, 200, 208] : [26, 22, 24];
+
+        draw3DBox(polyList, a.x, 0, a.z, a.rot, -0.09, 0.45 * hs, 0, 0.12, 0.90 * hs, 0.13, pantsRGB);
+        draw3DBox(polyList, a.x, 0, a.z, a.rot,  0.09, 0.45 * hs, 0, 0.12, 0.90 * hs, 0.13, pantsRGB);
+
+        const torsoW = a.archetype === 'female' ? 0.32 : 0.38;
+        draw3DBox(polyList, a.x, 0, a.z, a.rot, 0, 1.18 * hs, 0, torsoW, 0.56 * hs, 0.21, a.color);
+
+        draw3DBox(polyList, a.x, 0, a.z, a.rot, -(torsoW / 2 + 0.055), 1.16 * hs, 0, 0.09, 0.52 * hs, 0.10, a.color);
+        draw3DBox(polyList, a.x, 0, a.z, a.rot,  (torsoW / 2 + 0.055), 1.16 * hs, 0, 0.09, 0.52 * hs, 0.10, a.color);
+
+        const headRot = a.rot + a.headTurn;
+        const headY = 1.60 * hs;
+        draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY, 0, 0.19 * hs, 0.23 * hs, 0.20 * hs, skinRGB);
+        draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY + 0.09 * hs, -0.01 * hs, 0.20 * hs, 0.08 * hs, 0.21 * hs, hairRGB);
+
+        if (!clayMode) {
+          draw3DBox(polyList, a.x, 0, a.z, headRot, -0.042 * hs, headY + 0.015 * hs, 0.102 * hs, 0.028 * hs, 0.016 * hs, 0.01, [20, 22, 28]);
+          draw3DBox(polyList, a.x, 0, a.z, headRot,  0.042 * hs, headY + 0.015 * hs, 0.102 * hs, 0.028 * hs, 0.016 * hs, 0.01, [20, 22, 28]);
+          draw3DBox(polyList, a.x, 0, a.z, headRot, 0, headY - 0.015 * hs, 0.108 * hs, 0.022 * hs, 0.036 * hs, 0.02, skinRGB);
+        }
+
+        const pTop = projectPoint(a.x, headY + 0.18 * hs, a.z);
+        const pBase = projectPoint(a.x, 0.8 * hs, a.z);
+        if (pTop && pBase) {
+          a._hit = { sx: pBase.sx, sy: pBase.sy, r: Math.max(28, 0.38 * pBase.scale), top: pTop };
+        }
+      }
+
+      function drawLine3D(x1, y1, z1, x2, y2, z2, stroke, width = 1, dash = []) {
+        const p1 = projectPoint(x1, y1, z1);
+        const p2 = projectPoint(x2, y2, z2);
+        if (!p1 || !p2) return;
+        ctx.save();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = width;
+        ctx.setLineDash(dash);
         ctx.beginPath();
-        ctx.rect(sf.left, sf.top, sf.width, sf.height);
-        ctx.clip();
-
-        const bgBlur = calcBlurPx(curDist);
-        const filterParts = [];
-        if (bgBlur > 0.3) filterParts.push(`blur(${bgBlur}px)`);
-        if (env.bgLightSync) {
-          filterParts.push(`brightness(${mood.bright}) contrast(${mood.contrast})`);
-        }
-        ctx.filter = filterParts.length ? filterParts.join(' ') : 'none';
-        ctx.drawImage(env.bgImage, dx, dy, dw, dh);
-        ctx.filter = 'none';
-
-        if (env.bgLightSync) {
-          ctx.fillStyle = mood.tint;
-          ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
-
-          const dirGrad = light.side === -1
-            ? ctx.createLinearGradient(sf.left, 0, sf.right, 0)
-            : ctx.createLinearGradient(sf.right, 0, sf.left, 0);
-          dirGrad.addColorStop(0, 'rgba(255, 240, 210, 0.12)');
-          dirGrad.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
-          dirGrad.addColorStop(1, 'rgba(4, 8, 16, 0.34)');
-          ctx.fillStyle = dirGrad;
-          ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
-        }
-
+        ctx.moveTo(p1.sx, p1.sy);
+        ctx.lineTo(p2.sx, p2.sy);
+        ctx.stroke();
         ctx.restore();
       }
 
-      if (!cleanRenderFlag) {
-        const gridAlpha = env.bgImage ? 0.14 : 0.09;
-        for (let i = -8; i <= 8; i++) {
-          const col = i === 0 ? 'rgba(229,163,36,0.34)' : `rgba(255,255,255,${gridAlpha})`;
-          drawLine3D(i, 0, -8, i, 0, 8, col, i === 0 ? 1.3 : 1);
-          drawLine3D(-8, 0, i, 8, 0, i, col, i === 0 ? 1.3 : 1);
-        }
+      function calcBlurPx(subjectDist) {
+        if (cam.dofStrength <= 0.01) return 0;
+        const lensFactor = Math.pow(cam.focal / 35, 1.4);
+        const distDiff = Math.abs(subjectDist - cam.focusDist);
+        const rawPx = distDiff * lensFactor * cam.dofStrength * 2.1;
+        return Math.max(0, Math.min(15, +rawPx.toFixed(1)));
       }
 
-      const activeList = actors.filter(a => a.active);
-      activeList.forEach(a => {
-        const pb = projectPoint(a.x, 0.01, a.z);
-        if (pb) {
-          ctx.fillStyle = 'rgba(0,0,0,0.42)';
-          ctx.beginPath();
-          ctx.ellipse(pb.sx, pb.sy, Math.max(10, 0.30 * pb.scale), Math.max(4, 0.11 * pb.scale), 0, 0, Math.PI * 2);
-          ctx.fill();
+      function renderFrame() {
+        if (cam.autoFocus) {
+          const leadDist = getLeadActorDistance();
+          if (Math.abs(leadDist - cam.focusDist) > 0.05) {
+            cam.focusDist = +leadDist.toFixed(1);
+            const rng = document.getElementById('rng-focus-dist');
+            const lbl = document.getElementById('focus-dist-val');
+            if (rng) rng.value = cam.focusDist;
+            if (lbl) lbl.textContent = `${cam.focusDist.toFixed(1)}m`;
+          }
+        }
 
-          if (!cleanRenderFlag) {
-            const bRad = a.rot * Math.PI / 180;
-            const pt = projectPoint(a.x + Math.sin(bRad) * 0.55, 0.01, a.z + Math.cos(bRad) * 0.55);
-            if (pt) {
-              ctx.strokeStyle = a.hex;
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(pb.sx, pb.sy);
-              ctx.lineTo(pt.sx, pt.sy);
-              ctx.stroke();
+        ctx.clearRect(0, 0, W, H);
+
+        const sky = SKY_MAP[env.sky];
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, sky.top);
+        grad.addColorStop(1, sky.bot);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        if (env.bgImage) {
+          const sf = document.getElementById('safe-frame').getBoundingClientRect();
+          const mood = MOOD_MAP[light.mood];
+          ctx.save();
+          ctx.globalAlpha = env.bgOpacity;
+
+          const refFocal = 35;
+          const refDist = 3.6 + env.bgDepthDist;
+          const curDist = Math.max(1.2, cam.z + env.bgDepthDist);
+
+          const opticalZoom = (cam.focal / refFocal) * (refDist / curDist);
+          const totalScale = Math.max(1.10, 1.32 * opticalZoom);
+
+          const imgR = env.bgImage.width / env.bgImage.height;
+          const boxR = sf.width / sf.height;
+
+          let dw = sf.width * totalScale;
+          let dh = sf.height * totalScale;
+          if (imgR > boxR) {
+            dw = dh * imgR;
+          } else {
+            dh = dw / imgR;
+          }
+
+          const focalPx = (cam.focal / 24) * H;
+          const parallaxFactor = Math.max(0.22, Math.min(0.85, 6.5 / curDist));
+          const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.48 - cam.x * (focalPx / curDist) * parallaxFactor;
+          const tiltRad = (cam.tilt * Math.PI) / 180;
+          const horizonPx = (env.horizonOffsetPct / 100) * sf.height;
+          const tiltPx = Math.tan(tiltRad) * focalPx * 0.48 + ((cam.y - 1.60) / curDist) * focalPx * parallaxFactor + horizonPx;
+
+          const maxShiftX = Math.max(0, (dw - sf.width) * 0.49);
+          const maxShiftY = Math.max(0, (dh - sf.height) * 0.49);
+          const clampedX = Math.max(-maxShiftX, Math.min(maxShiftX, panPx));
+          const clampedY = Math.max(-maxShiftY, Math.min(maxShiftY, tiltPx));
+
+          const dx = sf.left - (dw - sf.width) / 2 + clampedX;
+          const dy = sf.top - (dh - sf.height) / 2 + clampedY;
+
+          ctx.beginPath();
+          ctx.rect(sf.left, sf.top, sf.width, sf.height);
+          ctx.clip();
+
+          const bgBlur = calcBlurPx(curDist);
+          const filterParts = [];
+          if (bgBlur > 0.3) filterParts.push(`blur(${bgBlur}px)`);
+          if (env.bgLightSync) {
+            filterParts.push(`brightness(${mood.bright}) contrast(${mood.contrast})`);
+          }
+          ctx.filter = filterParts.length ? filterParts.join(' ') : 'none';
+          ctx.drawImage(env.bgImage, dx, dy, dw, dh);
+          ctx.filter = 'none';
+
+          if (env.bgLightSync) {
+            ctx.fillStyle = mood.tint;
+            ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
+
+            const dirGrad = light.side === -1
+              ? ctx.createLinearGradient(sf.left, 0, sf.right, 0)
+              : ctx.createLinearGradient(sf.right, 0, sf.left, 0);
+            dirGrad.addColorStop(0, 'rgba(255, 240, 210, 0.12)');
+            dirGrad.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
+            dirGrad.addColorStop(1, 'rgba(4, 8, 16, 0.34)');
+            ctx.fillStyle = dirGrad;
+            ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
+          }
+
+          ctx.restore();
+        }
+
+        if (!cleanRenderFlag) {
+          const gridAlpha = env.bgImage ? 0.14 : 0.09;
+          for (let i = -8; i <= 8; i++) {
+            const col = i === 0 ? 'rgba(229,163,36,0.34)' : `rgba(255,255,255,${gridAlpha})`;
+            drawLine3D(i, 0, -8, i, 0, 8, col, i === 0 ? 1.3 : 1);
+            drawLine3D(-8, 0, i, 8, 0, i, col, i === 0 ? 1.3 : 1);
+          }
+        }
+
+        const activeList = actors.filter(a => a.active);
+        activeList.forEach(a => {
+          const pb = projectPoint(a.x, 0.01, a.z);
+          if (pb) {
+            ctx.fillStyle = 'rgba(0,0,0,0.42)';
+            ctx.beginPath();
+            ctx.ellipse(pb.sx, pb.sy, Math.max(10, 0.30 * pb.scale), Math.max(4, 0.11 * pb.scale), 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (!cleanRenderFlag) {
+              const bRad = a.rot * Math.PI / 180;
+              const pt = projectPoint(a.x + Math.sin(bRad) * 0.55, 0.01, a.z + Math.cos(bRad) * 0.55);
+              if (pt) {
+                ctx.strokeStyle = a.hex;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(pb.sx, pb.sy);
+                ctx.lineTo(pt.sx, pt.sy);
+                ctx.stroke();
+              }
             }
           }
-        }
-      });
-
-      const polys = [];
-      activeList.forEach(a => {
-        const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
-        const actorBlur = calcBlurPx(distToCam);
-        const subPolys = [];
-        buildActorGeometry(subPolys, a);
-        subPolys.forEach(sp => {
-          sp.blur = actorBlur;
-          polys.push(sp);
         });
-      });
-      polys.sort((a, b) => b.depth - a.depth);
 
-      polys.forEach(p => {
-        ctx.save();
-        if (p.blur > 0.4) {
-          ctx.filter = `blur(${p.blur}px)`;
-        }
-        ctx.fillStyle = p.fill;
-        ctx.beginPath();
-        ctx.moveTo(p.pts[0].sx, p.pts[0].sy);
-        for (let i = 1; i < p.pts.length; i++) ctx.lineTo(p.pts[i].sx, p.pts[i].sy);
-        ctx.closePath();
-        ctx.fill();
-        if (p.stroke) {
-          ctx.strokeStyle = p.stroke;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-        }
-        ctx.restore();
-      });
-
-      if (!cleanRenderFlag) {
+        const polys = [];
         activeList.forEach(a => {
-          if (!a._hit || !a._hit.top) return;
-          const lx = a._hit.top.sx;
-          const ly = a._hit.top.sy - 18;
-          const label = a.tag ? `${a.id} · ${a.tag}` : a.name;
-          const bw = Math.max(46, label.length * 10 + 12);
-          ctx.fillStyle = 'rgba(12, 15, 20, 0.85)';
-          ctx.strokeStyle = a.hex;
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.roundRect(lx - bw / 2, ly - 11, bw, 17, 5);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#f3f5f8';
-          ctx.font = '600 10px -apple-system, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(label, lx, ly + 1);
+          const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
+          const actorBlur = calcBlurPx(distToCam);
+          const subPolys = [];
+          buildActorGeometry(subPolys, a);
+          subPolys.forEach(sp => {
+            sp.blur = actorBlur;
+            polys.push(sp);
+          });
         });
-      }
+        polys.sort((a, b) => b.depth - a.depth);
 
-      if (isRecordingV2V && offscreenCtx && offscreenCanvas) {
-        const sf = document.getElementById('safe-frame').getBoundingClientRect();
-        offscreenCtx.drawImage(
-          canvas,
-          sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
-          0, 0, offscreenCanvas.width, offscreenCanvas.height
-        );
-      }
-    }
-
-    function updateHUD() {
-      const fTag = cam.autoFocus ? `AF ${cam.focusDist.toFixed(1)}m` : `MF ${cam.focusDist.toFixed(1)}m`;
-      document.getElementById('hud-info').textContent =
-        `${Math.round(cam.focal)}mm · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
-      document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
-      document.getElementById('pt-readout').textContent = `P ${Math.round(cam.pan)}° · T ${Math.round(cam.tilt)}°`;
-      updatePromptText();
-    }
-
-    // ==========================
-    // 1. iPhone 橫向陀螺儀體感掌鏡
-    // ==========================
-    let gyroActive = false;
-    let gyroBase = null;
-    let gyroLatest = null;
-    let gyroSens = 0.85;
-    const GYRO_DEADZONE = 0.45;
-
-    function setGyroSens(val) {
-      gyroSens = parseFloat(val);
-      document.getElementById('gyro-sens-val').textContent = `${gyroSens.toFixed(2)}x`;
-    }
-
-    function handleDeviceOrientation(e) {
-      if (e.alpha === null || e.beta === null || e.gamma === null) return;
-      gyroLatest = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
-      if (!gyroActive) return;
-
-      if (!gyroBase) {
-        gyroBase = { ...gyroLatest, camPan: cam.pan, camTilt: cam.tilt };
-        return;
-      }
-
-      let dAlpha = gyroLatest.alpha - gyroBase.alpha;
-      if (dAlpha > 180) dAlpha -= 360;
-      if (dAlpha < -180) dAlpha += 360;
-
-      const isLandscapeRight = (window.orientation === -90);
-      const rawTiltDelta = isLandscapeRight
-        ? (gyroLatest.gamma - gyroBase.gamma)
-        : -(gyroLatest.gamma - gyroBase.gamma);
-
-      const effAlpha = Math.abs(dAlpha) < GYRO_DEADZONE ? 0 : dAlpha;
-      const effTilt = Math.abs(rawTiltDelta) < GYRO_DEADZONE ? 0 : rawTiltDelta;
-
-      const targetPan = gyroBase.camPan - effAlpha * gyroSens;
-      const targetTilt = Math.max(-55, Math.min(55, gyroBase.camTilt + effTilt * (gyroSens * 0.88)));
-
-      cam.pan += (targetPan - cam.pan) * 0.22;
-      cam.tilt += (targetTilt - cam.tilt) * 0.22;
-      cam.roll = 0;
-      updateHUD();
-    }
-
-    async function toggleGyroMode() {
-      const btn = document.getElementById('btn-gyro');
-      if (gyroActive) {
-        gyroActive = false;
-        btn.textContent = '體感掌鏡: 關';
-        btn.classList.remove('gyro-on');
-        return;
-      }
-
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-          const res = await DeviceOrientationEvent.requestPermission();
-          if (res !== 'granted') {
-            alert('請允許「動作與方向」權限，先可以使用 iPhone 體感掌鏡。');
-            return;
+        polys.forEach(p => {
+          ctx.save();
+          if (p.blur > 0.4) {
+            ctx.filter = `blur(${p.blur}px)`;
           }
-        } catch (err) {
-          alert('iOS 要求透過 HTTPS 網址開啟先可啟用體感掌鏡。');
+          ctx.fillStyle = p.fill;
+          ctx.beginPath();
+          ctx.moveTo(p.pts[0].sx, p.pts[0].sy);
+          for (let i = 1; i < p.pts.length; i++) ctx.lineTo(p.pts[i].sx, p.pts[i].sy);
+          ctx.closePath();
+          ctx.fill();
+          if (p.stroke) {
+            ctx.strokeStyle = p.stroke;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+          ctx.restore();
+        });
+
+        if (!cleanRenderFlag) {
+          activeList.forEach(a => {
+            if (!a._hit || !a._hit.top) return;
+            const lx = a._hit.top.sx;
+            const ly = a._hit.top.sy - 18;
+            const label = a.tag ? `${a.id} · ${a.tag}` : a.name;
+            const bw = Math.max(46, label.length * 10 + 12);
+            ctx.fillStyle = 'rgba(12, 15, 20, 0.85)';
+            ctx.strokeStyle = a.hex;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.roundRect(lx - bw / 2, ly - 11, bw, 17, 5);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#f3f5f8';
+            ctx.font = '600 10px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, lx, ly + 1);
+          });
+        }
+
+        if (isRecordingV2V && offscreenCtx && offscreenCanvas) {
+          const sf = document.getElementById('safe-frame').getBoundingClientRect();
+          offscreenCtx.drawImage(
+            canvas,
+            sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
+            0, 0, offscreenCanvas.width, offscreenCanvas.height
+          );
+        }
+      }
+
+      function updateHUD() {
+        const fTag = cam.autoFocus ? `AF ${cam.focusDist.toFixed(1)}m` : `MF ${cam.focusDist.toFixed(1)}m`;
+        document.getElementById('hud-info').textContent =
+          `${Math.round(cam.focal)}mm · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
+        document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
+        document.getElementById('pt-readout').textContent = `P ${Math.round(cam.pan)}° · T ${Math.round(cam.tilt)}°`;
+        updatePromptText();
+      }
+
+      // ==========================
+      // 1. iPhone 橫向陀螺儀體感掌鏡
+      // ==========================
+      let gyroActive = false;
+      let gyroBase = null;
+      let gyroLatest = null;
+      let gyroSens = 0.85;
+      const GYRO_DEADZONE = 0.45;
+
+      function handleDeviceOrientation(e) {
+        if (e.alpha === null || e.beta === null || e.gamma === null) return;
+        gyroLatest = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
+        if (!gyroActive) return;
+
+        if (!gyroBase) {
+          gyroBase = { ...gyroLatest, camPan: cam.pan, camTilt: cam.tilt };
           return;
         }
-      }
 
-      window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-      gyroActive = true;
-      gyroBase = null;
-      btn.textContent = '體感掌鏡: 開';
-      btn.classList.add('gyro-on');
-    }
+        let dAlpha = gyroLatest.alpha - gyroBase.alpha;
+        if (dAlpha > 180) dAlpha -= 360;
+        if (dAlpha < -180) dAlpha += 360;
 
-    function recenterCamera() {
-      gyroBase = null;
-      cam.pan = 0;
-      cam.tilt = 0;
-      cam.roll = 0;
-      updateHUD();
-    }
+        const isLandscapeRight = (window.orientation === -90);
+        const rawTiltDelta = isLandscapeRight
+          ? (gyroLatest.gamma - gyroBase.gamma)
+          : -(gyroLatest.gamma - gyroBase.gamma);
 
-    // ==========================
-    // 2. 左手拇指區：電影定速推軌
-    // ==========================
-    let dollySpeed = 0.015;
-    let dollyDamping = 0.14;
-    let activeDollyDir = null;
-    let currentVel = { fwd: 0, right: 0 };
+        const effAlpha = Math.abs(dAlpha) < GYRO_DEADZONE ? 0 : dAlpha;
+        const effTilt = Math.abs(rawTiltDelta) < GYRO_DEADZONE ? 0 : rawTiltDelta;
 
-    function setDollySpeed(sp, el) {
-      dollySpeed = sp;
-      document.querySelectorAll('.speed-tier-btn').forEach(b => b.classList.remove('active'));
-      if (el) el.classList.add('active');
-    }
+        const targetPan = gyroBase.camPan - effAlpha * gyroSens;
+        const targetTilt = Math.max(-55, Math.min(55, gyroBase.camTilt + effTilt * (gyroSens * 0.88)));
 
-    function setDollyDamping(val) {
-      dollyDamping = parseFloat(val);
-      const label = dollyDamping <= 0.10 ? '重型軌道滑順' : (dollyDamping >= 0.22 ? '敏捷即時跟手' : '標準電影阻尼');
-      document.getElementById('damping-val').textContent = label;
-    }
-
-    document.querySelectorAll('.dolly-dir-btn').forEach(btn => {
-      const dir = btn.dataset.dir;
-      const press = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        activeDollyDir = dir;
-        btn.classList.add('pressed');
-      };
-      const release = (e) => {
-        e.preventDefault();
-        if (activeDollyDir === dir) activeDollyDir = null;
-        btn.classList.remove('pressed');
-      };
-      btn.addEventListener('touchstart', press, { passive: false });
-      btn.addEventListener('touchend', release, { passive: false });
-      btn.addEventListener('touchcancel', release, { passive: false });
-      btn.addEventListener('mousedown', press);
-      btn.addEventListener('mouseup', release);
-      btn.addEventListener('mouseleave', release);
-    });
-
-    function tickDollyMovement() {
-      let targetFwd = 0;
-      let targetRight = 0;
-      if (activeDollyDir === 'fwd') targetFwd = dollySpeed;
-      if (activeDollyDir === 'back') targetFwd = -dollySpeed;
-      if (activeDollyDir === 'right') targetRight = dollySpeed;
-      if (activeDollyDir === 'left') targetRight = -dollySpeed;
-
-      currentVel.fwd += (targetFwd - currentVel.fwd) * dollyDamping;
-      currentVel.right += (targetRight - currentVel.right) * dollyDamping;
-
-      if (Math.abs(currentVel.fwd) > 0.00015 || Math.abs(currentVel.right) > 0.00015) {
-        const pRad = cam.pan * Math.PI / 180;
-        const fwdX = Math.sin(pRad), fwdZ = -Math.cos(pRad);
-        const rightX = Math.cos(pRad), rightZ = Math.sin(pRad);
-
-        cam.x = Math.max(-8, Math.min(8, cam.x + fwdX * currentVel.fwd + rightX * currentVel.right));
-        cam.z = Math.max(-8, Math.min(8, cam.z + fwdZ * currentVel.fwd + rightZ * currentVel.right));
+        cam.pan += (targetPan - cam.pan) * 0.22;
+        cam.tilt += (targetTilt - cam.tilt) * 0.22;
+        cam.roll = 0;
         updateHUD();
       }
-    }
 
-    // ==========================
-    // 3A. 右手拇指區（左）：Pan / Tilt 雲台搖桿（支持多點觸控同步）
-    // ==========================
-    const ptPad = document.getElementById('pantilt-pad');
-    const ptKnob = document.getElementById('pantilt-knob');
-    let ptTouchId = null;
-    let ptMouseDown = false;
-    let ptNorm = { x: 0, y: 0 };
-    let ptStickSpeed = 1.1;
-
-    function setPanTiltStickSpeed(val) {
-      ptStickSpeed = parseFloat(val);
-      document.getElementById('pt-speed-val').textContent = `${ptStickSpeed.toFixed(1)}°/幀`;
-    }
-
-    function updatePanTiltStick(clientX, clientY) {
-      const rect = ptPad.getBoundingClientRect();
-      const maxR = (rect.width - 30) / 2;
-      let dx = clientX - (rect.left + rect.width / 2);
-      let dy = clientY - (rect.top + rect.height / 2);
-      const dist = Math.hypot(dx, dy);
-      if (dist > maxR) {
-        dx = (dx / dist) * maxR;
-        dy = (dy / dist) * maxR;
-      }
-      ptNorm = { x: dx / maxR, y: dy / maxR };
-      ptKnob.style.transform = `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px))`;
-      ptPad.classList.add('engaged');
-    }
-
-    function releasePanTiltStick() {
-      ptTouchId = null;
-      ptMouseDown = false;
-      ptNorm = { x: 0, y: 0 };
-      ptKnob.style.transform = 'translate(-50%, -50%)';
-      ptPad.classList.remove('engaged');
-    }
-
-    ptPad.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (ptTouchId === null && e.changedTouches.length > 0) {
-        const t = e.changedTouches[0];
-        ptTouchId = t.identifier;
-        updatePanTiltStick(t.clientX, t.clientY);
-      }
-    }, { passive: false });
-
-    ptPad.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === ptTouchId) {
-          updatePanTiltStick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
-          break;
+      async function toggleGyroMode() {
+        const btn = document.getElementById('btn-gyro');
+        if (gyroActive) {
+          gyroActive = false;
+          btn.textContent = '體感掌鏡: 關';
+          btn.classList.remove('gyro-on');
+          return;
         }
-      }
-    }, { passive: false });
 
-    ptPad.addEventListener('touchend', (e) => {
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === ptTouchId) {
-          releasePanTiltStick();
-          break;
-        }
-      }
-    });
-    ptPad.addEventListener('touchcancel', releasePanTiltStick);
-
-    ptPad.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      ptMouseDown = true;
-      updatePanTiltStick(e.clientX, e.clientY);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (ptMouseDown) updatePanTiltStick(e.clientX, e.clientY);
-    });
-    window.addEventListener('mouseup', () => {
-      if (ptMouseDown) releasePanTiltStick();
-    });
-
-    function tickPanTiltStick() {
-      if (Math.hypot(ptNorm.x, ptNorm.y) < 0.08) return;
-      cam.pan = +((((cam.pan + ptNorm.x * ptStickSpeed + 540) % 360) - 180).toFixed(2));
-      cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - ptNorm.y * (ptStickSpeed * 0.85))).toFixed(2);
-      updateHUD();
-    }
-
-    // ==========================
-    // 3B. 右手拇指區（右）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
-    // ==========================
-    const craneTrack = document.getElementById('crane-track');
-    const craneKnob = document.getElementById('crane-knob');
-    let craneTouchId = null;
-    let craneMouseDown = false;
-    let craneNormY = 0;
-
-    function toggleCranePitchLock() {
-      cam.cranePitchLock = !cam.cranePitchLock;
-      const btn = document.getElementById('btn-crane-lock');
-      btn.textContent = cam.cranePitchLock ? '鎖視線:開' : '鎖視線:關';
-      btn.classList.toggle('active', cam.cranePitchLock);
-    }
-
-    function updateCraneStick(clientY) {
-      const rect = craneTrack.getBoundingClientRect();
-      const maxTravel = (rect.height - 34) / 2;
-      const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
-      craneNormY = dy / maxTravel;
-      craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
-      craneTrack.classList.add('engaged');
-    }
-
-    function releaseCraneStick() {
-      craneTouchId = null;
-      craneMouseDown = false;
-      craneNormY = 0;
-      craneKnob.style.transform = 'translate(-50%, -50%)';
-      craneTrack.classList.remove('engaged');
-    }
-
-    craneTrack.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (craneTouchId === null && e.changedTouches.length > 0) {
-        const t = e.changedTouches[0];
-        craneTouchId = t.identifier;
-        updateCraneStick(t.clientY);
-      }
-    }, { passive: false });
-
-    craneTrack.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === craneTouchId) {
-          updateCraneStick(e.changedTouches[i].clientY);
-          break;
-        }
-      }
-    }, { passive: false });
-
-    craneTrack.addEventListener('touchend', (e) => {
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === craneTouchId) {
-          releaseCraneStick();
-          break;
-        }
-      }
-    });
-    craneTrack.addEventListener('touchcancel', releaseCraneStick);
-
-    craneTrack.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      craneMouseDown = true;
-      updateCraneStick(e.clientY);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (craneMouseDown) updateCraneStick(e.clientY);
-    });
-    window.addEventListener('mouseup', () => {
-      if (craneMouseDown) releaseCraneStick();
-    });
-
-    function tickCraneMovement() {
-      if (Math.abs(craneNormY) < 0.06) return;
-      const liftDelta = -craneNormY * 0.032;
-      const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
-      if (Math.abs(nextY - cam.y) > 0.0001) {
-        cam.y = nextY;
-        if (cam.cranePitchLock) {
-          const lead = getLeadActor();
-          if (lead) {
-            const targetEyeY = (lead.height / 1.75) * 1.48;
-            const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
-            const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-            cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          try {
+            const res = await DeviceOrientationEvent.requestPermission();
+            if (res !== 'granted') {
+              alert('請允許「動作與方向」權限，先可以使用 iPhone 體感掌鏡。');
+              return;
+            }
+          } catch (err) {
+            alert('iOS 要求透過 HTTPS 網址開啟先可啟用體感掌鏡。');
+            return;
           }
         }
-        updateHUD();
+
+        window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+        gyroActive = true;
+        gyroBase = null;
+        btn.textContent = '體感掌鏡: 開';
+        btn.classList.add('gyro-on');
       }
-    }
 
-    // ==========================
-    // 4. 可拖曳實景地平線基準線 + 防誤觸單指拖曳/雙指縮放
-    // ==========================
-    const horizonLineEl = document.getElementById('horizon-guide-line');
-    const horizonPillEl = document.getElementById('horizon-guide-pill');
-    let draggingHorizon = false;
+      // ==========================
+      // 2. 左手拇指區：電影定速推軌
+      // ==========================
+      let dollySpeed = 0.015;
+      let dollyDamping = 0.14;
+      let activeDollyDir = null;
+      let currentVel = { fwd: 0, right: 0 };
 
-    function updateHorizonGuidePosition() {
-      const hasBg = !!env.bgImage && env.showHorizonGuide && !cleanRenderFlag;
-      horizonLineEl.classList.toggle('visible', hasBg);
-      const topPct = 50 + env.horizonOffsetPct;
-      horizonLineEl.style.top = `${Math.max(12, Math.min(88, topPct))}%`;
-      horizonPillEl.textContent = `↕ 拖曳對齊實景地平線 (${env.horizonOffsetPct > 0 ? '+' : ''}${env.horizonOffsetPct}%)`;
-    }
+      document.querySelectorAll('.speed-tier-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          dollySpeed = parseFloat(btn.dataset.sp);
+          document.querySelectorAll('.speed-tier-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
 
-    function dragHorizonFromClientY(clientY) {
-      const sf = document.getElementById('safe-frame').getBoundingClientRect();
-      const relPct = Math.round(((clientY - sf.top) / sf.height - 0.5) * 100);
-      const clamped = Math.max(-35, Math.min(35, relPct));
-      setHorizonOffset(clamped);
-      document.getElementById('rng-bg-hor').value = clamped;
-    }
+      document.querySelectorAll('.dolly-dir-btn').forEach(btn => {
+        const dir = btn.dataset.dir;
+        const press = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          activeDollyDir = dir;
+          btn.classList.add('pressed');
+        };
+        const release = (e) => {
+          e.preventDefault();
+          if (activeDollyDir === dir) activeDollyDir = null;
+          btn.classList.remove('pressed');
+        };
+        btn.addEventListener('touchstart', press, { passive: false });
+        btn.addEventListener('touchend', release, { passive: false });
+        btn.addEventListener('touchcancel', release, { passive: false });
+        btn.addEventListener('mousedown', press);
+        btn.addEventListener('mouseup', release);
+        btn.addEventListener('mouseleave', release);
+      });
 
-    horizonLineEl.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      draggingHorizon = true;
-    }, { passive: false });
-    horizonLineEl.addEventListener('touchmove', (e) => {
-      if (!draggingHorizon) return;
-      e.preventDefault();
-      e.stopPropagation();
-      dragHorizonFromClientY(e.touches[0].clientY);
-    }, { passive: false });
-    horizonLineEl.addEventListener('touchend', () => { draggingHorizon = false; });
+      function tickDollyMovement() {
+        let targetFwd = 0;
+        let targetRight = 0;
+        if (activeDollyDir === 'fwd') targetFwd = dollySpeed;
+        if (activeDollyDir === 'back') targetFwd = -dollySpeed;
+        if (activeDollyDir === 'right') targetRight = dollySpeed;
+        if (activeDollyDir === 'left') targetRight = -dollySpeed;
 
-    horizonLineEl.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      draggingHorizon = true;
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (draggingHorizon) dragHorizonFromClientY(e.clientY);
-    });
-    window.addEventListener('mouseup', () => { draggingHorizon = false; });
+        currentVel.fwd += (targetFwd - currentVel.fwd) * dollyDamping;
+        currentVel.right += (targetRight - currentVel.right) * dollyDamping;
 
-    let singleTouchId = null;
-    let touchStartPt = { x: 0, y: 0 };
-    let prevTouchPt = { x: 0, y: 0 };
-    let candidateActor = null;
-    let draggedActor = null;
-    let pinchStartDist = 0;
-    let pinchStartFocal = 35;
+        if (Math.abs(currentVel.fwd) > 0.00015 || Math.abs(currentVel.right) > 0.00015) {
+          const pRad = cam.pan * Math.PI / 180;
+          const fwdX = Math.sin(pRad), fwdZ = -Math.cos(pRad);
+          const rightX = Math.cos(pRad), rightZ = Math.sin(pRad);
 
-    canvas.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) {
-        singleTouchId = null;
-        candidateActor = null;
-        draggedActor = null;
-        pinchStartDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        pinchStartFocal = cam.focal;
-        return;
+          cam.x = Math.max(-8, Math.min(8, cam.x + fwdX * currentVel.fwd + rightX * currentVel.right));
+          cam.z = Math.max(-8, Math.min(8, cam.z + fwdZ * currentVel.fwd + rightZ * currentVel.right));
+          updateHUD();
+        }
       }
-      if (e.touches.length === 1) {
-        const t = e.touches[0];
-        singleTouchId = t.identifier;
-        touchStartPt = { x: t.clientX, y: t.clientY };
-        prevTouchPt = { x: t.clientX, y: t.clientY };
-        candidateActor = null;
-        draggedActor = null;
 
-        const actives = actors.filter(a => a.active && a._hit);
-        for (let i = actives.length - 1; i >= 0; i--) {
-          const h = actives[i]._hit;
-          if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.1) {
-            candidateActor = actives[i];
+      // ==========================
+      // 3A. 右手拇指區（左）：Pan / Tilt 雲台搖桿
+      // ==========================
+      const ptPad = document.getElementById('pantilt-pad');
+      const ptKnob = document.getElementById('pantilt-knob');
+      let ptTouchId = null;
+      let ptMouseDown = false;
+      let ptNorm = { x: 0, y: 0 };
+      let ptStickSpeed = 1.1;
+
+      function updatePanTiltStick(clientX, clientY) {
+        const rect = ptPad.getBoundingClientRect();
+        const maxR = (rect.width - 30) / 2;
+        let dx = clientX - (rect.left + rect.width / 2);
+        let dy = clientY - (rect.top + rect.height / 2);
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxR) {
+          dx = (dx / dist) * maxR;
+          dy = (dy / dist) * maxR;
+        }
+        ptNorm = { x: dx / maxR, y: dy / maxR };
+        ptKnob.style.transform = `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px))`;
+        ptPad.classList.add('engaged');
+      }
+
+      function releasePanTiltStick() {
+        ptTouchId = null;
+        ptMouseDown = false;
+        ptNorm = { x: 0, y: 0 };
+        ptKnob.style.transform = 'translate(-50%, -50%)';
+        ptPad.classList.remove('engaged');
+      }
+
+      ptPad.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ptTouchId === null && e.changedTouches.length > 0) {
+          const t = e.changedTouches[0];
+          ptTouchId = t.identifier;
+          updatePanTiltStick(t.clientX, t.clientY);
+        }
+      }, { passive: false });
+
+      ptPad.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === ptTouchId) {
+            updatePanTiltStick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
             break;
           }
         }
+      }, { passive: false });
+
+      ptPad.addEventListener('touchend', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === ptTouchId) {
+            releasePanTiltStick();
+            break;
+          }
+        }
+      });
+      ptPad.addEventListener('touchcancel', releasePanTiltStick);
+
+      ptPad.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        ptMouseDown = true;
+        updatePanTiltStick(e.clientX, e.clientY);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (ptMouseDown) updatePanTiltStick(e.clientX, e.clientY);
+      });
+      window.addEventListener('mouseup', () => {
+        if (ptMouseDown) releasePanTiltStick();
+      });
+
+      function tickPanTiltStick() {
+        if (Math.hypot(ptNorm.x, ptNorm.y) < 0.08) return;
+        cam.pan = +((((cam.pan + ptNorm.x * ptStickSpeed + 540) % 360) - 180).toFixed(2));
+        cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - ptNorm.y * (ptStickSpeed * 0.85))).toFixed(2);
+        updateHUD();
       }
-    }, { passive: true });
 
-    canvas.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2 && pinchStartDist > 10) {
-        const curDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        const ratio = curDist / pinchStartDist;
-        const nextFocal = Math.max(12, Math.min(150, Math.round(pinchStartFocal * ratio)));
-        setFocal(nextFocal);
-        return;
+      // ==========================
+      // 3B. 右手拇指區（右）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
+      // ==========================
+      const craneTrack = document.getElementById('crane-track');
+      const craneKnob = document.getElementById('crane-knob');
+      let craneTouchId = null;
+      let craneMouseDown = false;
+      let craneNormY = 0;
+
+      function updateCraneStick(clientY) {
+        const rect = craneTrack.getBoundingClientRect();
+        const maxTravel = (rect.height - 34) / 2;
+        const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
+        craneNormY = dy / maxTravel;
+        craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
+        craneTrack.classList.add('engaged');
       }
 
-      if (e.touches.length === 1 && singleTouchId !== null) {
-        const t = e.touches[0];
-        const totalMove = Math.hypot(t.clientX - touchStartPt.x, t.clientY - touchStartPt.y);
-        const dx = t.clientX - prevTouchPt.x;
-        const dy = t.clientY - prevTouchPt.y;
-        prevTouchPt = { x: t.clientX, y: t.clientY };
+      function releaseCraneStick() {
+        craneTouchId = null;
+        craneMouseDown = false;
+        craneNormY = 0;
+        craneKnob.style.transform = 'translate(-50%, -50%)';
+        craneTrack.classList.remove('engaged');
+      }
 
-        if (candidateActor && !draggedActor && totalMove > 10) {
-          draggedActor = candidateActor;
+      craneTrack.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (craneTouchId === null && e.changedTouches.length > 0) {
+          const t = e.changedTouches[0];
+          craneTouchId = t.identifier;
+          updateCraneStick(t.clientY);
+        }
+      }, { passive: false });
+
+      craneTrack.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === craneTouchId) {
+            updateCraneStick(e.changedTouches[i].clientY);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      craneTrack.addEventListener('touchend', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === craneTouchId) {
+            releaseCraneStick();
+            break;
+          }
+        }
+      });
+      craneTrack.addEventListener('touchcancel', releaseCraneStick);
+
+      craneTrack.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        craneMouseDown = true;
+        updateCraneStick(e.clientY);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (craneMouseDown) updateCraneStick(e.clientY);
+      });
+      window.addEventListener('mouseup', () => {
+        if (craneMouseDown) releaseCraneStick();
+      });
+
+      function tickCraneMovement() {
+        if (Math.abs(craneNormY) < 0.06) return;
+        const liftDelta = -craneNormY * 0.032;
+        const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
+        if (Math.abs(nextY - cam.y) > 0.0001) {
+          cam.y = nextY;
+          if (cam.cranePitchLock) {
+            const lead = getLeadActor();
+            if (lead) {
+              const targetEyeY = (lead.height / 1.75) * 1.48;
+              const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
+              const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.25));
+            }
+          }
+          updateHUD();
+        }
+      }
+
+      // ==========================
+      // 4. 可拖曳實景地平線基準線 + 單指拖曳/雙指縮放
+      // ==========================
+      const horizonLineEl = document.getElementById('horizon-guide-line');
+      const horizonPillEl = document.getElementById('horizon-guide-pill');
+      let draggingHorizon = false;
+
+      function updateHorizonGuidePosition() {
+        const hasBg = !!env.bgImage && env.showHorizonGuide && !cleanRenderFlag;
+        horizonLineEl.classList.toggle('visible', hasBg);
+        const topPct = 50 + env.horizonOffsetPct;
+        horizonLineEl.style.top = `${Math.max(12, Math.min(88, topPct))}%`;
+        horizonPillEl.textContent = `↕ 拖曳對齊實景地平線 (${env.horizonOffsetPct > 0 ? '+' : ''}${env.horizonOffsetPct}%)`;
+      }
+
+      function setHorizonOffset(val) {
+        env.horizonOffsetPct = parseInt(val, 10);
+        document.getElementById('bg-hor-val').textContent = `${env.horizonOffsetPct}%`;
+        document.getElementById('rng-bg-hor').value = env.horizonOffsetPct;
+        updateHorizonGuidePosition();
+      }
+
+      function dragHorizonFromClientY(clientY) {
+        const sf = document.getElementById('safe-frame').getBoundingClientRect();
+        const relPct = Math.round(((clientY - sf.top) / sf.height - 0.5) * 100);
+        const clamped = Math.max(-35, Math.min(35, relPct));
+        setHorizonOffset(clamped);
+      }
+
+      horizonLineEl.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        draggingHorizon = true;
+      }, { passive: false });
+      horizonLineEl.addEventListener('touchmove', (e) => {
+        if (!draggingHorizon) return;
+        e.preventDefault();
+        e.stopPropagation();
+        dragHorizonFromClientY(e.touches[0].clientY);
+      }, { passive: false });
+      horizonLineEl.addEventListener('touchend', () => { draggingHorizon = false; });
+
+      horizonLineEl.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        draggingHorizon = true;
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (draggingHorizon) dragHorizonFromClientY(e.clientY);
+      });
+      window.addEventListener('mouseup', () => { draggingHorizon = false; });
+
+      let singleTouchId = null;
+      let touchStartPt = { x: 0, y: 0 };
+      let prevTouchPt = { x: 0, y: 0 };
+      let candidateActor = null;
+      let draggedActor = null;
+      let pinchStartDist = 0;
+      let pinchStartFocal = 35;
+
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          singleTouchId = null;
+          candidateActor = null;
+          draggedActor = null;
+          pinchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          pinchStartFocal = cam.focal;
+          return;
+        }
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          singleTouchId = t.identifier;
+          touchStartPt = { x: t.clientX, y: t.clientY };
+          prevTouchPt = { x: t.clientX, y: t.clientY };
+          candidateActor = null;
+          draggedActor = null;
+
+          const actives = actors.filter(a => a.active && a._hit);
+          for (let i = actives.length - 1; i >= 0; i--) {
+            const h = actives[i]._hit;
+            if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.1) {
+              candidateActor = actives[i];
+              break;
+            }
+          }
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && pinchStartDist > 10) {
+          const curDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const ratio = curDist / pinchStartDist;
+          const nextFocal = Math.max(12, Math.min(150, Math.round(pinchStartFocal * ratio)));
+          setFocal(nextFocal);
+          return;
         }
 
-        if (draggedActor) {
-          const pRad = cam.pan * Math.PI / 180;
-          const sens = 0.0075;
-          draggedActor.x = +Math.max(-5, Math.min(5, draggedActor.x + (Math.cos(pRad) * dx - Math.sin(pRad) * dy) * sens)).toFixed(2);
-          draggedActor.z = +Math.max(-5, Math.min(5, draggedActor.z + (Math.sin(pRad) * dx + Math.cos(pRad) * dy) * sens)).toFixed(2);
-          renderCastControls();
-          updateHUD();
-        } else if (!candidateActor) {
-          cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
-          cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
-          updateHUD();
+        if (e.touches.length === 1 && singleTouchId !== null) {
+          const t = e.touches[0];
+          const totalMove = Math.hypot(t.clientX - touchStartPt.x, t.clientY - touchStartPt.y);
+          const dx = t.clientX - prevTouchPt.x;
+          const dy = t.clientY - prevTouchPt.y;
+          prevTouchPt = { x: t.clientX, y: t.clientY };
+
+          if (candidateActor && !draggedActor && totalMove > 10) {
+            draggedActor = candidateActor;
+          }
+
+          if (draggedActor) {
+            const pRad = cam.pan * Math.PI / 180;
+            const sens = 0.0075;
+            draggedActor.x = +Math.max(-5, Math.min(5, draggedActor.x + (Math.cos(pRad) * dx - Math.sin(pRad) * dy) * sens)).toFixed(2);
+            draggedActor.z = +Math.max(-5, Math.min(5, draggedActor.z + (Math.sin(pRad) * dx + Math.cos(pRad) * dy) * sens)).toFixed(2);
+            renderCastControls();
+            updateHUD();
+          } else if (!candidateActor) {
+            cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
+            cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
+            updateHUD();
+          }
         }
-      }
-    }, { passive: true });
+      }, { passive: true });
 
-    canvas.addEventListener('touchend', () => {
-      singleTouchId = null;
-      candidateActor = null;
-      draggedActor = null;
-      pinchStartDist = 0;
-    });
+      canvas.addEventListener('touchend', () => {
+        singleTouchId = null;
+        candidateActor = null;
+        draggedActor = null;
+        pinchStartDist = 0;
+      });
 
-    // ==========================
-    // 5. 鎖定倒數 2 秒後穩定開錄 + 首幀同步儲存（無自動停機時限）
-    // ==========================
-    let isRecordingV2V = false;
-    let isPrerolling = false;
-    let prerollInterval = null;
-    let autoSaveStartFrame = true;
+      // 桌面／滑鼠拖曳支援
+      let mouseDragCam = false;
+      let prevMousePt = { x: 0, y: 0 };
+      canvas.addEventListener('mousedown', (e) => {
+        mouseDragCam = true;
+        prevMousePt = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!mouseDragCam) return;
+        const dx = e.clientX - prevMousePt.x;
+        const dy = e.clientY - prevMousePt.y;
+        prevMousePt = { x: e.clientX, y: e.clientY };
+        cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
+        cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
+        updateHUD();
+      });
+      window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let offscreenCanvas = null;
-    let offscreenCtx = null;
-    let recStartTime = 0;
-    let recTimerInterval = null;
+      // ==========================
+      // 5. 鎖定倒數 2 秒後穩定開錄 + 首幀同步儲存（無自動停機時限）
+      // ==========================
+      let isRecordingV2V = false;
+      let isPrerolling = false;
+      let prerollInterval = null;
+      let autoSaveStartFrame = true;
 
-    function toggleAutoStartFrame() {
-      autoSaveStartFrame = !autoSaveStartFrame;
-      const btn = document.getElementById('btn-start-frame-auto');
-      btn.textContent = autoSaveStartFrame ? '錄影同步存首幀圖: 開' : '錄影同步存首幀圖: 關';
-      btn.classList.toggle('active', autoSaveStartFrame);
-    }
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let offscreenCanvas = null;
+      let offscreenCtx = null;
+      let recStartTime = 0;
+      let recTimerInterval = null;
 
-    function clearPrerollTimers() {
-      if (prerollInterval) {
-        clearInterval(prerollInterval);
-        prerollInterval = null;
-      }
-      isPrerolling = false;
-    }
-
-    function resetRecIdleUI() {
-      document.getElementById('btn-record-v2v').classList.remove('recording');
-      document.getElementById('rec-badge').classList.remove('recording', 'preroll');
-      document.getElementById('rec-label-text').innerHTML =
-        '錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span>';
-      document.getElementById('rec-timer').textContent = '00:00';
-    }
-
-    function toggleV2VRecording() {
-      if (isPrerolling) {
-        clearPrerollTimers();
-        resetRecIdleUI();
-        return;
-      }
-      if (isRecordingV2V) {
-        stopV2VRecording();
-        return;
+      function clearPrerollTimers() {
+        if (prerollInterval) {
+          clearInterval(prerollInterval);
+          prerollInterval = null;
+        }
+        isPrerolling = false;
       }
 
-      // 鎖定倒數 2 秒後先真實開始錄
-      let leftSec = 2;
-      isPrerolling = true;
-      const badge = document.getElementById('rec-badge');
-      badge.classList.remove('recording');
-      badge.classList.add('preroll');
-      document.getElementById('rec-timer').textContent = `預備 ${leftSec}s`;
-      document.getElementById('rec-label-text').innerHTML =
-        '預備中<br><span style="font-size:8.5px; color:var(--accent-amber); font-weight:700;">再按取消</span>';
+      function resetRecIdleUI() {
+        document.getElementById('btn-record-v2v').classList.remove('recording');
+        document.getElementById('rec-badge').classList.remove('recording', 'preroll');
+        document.getElementById('rec-label-text').innerHTML =
+          '錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span>';
+        document.getElementById('rec-timer').textContent = '00:00';
+      }
 
-      prerollInterval = setInterval(() => {
-        leftSec -= 1;
-        if (leftSec > 0) {
-          document.getElementById('rec-timer').textContent = `預備 ${leftSec}s`;
-        } else {
+      function toggleV2VRecording() {
+        if (isPrerolling) {
           clearPrerollTimers();
-          startV2VRecording();
+          resetRecIdleUI();
+          return;
         }
-      }, 1000);
-    }
-
-    function startV2VRecording() {
-      clearPrerollTimers();
-      clearInterval(recTimerInterval);
-
-      if (typeof MediaRecorder === 'undefined') {
-        resetRecIdleUI();
-        alert('此瀏覽器不支援影片錄製，請使用 iOS 16+ Safari 開啟。');
-        return;
-      }
-
-      const sf = document.getElementById('safe-frame').getBoundingClientRect();
-      offscreenCanvas = document.createElement('canvas');
-      offscreenCanvas.width = Math.max(320, Math.round(sf.width * DPR));
-      offscreenCanvas.height = Math.max(180, Math.round(sf.height * DPR));
-      offscreenCtx = offscreenCanvas.getContext('2d');
-
-      cleanRenderFlag = true;
-      updateHorizonGuidePosition();
-      renderFrame();
-
-      if (autoSaveStartFrame) {
-        offscreenCtx.drawImage(
-          canvas,
-          sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
-          0, 0, offscreenCanvas.width, offscreenCanvas.height
-        );
-        const startLink = document.createElement('a');
-        startLink.href = offscreenCanvas.toDataURL('image/png');
-        startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
-        startLink.click();
-      }
-
-      const stream = offscreenCanvas.captureStream(30);
-      const candidates = [
-        'video/mp4;codecs=avc1',
-        'video/mp4',
-        'video/webm;codecs=vp9',
-        'video/webm'
-      ];
-      let chosenMime = '';
-      for (const m of candidates) {
-        if (MediaRecorder.isTypeSupported(m)) {
-          chosenMime = m;
-          break;
+        if (isRecordingV2V) {
+          stopV2VRecording();
+          return;
         }
+
+        let leftSec = 2;
+        isPrerolling = true;
+        const badge = document.getElementById('rec-badge');
+        badge.classList.remove('recording');
+        badge.classList.add('preroll');
+        document.getElementById('rec-timer').textContent = `預備 ${leftSec}s`;
+        document.getElementById('rec-label-text').innerHTML =
+          '預備中<br><span style="font-size:8.5px; color:var(--accent-amber); font-weight:700;">再按取消</span>';
+
+        prerollInterval = setInterval(() => {
+          leftSec -= 1;
+          if (leftSec > 0) {
+            document.getElementById('rec-timer').textContent = `預備 ${leftSec}s`;
+          } else {
+            clearPrerollTimers();
+            startV2VRecording();
+          }
+        }, 1000);
       }
 
-      recordedChunks = [];
-      let recorder = null;
-      try {
-        recorder = chosenMime
-          ? new MediaRecorder(stream, { mimeType: chosenMime, videoBitsPerSecond: 4500000 })
-          : new MediaRecorder(stream);
-        recorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
-        };
-        recorder.onstop = () => {
+      function startV2VRecording() {
+        clearPrerollTimers();
+        if (recTimerInterval) {
+          clearInterval(recTimerInterval);
+          recTimerInterval = null;
+        }
+
+        if (typeof MediaRecorder === 'undefined') {
+          resetRecIdleUI();
+          alert('此瀏覽器不支援影片錄製，請使用 iOS 16+ Safari 開啟。');
+          return;
+        }
+
+        const sf = document.getElementById('safe-frame').getBoundingClientRect();
+        offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = Math.max(320, Math.round(sf.width * DPR));
+        offscreenCanvas.height = Math.max(180, Math.round(sf.height * DPR));
+        offscreenCtx = offscreenCanvas.getContext('2d');
+
+        cleanRenderFlag = true;
+        updateHorizonGuidePosition();
+        renderFrame();
+
+        if (autoSaveStartFrame) {
+          offscreenCtx.drawImage(
+            canvas,
+            sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
+            0, 0, offscreenCanvas.width, offscreenCanvas.height
+          );
+          const startLink = document.createElement('a');
+          startLink.href = offscreenCanvas.toDataURL('image/png');
+          startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
+          startLink.click();
+        }
+
+        const stream = offscreenCanvas.captureStream(30);
+        const candidates = [
+          'video/mp4;codecs=avc1',
+          'video/mp4',
+          'video/webm;codecs=vp9',
+          'video/webm'
+        ];
+        let chosenMime = '';
+        for (const m of candidates) {
+          if (MediaRecorder.isTypeSupported(m)) {
+            chosenMime = m;
+            break;
+          }
+        }
+
+        recordedChunks = [];
+        try {
+          const recorder = chosenMime
+            ? new MediaRecorder(stream, { mimeType: chosenMime, videoBitsPerSecond: 4500000 })
+            : new MediaRecorder(stream);
+          recorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+          };
+          recorder.onstop = () => {
+            cleanRenderFlag = false;
+            updateHorizonGuidePosition();
+            const isMp4 = (chosenMime || '').includes('mp4');
+            const ext = isMp4 ? 'mp4' : 'webm';
+            const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
+            a.click();
+          };
+          recorder.start(200);
+          mediaRecorder = recorder;
+        } catch (err) {
           cleanRenderFlag = false;
           updateHorizonGuidePosition();
-          const isMp4 = (chosenMime || '').includes('mp4');
-          const ext = isMp4 ? 'mp4' : 'webm';
-          const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
-          a.click();
-        };
-        recorder.start(200);
-        mediaRecorder = recorder;
-      } catch (err) {
-        cleanRenderFlag = false;
-        updateHorizonGuidePosition();
+          resetRecIdleUI();
+          alert('無法啟動錄影：' + err.message);
+          return;
+        }
+
+        isRecordingV2V = true;
+        recStartTime = Date.now();
+
+        const badge = document.getElementById('rec-badge');
+        badge.classList.remove('preroll');
+        badge.classList.add('recording');
+        document.getElementById('btn-record-v2v').classList.add('recording');
+        document.getElementById('rec-label-text').innerHTML =
+          '錄影中<br><span style="font-size:8.5px; color:#fca5a5; font-weight:700;">按此停機</span>';
+
+        recTimerInterval = setInterval(() => {
+          if (!isRecordingV2V) return;
+          const sec = Math.floor((Date.now() - recStartTime) / 1000);
+          const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+          const ss = String(sec % 60).padStart(2, '0');
+          document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
+        }, 200);
+      }
+
+      function stopV2VRecording() {
+        isRecordingV2V = false;
+        clearPrerollTimers();
+        if (recTimerInterval) {
+          clearInterval(recTimerInterval);
+          recTimerInterval = null;
+        }
         resetRecIdleUI();
-        alert('無法啟動錄影：' + err.message);
-        return;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
       }
 
-      isRecordingV2V = true;
-      recStartTime = Date.now();
+      function exportCleanFrame() {
+        const prevClean = cleanRenderFlag;
+        cleanRenderFlag = true;
+        updateHorizonGuidePosition();
+        renderFrame();
 
-      const badge = document.getElementById('rec-badge');
-      badge.classList.remove('preroll');
-      badge.classList.add('recording');
-      document.getElementById('btn-record-v2v').classList.add('recording');
-      document.getElementById('rec-label-text').innerHTML =
-        '錄影中<br><span style="font-size:8.5px; color:#fca5a5; font-weight:700;">按此停機</span>';
+        const sf = document.getElementById('safe-frame').getBoundingClientRect();
+        const out = document.createElement('canvas');
+        out.width = Math.round(sf.width * DPR);
+        out.height = Math.round(sf.height * DPR);
+        out.getContext('2d').drawImage(
+          canvas,
+          sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
+          0, 0, out.width, out.height
+        );
 
-      recTimerInterval = setInterval(() => {
-        if (!isRecordingV2V) return;
-        const sec = Math.floor((Date.now() - recStartTime) / 1000);
-        const mm = String(Math.floor(sec / 60)).padStart(2, '0');
-        const ss = String(sec % 60)).padStart(2, '0');
-        document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
-      }, 200);
-    }
-
-    function stopV2VRecording() {
-      isRecordingV2V = false;
-      clearPrerollTimers();
-      clearInterval(recTimerInterval);
-      resetRecIdleUI();
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
+        cleanRenderFlag = prevClean;
+        updateHorizonGuidePosition();
+        const a = document.createElement('a');
+        a.href = out.toDataURL('image/png');
+        a.download = `CineAI_Clean_${Math.round(cam.focal)}mm.png`;
+        a.click();
       }
-    }
 
-    function exportCleanFrame() {
-      const prevClean = cleanRenderFlag;
-      cleanRenderFlag = true;
-      updateHorizonGuidePosition();
-      renderFrame();
-
-      const sf = document.getElementById('safe-frame').getBoundingClientRect();
-      const out = document.createElement('canvas');
-      out.width = Math.round(sf.width * DPR);
-      out.height = Math.round(sf.height * DPR);
-      out.getContext('2d').drawImage(
-        canvas,
-        sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
-        0, 0, out.width, out.height
-      );
-
-      cleanRenderFlag = prevClean;
-      updateHorizonGuidePosition();
-      const a = document.createElement('a');
-      a.href = out.toDataURL('image/png');
-      a.download = `CineAI_Clean_${Math.round(cam.focal)}mm.png`;
-      a.click();
-    }
-
-    // ==========================
-    // 6. 控制、多實景相片切換、散景與 V2V 指令
-    // ==========================
-    function setFocal(mm) {
-      cam.focal = mm;
-      document.querySelectorAll('.lens-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.dataset.mm) === mm);
-      });
-      updateHUD();
-    }
-
-    function setAspect(ar) {
-      currentAspect = ar;
-      document.querySelectorAll('.ar-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.ar === ar);
-      });
-      updateSafeFrameLayout();
-      updateHUD();
-    }
-
-    function toggleClayMode() {
-      clayMode = !clayMode;
-      document.getElementById('btn-clay').classList.toggle('active', clayMode);
-      updatePromptText();
-    }
-
-    function resetAllCam() {
-      cam.x = 0; cam.y = 1.60; cam.z = 3.60;
-      cam.pan = 0; cam.tilt = 0; cam.roll = 0;
-      gyroBase = null;
-      updateHUD();
-    }
-
-    function setBackdropDepthDist(val) {
-      env.bgDepthDist = parseFloat(val);
-      document.getElementById('bg-dist-val').textContent = `${env.bgDepthDist.toFixed(1)}m`;
-    }
-
-    function setHorizonOffset(val) {
-      env.horizonOffsetPct = parseInt(val);
-      document.getElementById('bg-hor-val').textContent = `${env.horizonOffsetPct}%`;
-      updateHorizonGuidePosition();
-    }
-
-    function toggleBgLightSync() {
-      env.bgLightSync = !env.bgLightSync;
-      const btn = document.getElementById('btn-bg-light-sync');
-      btn.textContent = env.bgLightSync ? '實景光影色溫同步: 開' : '實景光影色溫同步: 關';
-      btn.classList.toggle('active', env.bgLightSync);
-    }
-
-    function toggleHorizonGuide() {
-      env.showHorizonGuide = !env.showHorizonGuide;
-      const btn = document.getElementById('btn-horizon-guide');
-      btn.textContent = env.showHorizonGuide ? '地平線基準線: 顯' : '地平線基準線: 隱';
-      btn.classList.toggle('active', env.showHorizonGuide);
-      updateHorizonGuidePosition();
-    }
-
-    function toggleAutoFocus() {
-      cam.autoFocus = !cam.autoFocus;
-      const btn = document.getElementById('btn-af-mode');
-      btn.textContent = cam.autoFocus ? '自動鎖焦主角: 開' : '自動鎖焦主角: 關';
-      btn.classList.toggle('active', cam.autoFocus);
-      updateHUD();
-    }
-
-    function snapFocusToLead() {
-      const d = +getLeadActorDistance().toFixed(1);
-      cam.focusDist = d;
-      document.getElementById('rng-focus-dist').value = d;
-      document.getElementById('focus-dist-val').textContent = `${d.toFixed(1)}m`;
-      updateHUD();
-    }
-
-    function setFocusDistance(val) {
-      cam.autoFocus = false;
-      const btn = document.getElementById('btn-af-mode');
-      btn.textContent = '自動鎖焦主角: 關';
-      btn.classList.remove('active');
-      cam.focusDist = parseFloat(val);
-      document.getElementById('focus-dist-val').textContent = `${cam.focusDist.toFixed(1)}m`;
-      updateHUD();
-    }
-
-    function setDofStrength(val) {
-      cam.dofStrength = parseFloat(val);
-      document.getElementById('dof-str-val').textContent = `${cam.dofStrength.toFixed(1)}x`;
-      updatePromptText();
-    }
-
-    function setActorCount(cnt) {
-      actors.forEach((a, i) => a.active = i < cnt);
-      document.querySelectorAll('.cnt-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.dataset.c) === cnt);
-      });
-      renderCastControls();
-      updateHUD();
-    }
-
-    function applyQuickPreset(type) {
-      if (type === 'two_shot') {
-        setActorCount(2);
-        actors[0].x = -0.85; actors[0].z = 0; actors[0].rot = 65; actors[0].headTurn = 15;
-        actors[1].x = 0.85; actors[1].z = 0; actors[1].rot = -65; actors[1].headTurn = -15;
-        cam.x = 0; cam.y = 1.60; cam.z = 3.60; cam.pan = 0; cam.tilt = 0;
-        setFocal(35);
-      } else if (type === 'ots') {
-        setActorCount(2);
-        actors[0].x = -0.9; actors[0].z = 0; actors[0].rot = 85; actors[0].headTurn = 5;
-        actors[1].x = 0.9; actors[1].z = 0; actors[1].rot = -85; actors[1].headTurn = -5;
-        cam.x = -1.55; cam.y = 1.56; cam.z = 0.85; cam.pan = 62; cam.tilt = -2;
-        setFocal(50);
-      } else if (type === 'solo_cu') {
-        setActorCount(1);
-        actors[0].x = 0; actors[0].z = 0; actors[0].rot = -15; actors[0].headTurn = 15;
-        cam.x = 0; cam.y = 1.62; cam.z = 1.45; cam.pan = 0; cam.tilt = 0;
-        setFocal(85);
+      // ==========================
+      // 6. 控制、多實景相片切換、散景與 V2V 指令
+      // ==========================
+      function setFocal(mm) {
+        cam.focal = mm;
+        document.querySelectorAll('.lens-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.mm, 10) === mm);
+        });
+        updateHUD();
       }
-      renderCastControls();
-      updateHUD();
-    }
 
-    function autoReverse() {
-      const actives = actors.filter(a => a.active);
-      if (actives.length < 2) return;
-      const midX = (actives[0].x + actives[1].x) / 2;
-      cam.x = +(2 * midX - cam.x).toFixed(2);
-      cam.pan = -cam.pan;
-      gyroBase = null;
-      updateHUD();
-    }
-
-    function renderCastControls() {
-      const box = document.getElementById('cast-controls-list');
-      box.innerHTML = '';
-      actors.filter(a => a.active).forEach((a, idx) => {
-        const div = document.createElement('div');
-        div.className = 'sec-box';
-        div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="font-size:11.5px; color:${a.hex};">${a.name}</strong>
-            <select style="width:92px; padding:3px 5px; font-size:10.5px;" onchange="actors[${idx}].archetype=this.value; updatePromptText();">
-              <option value="male" ${a.archetype==='male'?'selected':''}>成年男</option>
-              <option value="female" ${a.archetype==='female'?'selected':''}>成年女</option>
-              <option value="elder" ${a.archetype==='elder'?'selected':''}>長者</option>
-            </select>
-          </div>
-          <input type="text" placeholder="角色人名/造型標註 (例: 二叔)" value="${a.tag}" oninput="actors[${idx}].tag=this.value.trim(); updatePromptText();" />
-          <div class="row-grid-2">
-            <div class="slider-line">
-              <div class="slider-head"><span>左右 X</span><span>${a.x.toFixed(1)}m</span></div>
-              <input type="range" min="-4" max="4" step="0.1" value="${a.x}" oninput="actors[${idx}].x=parseFloat(this.value); renderCastControls(); updateHUD();" />
-            </div>
-            <div class="slider-line">
-              <div class="slider-head"><span>前後 Z</span><span>${a.z.toFixed(1)}m</span></div>
-              <input type="range" min="-4" max="4" step="0.1" value="${a.z}" oninput="actors[${idx}].z=parseFloat(this.value); renderCastControls(); updateHUD();" />
-            </div>
-          </div>
-          <div class="row-grid-2">
-            <div class="slider-line">
-              <div class="slider-head"><span>身體朝向</span><span>${a.rot}°</span></div>
-              <input type="range" min="-180" max="180" step="5" value="${a.rot}" oninput="actors[${idx}].rot=parseInt(this.value); renderCastControls(); updatePromptText();" />
-            </div>
-            <div class="slider-line">
-              <div class="slider-head"><span>轉頭視線</span><span>${a.headTurn}°</span></div>
-              <input type="range" min="-65" max="65" step="5" value="${a.headTurn}" oninput="actors[${idx}].headTurn=parseInt(this.value); renderCastControls(); updatePromptText();" />
-            </div>
-          </div>
-        `;
-        box.appendChild(div);
-      });
-    }
-
-    function renderBgSlotStrip() {
-      const strip = document.getElementById('bg-slot-strip');
-      strip.innerHTML = '';
-      env.bgSlots.forEach((slot, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'bg-thumb-chip' + (idx === env.activeBgIdx ? ' active' : '');
-        btn.textContent = slot.label;
-        btn.onclick = () => selectBgSlot(idx);
-        strip.appendChild(btn);
-      });
-    }
-
-    function selectBgSlot(idx) {
-      if (idx < 0 || idx >= env.bgSlots.length) {
-        env.activeBgIdx = -1;
-        env.bgImage = null;
-      } else {
-        env.activeBgIdx = idx;
-        env.bgImage = env.bgSlots[idx].img;
+      function setAspect(ar) {
+        currentAspect = ar;
+        document.querySelectorAll('.ar-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.ar === ar);
+        });
+        updateSafeFrameLayout();
+        updateHUD();
       }
-      renderBgSlotStrip();
-      updateHorizonGuidePosition();
-      updatePromptText();
-    }
 
-    function handleBackdropUpload(e) {
-      const files = Array.from(e.target.files || []);
-      if (!files.length) return;
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const label = `實景 ${env.bgSlots.length + 1}`;
-            env.bgSlots.push({ label, img });
-            selectBgSlot(env.bgSlots.length - 1);
+      function setActorCount(cnt) {
+        actors.forEach((a, i) => { a.active = i < cnt; });
+        document.querySelectorAll('.cnt-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.c, 10) === cnt);
+        });
+        renderCastControls();
+        updateHUD();
+      }
+
+      function applyQuickPreset(type) {
+        if (type === 'two_shot') {
+          setActorCount(2);
+          actors[0].x = -0.85; actors[0].z = 0; actors[0].rot = 65; actors[0].headTurn = 15;
+          actors[1].x = 0.85; actors[1].z = 0; actors[1].rot = -65; actors[1].headTurn = -15;
+          cam.x = 0; cam.y = 1.60; cam.z = 3.60; cam.pan = 0; cam.tilt = 0;
+          setFocal(35);
+        } else if (type === 'ots') {
+          setActorCount(2);
+          actors[0].x = -0.9; actors[0].z = 0; actors[0].rot = 85; actors[0].headTurn = 5;
+          actors[1].x = 0.9; actors[1].z = 0; actors[1].rot = -85; actors[1].headTurn = -5;
+          cam.x = -1.55; cam.y = 1.56; cam.z = 0.85; cam.pan = 62; cam.tilt = -2;
+          setFocal(50);
+        } else if (type === 'solo_cu') {
+          setActorCount(1);
+          actors[0].x = 0; actors[0].z = 0; actors[0].rot = -15; actors[0].headTurn = 15;
+          cam.x = 0; cam.y = 1.62; cam.z = 1.45; cam.pan = 0; cam.tilt = 0;
+          setFocal(85);
+        }
+        renderCastControls();
+        updateHUD();
+      }
+
+      function renderCastControls() {
+        const box = document.getElementById('cast-controls-list');
+        box.innerHTML = '';
+        actors.filter(a => a.active).forEach((a, idx) => {
+          const div = document.createElement('div');
+          div.className = 'sec-box';
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:11.5px; color:${a.hex};">${a.name}</strong>
+              <select class="cast-arch" style="width:92px; padding:3px 5px; font-size:10.5px;">
+                <option value="male" ${a.archetype==='male'?'selected':''}>成年男</option>
+                <option value="female" ${a.archetype==='female'?'selected':''}>成年女</option>
+                <option value="elder" ${a.archetype==='elder'?'selected':''}>長者</option>
+              </select>
+            </div>
+            <input type="text" class="cast-tag" placeholder="角色人名/造型標註 (例: 二叔)" value="${a.tag}" />
+            <div class="row-grid-2">
+              <div class="slider-line">
+                <div class="slider-head"><span>左右 X</span><span class="lbl-x">${a.x.toFixed(1)}m</span></div>
+                <input type="range" class="rng-x" min="-4" max="4" step="0.1" value="${a.x}" />
+              </div>
+              <div class="slider-line">
+                <div class="slider-head"><span>前後 Z</span><span class="lbl-z">${a.z.toFixed(1)}m</span></div>
+                <input type="range" class="rng-z" min="-4" max="4" step="0.1" value="${a.z}" />
+              </div>
+            </div>
+            <div class="row-grid-2">
+              <div class="slider-line">
+                <div class="slider-head"><span>身體朝向</span><span class="lbl-rot">${a.rot}°</span></div>
+                <input type="range" class="rng-rot" min="-180" max="180" step="5" value="${a.rot}" />
+              </div>
+              <div class="slider-line">
+                <div class="slider-head"><span>轉頭視線</span><span class="lbl-head">${a.headTurn}°</span></div>
+                <input type="range" class="rng-head" min="-65" max="65" step="5" value="${a.headTurn}" />
+              </div>
+            </div>
+          `;
+          div.querySelector('.cast-arch').addEventListener('change', (e) => {
+            actors[idx].archetype = e.target.value;
+            updatePromptText();
+          });
+          div.querySelector('.cast-tag').addEventListener('input', (e) => {
+            actors[idx].tag = e.target.value.trim();
+            updatePromptText();
+          });
+          div.querySelector('.rng-x').addEventListener('input', (e) => {
+            actors[idx].x = parseFloat(e.target.value);
+            div.querySelector('.lbl-x').textContent = `${actors[idx].x.toFixed(1)}m`;
+            updateHUD();
+          });
+          div.querySelector('.rng-z').addEventListener('input', (e) => {
+            actors[idx].z = parseFloat(e.target.value);
+            div.querySelector('.lbl-z').textContent = `${actors[idx].z.toFixed(1)}m`;
+            updateHUD();
+          });
+          div.querySelector('.rng-rot').addEventListener('input', (e) => {
+            actors[idx].rot = parseInt(e.target.value, 10);
+            div.querySelector('.lbl-rot').textContent = `${actors[idx].rot}°`;
+            updatePromptText();
+          });
+          div.querySelector('.rng-head').addEventListener('input', (e) => {
+            actors[idx].headTurn = parseInt(e.target.value, 10);
+            div.querySelector('.lbl-head').textContent = `${actors[idx].headTurn}°`;
+            updatePromptText();
+          });
+          box.appendChild(div);
+        });
+      }
+
+      function renderBgSlotStrip() {
+        const strip = document.getElementById('bg-slot-strip');
+        strip.innerHTML = '';
+        env.bgSlots.forEach((slot, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'bg-thumb-chip' + (idx === env.activeBgIdx ? ' active' : '');
+          btn.textContent = slot.label;
+          btn.addEventListener('click', () => selectBgSlot(idx));
+          strip.appendChild(btn);
+        });
+      }
+
+      function selectBgSlot(idx) {
+        if (idx < 0 || idx >= env.bgSlots.length) {
+          env.activeBgIdx = -1;
+          env.bgImage = null;
+        } else {
+          env.activeBgIdx = idx;
+          env.bgImage = env.bgSlots[idx].img;
+        }
+        renderBgSlotStrip();
+        updateHorizonGuidePosition();
+        updatePromptText();
+      }
+
+      function updatePromptText() {
+        const actives = actors.filter(a => a.active);
+        const styleText = document.getElementById('inp-style').value.trim();
+        const actionText = document.getElementById('inp-action').value.trim();
+        const sky = SKY_MAP[env.sky];
+        const mood = MOOD_MAP[light.mood];
+
+        const namesZh = actives.map(a => a.tag || a.name).join('、');
+        const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
+        const dofZh = cam.dofStrength > 0.1 && cam.focal >= 50 ? '，大光圈淺景深柔化遠景散景' : '，自然電影景深層次';
+        const dofEn = cam.dofStrength > 0.1 && cam.focal >= 50 ? ', shallow depth of field with natural background bokeh' : ', natural cinematic depth of field';
+
+        const zh = [
+          `【造型與時代質感】${styleText}。場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節；動作神態：${actionText}。`,
+          `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
+          `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、雲台轉向與升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
+        ].join('\n');
+
+        const en = [
+          `[Style & Character Consistency] ${styleText}. Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn}); action: ${actionText}.`,
+          `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
+          `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, pan/tilt and crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
+        ].join('\n');
+
+        document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
+      }
+
+      // 綁定所有按鈕與滑桿事件
+      document.getElementById('btn-gyro').addEventListener('click', toggleGyroMode);
+      document.getElementById('btn-recenter').addEventListener('click', () => {
+        gyroBase = null;
+        cam.pan = 0; cam.tilt = 0; cam.roll = 0;
+        updateHUD();
+      });
+      document.getElementById('btn-clay').addEventListener('click', (e) => {
+        clayMode = !clayMode;
+        e.currentTarget.classList.toggle('active', clayMode);
+        updatePromptText();
+      });
+      document.getElementById('btn-clean-shot').addEventListener('click', exportCleanFrame);
+      document.getElementById('btn-open-drawer').addEventListener('click', () => {
+        document.getElementById('drawer-backdrop').classList.add('open');
+        document.getElementById('director-drawer').classList.add('open');
+      });
+      document.getElementById('btn-close-drawer').addEventListener('click', () => {
+        document.getElementById('drawer-backdrop').classList.remove('open');
+        document.getElementById('director-drawer').classList.remove('open');
+      });
+      document.getElementById('drawer-backdrop').addEventListener('click', () => {
+        document.getElementById('drawer-backdrop').classList.remove('open');
+        document.getElementById('director-drawer').classList.remove('open');
+      });
+
+      document.querySelectorAll('.dtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.dp;
+          document.querySelectorAll('.dtab-btn').forEach(b => b.classList.toggle('active', b === btn));
+          document.querySelectorAll('.dpane').forEach(p => p.classList.toggle('active', p.id === target));
+        });
+      });
+
+      document.getElementById('btn-record-v2v').addEventListener('click', toggleV2VRecording);
+
+      document.querySelectorAll('.lens-btn').forEach(btn => {
+        btn.addEventListener('click', () => setFocal(parseInt(btn.dataset.mm, 10)));
+      });
+      document.querySelectorAll('.ar-btn').forEach(btn => {
+        btn.addEventListener('click', () => setAspect(btn.dataset.ar));
+      });
+      document.getElementById('btn-reset-cam').addEventListener('click', () => {
+        cam.x = 0; cam.y = 1.60; cam.z = 3.60;
+        cam.pan = 0; cam.tilt = 0; cam.roll = 0;
+        gyroBase = null;
+        updateHUD();
+      });
+
+      document.getElementById('btn-crane-lock').addEventListener('click', (e) => {
+        cam.cranePitchLock = !cam.cranePitchLock;
+        e.currentTarget.textContent = cam.cranePitchLock ? '鎖視線:開' : '鎖視線:關';
+        e.currentTarget.classList.toggle('active', cam.cranePitchLock);
+      });
+
+      document.querySelectorAll('.cnt-btn').forEach(btn => {
+        btn.addEventListener('click', () => setActorCount(parseInt(btn.dataset.c, 10)));
+      });
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => applyQuickPreset(btn.dataset.preset));
+      });
+      document.getElementById('btn-auto-reverse').addEventListener('click', () => {
+        const actives = actors.filter(a => a.active);
+        if (actives.length < 2) return;
+        const midX = (actives[0].x + actives[1].x) / 2;
+        cam.x = +(2 * midX - cam.x).toFixed(2);
+        cam.pan = -cam.pan;
+        gyroBase = null;
+        updateHUD();
+      });
+
+      document.getElementById('btn-add-bg').addEventListener('click', () => {
+        document.getElementById('bg-photo-input').click();
+      });
+      document.getElementById('bg-photo-input').addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+              const label = `實景 ${env.bgSlots.length + 1}`;
+              env.bgSlots.push({ label, img });
+              selectBgSlot(env.bgSlots.length - 1);
+            };
+            img.src = ev.target.result;
           };
-          img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
+          reader.readAsDataURL(file);
+        });
+        e.target.value = '';
       });
-      e.target.value = '';
-    }
+      document.getElementById('btn-clear-bg').addEventListener('click', () => {
+        if (env.activeBgIdx >= 0) env.bgSlots.splice(env.activeBgIdx, 1);
+        if (env.bgSlots.length > 0) selectBgSlot(Math.min(env.activeBgIdx, env.bgSlots.length - 1));
+        else selectBgSlot(-1);
+      });
 
-    function clearBackdropPhoto() {
-      if (env.activeBgIdx >= 0) {
-        env.bgSlots.splice(env.activeBgIdx, 1);
+      document.getElementById('rng-bg-dist').addEventListener('input', (e) => {
+        env.bgDepthDist = parseFloat(e.target.value);
+        document.getElementById('bg-dist-val').textContent = `${env.bgDepthDist.toFixed(1)}m`;
+      });
+      document.getElementById('rng-bg-hor').addEventListener('input', (e) => setHorizonOffset(e.target.value));
+      document.getElementById('rng-bg-op').addEventListener('input', (e) => {
+        env.bgOpacity = parseFloat(e.target.value);
+        document.getElementById('bg-op-val').textContent = `${Math.round(env.bgOpacity * 100)}%`;
+      });
+
+      document.getElementById('btn-bg-light-sync').addEventListener('click', (e) => {
+        env.bgLightSync = !env.bgLightSync;
+        e.currentTarget.textContent = env.bgLightSync ? '實景光影色溫同步: 開' : '實景光影色溫同步: 關';
+        e.currentTarget.classList.toggle('active', env.bgLightSync);
+      });
+      document.getElementById('btn-horizon-guide').addEventListener('click', (e) => {
+        env.showHorizonGuide = !env.showHorizonGuide;
+        e.currentTarget.textContent = env.showHorizonGuide ? '地平線基準線: 顯' : '地平線基準線: 隱';
+        e.currentTarget.classList.toggle('active', env.showHorizonGuide);
+        updateHorizonGuidePosition();
+      });
+
+      document.getElementById('btn-af-mode').addEventListener('click', (e) => {
+        cam.autoFocus = !cam.autoFocus;
+        e.currentTarget.textContent = cam.autoFocus ? '自動鎖焦主角: 開' : '自動鎖焦主角: 關';
+        e.currentTarget.classList.toggle('active', cam.autoFocus);
+        updateHUD();
+      });
+      document.getElementById('btn-snap-focus').addEventListener('click', () => {
+        const d = +getLeadActorDistance().toFixed(1);
+        cam.focusDist = d;
+        document.getElementById('rng-focus-dist').value = d;
+        document.getElementById('focus-dist-val').textContent = `${d.toFixed(1)}m`;
+        updateHUD();
+      });
+      document.getElementById('rng-focus-dist').addEventListener('input', (e) => {
+        cam.autoFocus = false;
+        const afBtn = document.getElementById('btn-af-mode');
+        afBtn.textContent = '自動鎖焦主角: 關';
+        afBtn.classList.remove('active');
+        cam.focusDist = parseFloat(e.target.value);
+        document.getElementById('focus-dist-val').textContent = `${cam.focusDist.toFixed(1)}m`;
+        updateHUD();
+      });
+      document.getElementById('rng-dof-str').addEventListener('input', (e) => {
+        cam.dofStrength = parseFloat(e.target.value);
+        document.getElementById('dof-str-val').textContent = `${cam.dofStrength.toFixed(1)}x`;
+        updatePromptText();
+      });
+
+      document.getElementById('btn-l-left').addEventListener('click', () => {
+        light.side = -1;
+        document.getElementById('btn-l-left').classList.add('active');
+        document.getElementById('btn-l-right').classList.remove('active');
+        updatePromptText();
+      });
+      document.getElementById('btn-l-right').addEventListener('click', () => {
+        light.side = 1;
+        document.getElementById('btn-l-right').classList.add('active');
+        document.getElementById('btn-l-left').classList.remove('active');
+        updatePromptText();
+      });
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          light.mood = btn.dataset.m;
+          document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('active', b === btn));
+          updatePromptText();
+        });
+      });
+      document.querySelectorAll('.sky-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          env.sky = btn.dataset.s;
+          document.querySelectorAll('.sky-btn').forEach(b => b.classList.toggle('active', b === btn));
+          updatePromptText();
+        });
+      });
+
+      document.getElementById('rng-damping').addEventListener('input', (e) => {
+        dollyDamping = parseFloat(e.target.value);
+        const label = dollyDamping <= 0.10 ? '重型軌道滑順' : (dollyDamping >= 0.22 ? '敏捷即時跟手' : '標準電影阻尼');
+        document.getElementById('damping-val').textContent = label;
+      });
+      document.getElementById('rng-pt-speed').addEventListener('input', (e) => {
+        ptStickSpeed = parseFloat(e.target.value);
+        document.getElementById('pt-speed-val').textContent = `${ptStickSpeed.toFixed(1)}°/幀`;
+      });
+      document.getElementById('rng-gyro-sens').addEventListener('input', (e) => {
+        gyroSens = parseFloat(e.target.value);
+        document.getElementById('gyro-sens-val').textContent = `${gyroSens.toFixed(2)}x`;
+      });
+      document.getElementById('btn-start-frame-auto').addEventListener('click', (e) => {
+        autoSaveStartFrame = !autoSaveStartFrame;
+        e.currentTarget.textContent = autoSaveStartFrame ? '錄影同步存首幀圖: 開' : '錄影同步存首幀圖: 關';
+        e.currentTarget.classList.toggle('active', autoSaveStartFrame);
+      });
+
+      document.getElementById('inp-style').addEventListener('input', updatePromptText);
+      document.getElementById('inp-action').addEventListener('input', updatePromptText);
+      document.querySelectorAll('.plang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          promptLang = btn.dataset.l;
+          document.querySelectorAll('.plang-btn').forEach(b => b.classList.toggle('active', b === btn));
+          updatePromptText();
+        });
+      });
+      document.getElementById('btn-copy-prompt').addEventListener('click', () => {
+        const box = document.getElementById('prompt-box');
+        box.select();
+        navigator.clipboard?.writeText(box.value).catch(() => {});
+        alert('已複製精簡版 V2V 質感指令！');
+      });
+
+      window.addEventListener('resize', resizeStage);
+      resizeStage();
+      renderCastControls();
+      updateHUD();
+
+      function mainLoop() {
+        tickDollyMovement();
+        tickPanTiltStick();
+        tickCraneMovement();
+        renderFrame();
+        requestAnimationFrame(mainLoop);
       }
-      if (env.bgSlots.length > 0) {
-        selectBgSlot(Math.min(env.activeBgIdx, env.bgSlots.length - 1));
-      } else {
-        selectBgSlot(-1);
-      }
-    }
-
-    function setBackdropOpacity(val) {
-      env.bgOpacity = parseFloat(val);
-      document.getElementById('bg-op-val').textContent = `${Math.round(env.bgOpacity * 100)}%`;
-    }
-
-    function setSky(s) {
-      env.sky = s;
-      document.querySelectorAll('.sky-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
-      updatePromptText();
-    }
-
-    function setLightSide(side) {
-      light.side = side;
-      document.getElementById('btn-l-left').classList.toggle('active', side === -1);
-      document.getElementById('btn-l-right').classList.toggle('active', side === 1);
-      updatePromptText();
-    }
-
-    function setMood(m) {
-      light.mood = m;
-      document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('active', b.dataset.m === m));
-      updatePromptText();
-    }
-
-    function setPromptLang(l) {
-      promptLang = l;
-      document.querySelectorAll('.plang-btn').forEach(b => b.classList.toggle('active', b.dataset.l === l));
-      updatePromptText();
-    }
-
-    function updatePromptText() {
-      const actives = actors.filter(a => a.active);
-      const styleText = document.getElementById('inp-style').value.trim();
-      const actionText = document.getElementById('inp-action').value.trim();
-      const sky = SKY_MAP[env.sky];
-      const mood = MOOD_MAP[light.mood];
-
-      const namesZh = actives.map(a => a.tag || a.name).join('、');
-      const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
-      const dofZh = cam.dofStrength > 0.1 && cam.focal >= 50 ? '，大光圈淺景深柔化遠景散景' : '，自然電影景深層次';
-      const dofEn = cam.dofStrength > 0.1 && cam.focal >= 50 ? ', shallow depth of field with natural background bokeh' : ', natural cinematic depth of field';
-
-      const zh = [
-        `【造型與時代質感】${styleText}。場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節；動作神態：${actionText}。`,
-        `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
-        `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、雲台轉向與升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
-      ].join('\n');
-
-      const en = [
-        `[Style & Character Consistency] ${styleText}. Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn}); action: ${actionText}.`,
-        `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
-        `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, pan/tilt and crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
-      ].join('\n');
-
-      document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
-    }
-
-    function copyPromptText() {
-      const box = document.getElementById('prompt-box');
-      box.select();
-      navigator.clipboard?.writeText(box.value).catch(() => {});
-      alert('已複製精簡版 V2V 質感指令！');
-    }
-
-    function openDrawer() {
-      document.getElementById('drawer-backdrop').classList.add('open');
-      document.getElementById('director-drawer').classList.add('open');
-    }
-
-    function closeDrawer() {
-      document.getElementById('drawer-backdrop').classList.remove('open');
-      document.getElementById('director-drawer').classList.remove('open');
-    }
-
-    function switchDrawerTab(id) {
-      document.querySelectorAll('.dtab-btn').forEach(b => b.classList.toggle('active', b.dataset.dp === id));
-      document.querySelectorAll('.dpane').forEach(p => p.classList.toggle('active', p.id === id));
-    }
-
-    window.addEventListener('resize', resizeStage);
-    resizeStage();
-    renderCastControls();
-    updateHUD();
-
-    function mainLoop() {
-      tickDollyMovement();
-      tickPanTiltStick();
-      tickCraneMovement();
-      renderFrame();
-      requestAnimationFrame(mainLoop);
-    }
-    mainLoop();
+      mainLoop();
+    });
   </script>
 </body>
 </html>
