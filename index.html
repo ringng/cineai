@@ -113,8 +113,8 @@
       z-index: 4;
     }
     #safe-frame {
-      width: 480px;
-      height: 270px;
+      width: 440px;
+      height: 248px;
       border: 1.5px solid rgba(255, 255, 255, 0.84);
       box-shadow: 0 0 0 9999px rgba(6, 8, 11, 0.58);
       position: relative;
@@ -268,36 +268,31 @@
       50%, 100% { opacity: 0.2; }
     }
 
-    /* 左手拇指區：精簡錄影掣（鎖定倒數 2 秒）置於定速推軌控制台正上方，完全位於畫框左側外 */
-    #left-thumb-zone {
+    /* 左手上方獨立錄影掣（放高啲，離推軌掣遠少少，完全喺畫框外側） */
+    #left-rec-zone {
       position: absolute;
       left: max(10px, var(--safe-left));
-      bottom: max(10px, var(--safe-bottom));
+      top: calc(max(8px, var(--safe-top)) + 44px);
       z-index: 20;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      width: 116px;
-      gap: 6px;
+      width: 132px;
       pointer-events: auto;
     }
-
     #left-rec-header {
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 5px 8px;
-      border-radius: 14px;
+      padding: 6px 10px;
+      border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 8px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
     #btn-record-v2v {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       border: 2.5px solid rgba(255, 255, 255, 0.9);
       background: rgba(15, 18, 24, 0.78);
@@ -308,23 +303,33 @@
       flex-shrink: 0;
     }
     #rec-inner-shape {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: var(--accent-red);
       transition: all 0.16s ease;
     }
     #btn-record-v2v.recording #rec-inner-shape {
-      width: 14px;
-      height: 14px;
+      width: 15px;
+      height: 15px;
       border-radius: 4px;
     }
     .rec-caption {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
       color: #fff;
-      line-height: 1.2;
+      line-height: 1.25;
       letter-spacing: 0.2px;
+    }
+
+    /* 左手拇指區：長方形前後左右定速推軌控制台（完全位於畫框左側外） */
+    #left-thumb-zone {
+      position: absolute;
+      left: max(10px, var(--safe-left));
+      bottom: max(10px, var(--safe-bottom));
+      z-index: 20;
+      width: 132px;
+      pointer-events: auto;
     }
 
     #dolly-console {
@@ -332,25 +337,25 @@
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 6px;
-      border-radius: 14px;
+      padding: 7px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
     }
     .speed-tier-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
+      gap: 4px;
     }
     .speed-tier-btn {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.14);
       color: var(--text-secondary);
       border-radius: 6px;
-      padding: 2.5px 2px;
-      font-size: 9px;
+      padding: 3px 2px;
+      font-size: 9.5px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -360,29 +365,40 @@
       color: #0b0d10;
     }
 
-    .dolly-dpad {
+    /* 長方形前後左右按鍵排佈 */
+    .dolly-rect-pad {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dolly-lr-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 30px);
-      gap: 3px;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
     }
     .dolly-dir-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.11);
+      border: 1px solid rgba(255, 255, 255, 0.24);
       color: #fff;
-      border-radius: 7px;
-      font-size: 9.5px;
+      border-radius: 9px;
+      height: 36px;
+      font-size: 11px;
       font-weight: 700;
+      letter-spacing: 0.5px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
     }
+    .dolly-dir-btn.wide-btn {
+      width: 100%;
+      height: 36px;
+    }
     .dolly-dir-btn:active, .dolly-dir-btn.pressed {
       background: var(--accent-amber);
       border-color: #ffe08a;
       color: #0b0d10;
-      transform: scale(0.95);
+      transform: scale(0.97);
     }
 
     /* 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換（完全留於畫框下方） */
@@ -424,41 +440,44 @@
       color: #0b0d10;
     }
 
-    /* 右手拇指區：Pan/Tilt 雲台搖桿（左） + 垂直升降搖桿（右），完全位於畫框右側外 */
+    /* 右手拇指區：直排上下疊放 — Pan/Tilt 雲台搖桿（上） + 垂直升降搖桿（下），完全位於畫框右側外 */
     #right-thumb-zone {
       position: absolute;
       right: max(10px, var(--safe-right));
       bottom: max(10px, var(--safe-bottom));
       z-index: 20;
       display: flex;
-      align-items: flex-end;
+      flex-direction: column;
+      align-items: center;
+      width: 96px;
       gap: 6px;
       pointer-events: auto;
     }
 
-    /* Pan / Tilt 雲台搖桿 */
+    /* Pan / Tilt 雲台搖桿（上） */
     #pantilt-stick-col {
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 6px 6px;
-      border-radius: 18px;
+      padding: 5px 6px;
+      border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
     }
     .pt-top-label {
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
       color: var(--text-secondary);
       letter-spacing: 0.2px;
     }
     #pantilt-pad {
-      width: 78px;
-      height: 78px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #1d222c 0%, #0b0e14 80%);
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -472,11 +491,11 @@
       background: rgba(255, 255, 255, 0.14);
       pointer-events: none;
     }
-    #pantilt-pad::before { left: 50%; top: 10px; bottom: 10px; width: 1px; }
-    #pantilt-pad::after { top: 50%; left: 10px; right: 10px; height: 1px; }
+    #pantilt-pad::before { left: 50%; top: 8px; bottom: 8px; width: 1px; }
+    #pantilt-pad::after { top: 50%; left: 8px; right: 8px; height: 1px; }
     #pantilt-knob {
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
       border: 1.5px solid rgba(255, 255, 255, 0.55);
@@ -499,24 +518,25 @@
       white-space: nowrap;
     }
 
-    /* 垂直搖臂升降搖桿 */
+    /* 垂直搖臂升降搖桿（下） */
     #crane-stick-col {
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 6px 5px;
-      border-radius: 18px;
+      padding: 5px 6px;
+      border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
     }
     #btn-crane-lock {
       font-size: 8.5px;
       font-weight: 700;
-      padding: 2.5px 5px;
+      padding: 2px 6px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: rgba(255, 255, 255, 0.08);
@@ -530,9 +550,9 @@
       color: #0b0d10;
     }
     #crane-track {
-      width: 38px;
-      height: 112px;
-      border-radius: 19px;
+      width: 36px;
+      height: 88px;
+      border-radius: 18px;
       background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(10,12,16,0.88) 50%, rgba(255,255,255,0.08) 100%);
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.75);
@@ -552,15 +572,15 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 8px;
+      font-size: 7.5px;
       color: var(--text-secondary);
       pointer-events: none;
     }
-    .crane-arrow-top { top: 4px; }
-    .crane-arrow-bot { bottom: 4px; }
+    .crane-arrow-top { top: 3px; }
+    .crane-arrow-bot { bottom: 3px; }
     #crane-knob {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #4b5563, #1f242d);
       border: 1.5px solid rgba(255, 255, 255, 0.55);
@@ -577,7 +597,7 @@
     }
     #height-readout {
       font-family: ui-monospace, monospace;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
       color: var(--accent-amber);
     }
@@ -767,28 +787,31 @@
       </div>
     </div>
 
-    <!-- 左手拇指區：精簡錄影掣（鎖定倒數 2 秒開錄）＋ 定速推軌控制台 -->
-    <div id="left-thumb-zone">
+    <!-- 左上方獨立錄影掣（放高啲，鎖定倒數 2 秒開錄） -->
+    <div id="left-rec-zone">
       <div id="left-rec-header">
         <button type="button" id="btn-record-v2v" aria-label="倒數 2 秒後錄製 V2V 運鏡影片">
           <div id="rec-inner-shape"></div>
         </button>
         <span id="rec-label-text" class="rec-caption">錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span></span>
       </div>
+    </div>
 
+    <!-- 左手拇指區：長方形前後左右定速推軌控制台 -->
+    <div id="left-thumb-zone">
       <div id="dolly-console">
         <div class="speed-tier-row">
           <button type="button" class="speed-tier-btn active" data-sp="0.015">慢推</button>
           <button type="button" class="speed-tier-btn" data-sp="0.032">勻速</button>
           <button type="button" class="speed-tier-btn" data-sp="0.058">快推</button>
         </div>
-        <div class="dolly-dpad">
-          <div></div>
-          <button type="button" class="dolly-dir-btn" data-dir="fwd">推進</button>
-          <div></div>
-          <button type="button" class="dolly-dir-btn" data-dir="left">左移</button>
-          <button type="button" class="dolly-dir-btn" data-dir="back">拉遠</button>
-          <button type="button" class="dolly-dir-btn" data-dir="right">右移</button>
+        <div class="dolly-rect-pad">
+          <button type="button" class="dolly-dir-btn wide-btn" data-dir="fwd">▲ 推進</button>
+          <div class="dolly-lr-row">
+            <button type="button" class="dolly-dir-btn" data-dir="left">◀ 左移</button>
+            <button type="button" class="dolly-dir-btn" data-dir="right">右移 ▶</button>
+          </div>
+          <button type="button" class="dolly-dir-btn wide-btn" data-dir="back">▼ 拉遠</button>
         </div>
       </div>
     </div>
@@ -812,7 +835,7 @@
       </div>
     </div>
 
-    <!-- 右手拇指區：Pan/Tilt 雲台搖桿（左） + 垂直升降搖桿（右） -->
+    <!-- 右手拇指區：直排上下疊放 — Pan/Tilt 雲台搖桿（上） + 垂直升降搖桿（下） -->
     <div id="right-thumb-zone">
       <div id="pantilt-stick-col">
         <span class="pt-top-label">Pan / Tilt</span>
@@ -949,8 +972,8 @@
             <input type="range" id="rng-damping" min="0.06" max="0.30" step="0.02" value="0.14" />
           </div>
           <div class="slider-line">
-            <div class="slider-head"><span>雲台搖桿轉向速度</span><span id="pt-speed-val">1.1°/幀</span></div>
-            <input type="range" id="rng-pt-speed" min="0.4" max="2.2" step="0.1" value="1.1" />
+            <div class="slider-head"><span>雲台搖桿敏感度</span><span id="pt-speed-val">0.35°/幀</span></div>
+            <input type="range" id="rng-pt-speed" min="0.10" max="1.00" step="0.05" value="0.35" />
           </div>
           <div class="slider-line">
             <div class="slider-head"><span>體感掌鏡靈敏度</span><span id="gyro-sens-val">0.85x</span></div>
@@ -1071,8 +1094,9 @@
 
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
-        const availW = Math.max(220, W - 296);
-        const availH = Math.max(140, H - 146);
+        // 預留足夠左右黑邊（左側132px + 右側96px + 邊距），保證 2.39:1 比例都唔會撞入左右控制區
+        const availW = Math.max(200, W - 324);
+        const availH = Math.max(130, H - 150);
         const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
         let fw = availW;
         let fh = fw / r;
@@ -1582,18 +1606,18 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（左）：Pan / Tilt 雲台搖桿
+      // 3A. 右手拇指區（上）：Pan / Tilt 雲台搖桿（低敏感度＋漸進曲線）
       // ==========================
       const ptPad = document.getElementById('pantilt-pad');
       const ptKnob = document.getElementById('pantilt-knob');
       let ptTouchId = null;
       let ptMouseDown = false;
       let ptNorm = { x: 0, y: 0 };
-      let ptStickSpeed = 1.1;
+      let ptStickSpeed = 0.35;
 
       function updatePanTiltStick(clientX, clientY) {
         const rect = ptPad.getBoundingClientRect();
-        const maxR = (rect.width - 30) / 2;
+        const maxR = (rect.width - 26) / 2;
         let dx = clientX - (rect.left + rect.width / 2);
         let dy = clientY - (rect.top + rect.height / 2);
         const dist = Math.hypot(dx, dy);
@@ -1658,14 +1682,19 @@
       });
 
       function tickPanTiltStick() {
-        if (Math.hypot(ptNorm.x, ptNorm.y) < 0.08) return;
-        cam.pan = +((((cam.pan + ptNorm.x * ptStickSpeed + 540) % 360) - 180).toFixed(2));
-        cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - ptNorm.y * (ptStickSpeed * 0.85))).toFixed(2);
+        const mag = Math.hypot(ptNorm.x, ptNorm.y);
+        if (mag < 0.12) return;
+        // 二次方漸進曲線：微推細膩慢搖，推盡先加快
+        const curveScale = Math.pow((mag - 0.12) / 0.88, 1.55);
+        const dirX = ptNorm.x / mag;
+        const dirY = ptNorm.y / mag;
+        cam.pan = +((((cam.pan + dirX * curveScale * ptStickSpeed + 540) % 360) - 180).toFixed(2));
+        cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dirY * curveScale * (ptStickSpeed * 0.82))).toFixed(2);
         updateHUD();
       }
 
       // ==========================
-      // 3B. 右手拇指區（右）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
+      // 3B. 右手拇指區（下）：垂直搖臂升降搖桿 + 自動壓角鎖定視線
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1675,7 +1704,7 @@
 
       function updateCraneStick(clientY) {
         const rect = craneTrack.getBoundingClientRect();
-        const maxTravel = (rect.height - 34) / 2;
+        const maxTravel = (rect.height - 30) / 2;
         const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
         craneNormY = dy / maxTravel;
         craneKnob.style.transform = `translate(-50%, calc(-50% + ${dy.toFixed(1)}px))`;
@@ -1734,8 +1763,8 @@
       });
 
       function tickCraneMovement() {
-        if (Math.abs(craneNormY) < 0.06) return;
-        const liftDelta = -craneNormY * 0.032;
+        if (Math.abs(craneNormY) < 0.08) return;
+        const liftDelta = -craneNormY * 0.028;
         const nextY = Math.max(0.25, Math.min(4.50, cam.y + liftDelta));
         if (Math.abs(nextY - cam.y) > 0.0001) {
           cam.y = nextY;
@@ -1887,7 +1916,6 @@
         pinchStartDist = 0;
       });
 
-      // 桌面／滑鼠拖曳支援
       let mouseDragCam = false;
       let prevMousePt = { x: 0, y: 0 };
       canvas.addEventListener('mousedown', (e) => {
@@ -1906,7 +1934,7 @@
       window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
       // ==========================
-      // 5. 鎖定倒數 2 秒後穩定開錄 + 首幀同步儲存（無自動停機時限）
+      // 5. 鎖定倒數 2 秒後穩定開錄 + 首幀同步儲存
       // ==========================
       let isRecordingV2V = false;
       let isPrerolling = false;
@@ -2459,7 +2487,7 @@
       });
       document.getElementById('rng-pt-speed').addEventListener('input', (e) => {
         ptStickSpeed = parseFloat(e.target.value);
-        document.getElementById('pt-speed-val').textContent = `${ptStickSpeed.toFixed(1)}°/幀`;
+        document.getElementById('pt-speed-val').textContent = `${ptStickSpeed.toFixed(2)}°/幀`;
       });
       document.getElementById('rng-gyro-sens').addEventListener('input', (e) => {
         gyroSens = parseFloat(e.target.value);
