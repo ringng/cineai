@@ -21,7 +21,7 @@
       --accent-red: #ef4444;
       --accent-green: #10b981;
       --safe-left: env(safe-area-inset-left, 12px);
-      --safe-right: env(safe-area-inset-right, 12px);
+      --safe-right: env(safe-right, env(safe-area-inset-right, 12px));
       --safe-top: env(safe-area-inset-top, 8px);
       --safe-bottom: env(safe-area-inset-bottom, 8px);
     }
@@ -907,7 +907,7 @@
     <div id="right-thumb-zone">
       <div id="crane-stick-col">
         <button type="button" id="btn-crane-lock" class="active" title="升降時自動壓角望實主角">鎖視線:開</button>
-        <div id="crane-track" title="上下推拉升降機位，放手柔和收停">
+        <div id="crane-track" title="上下推拉升降機位，起鏡平滑且清晰可見變化">
           <span class="crane-arrow-top">▲</span>
           <div id="crane-knob"></div>
           <span class="crane-arrow-bot">▼</span>
@@ -1004,6 +1004,10 @@
           <div class="row-grid-2">
             <button type="button" id="btn-bg-light-sync" class="chip-btn active">實景光影色溫同步: 開</button>
             <button type="button" id="btn-horizon-guide" class="chip-btn active">地平線基準線: 顯</button>
+          </div>
+          <div class="row-grid-2">
+            <button type="button" id="btn-floor-grid" class="chip-btn active">地面格線 (AI空間參考): 開</button>
+            <span style="font-size:10px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; border:1px solid var(--border-hairline); border-radius:7px; padding:4px;">有實景時自動調淡</span>
           </div>
         </div>
 
@@ -1135,7 +1139,8 @@
         bgDepthDist: 10.0,
         horizonOffsetPct: 0,
         bgLightSync: true,
-        showHorizonGuide: true
+        showHorizonGuide: true,
+        showFloorGrid: true
       };
 
       const light = {
@@ -1455,12 +1460,14 @@
           ctx.restore();
         }
 
-        if (!cleanRenderFlag) {
-          const gridAlpha = env.bgImage ? 0.14 : 0.09;
+        // 低調地面格線：錄影時亦保留（冇實景底圖時協助 AI 讀出升降與空間透視；有實景時自動調淡）
+        if (env.showFloorGrid) {
+          const gridAlpha = env.bgImage ? 0.06 : 0.14;
+          const centerAlpha = env.bgImage ? 0.16 : 0.30;
           for (let i = -8; i <= 8; i++) {
-            const col = i === 0 ? 'rgba(229,163,36,0.34)' : `rgba(255,255,255,${gridAlpha})`;
-            drawLine3D(i, 0, -8, i, 0, 8, col, i === 0 ? 1.3 : 1);
-            drawLine3D(-8, 0, i, 8, 0, i, col, i === 0 ? 1.3 : 1);
+            const col = i === 0 ? `rgba(229,163,36,${centerAlpha})` : `rgba(255,255,255,${gridAlpha})`;
+            drawLine3D(i, 0, -8, i, 0, 8, col, i === 0 ? 1.2 : 0.9);
+            drawLine3D(-8, 0, i, 8, 0, i, col, i === 0 ? 1.2 : 0.9);
           }
         }
 
@@ -1690,7 +1697,7 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（頭段極慢漸進、起鏡與收尾柔和過渡）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（溫和漸進 1.45 次方，清晰可見變化且起鏡唔急）
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1765,21 +1772,21 @@
         if (absNorm >= 0.04) {
           const sign = craneNormY < 0 ? 1 : -1;
           const activeMag = (absNorm - 0.04) / 0.96;
-          // 頭段極慢漸進曲線（2.2 次方），推深先平滑加快
-          targetVel = sign * Math.pow(activeMag, 2.2) * 0.015;
+          // 溫和漸進 1.45 次方：起鏡唔急，推郁就有清晰可見嘅高度與透視變化
+          targetVel = sign * Math.pow(activeMag, 1.45) * 0.022;
         }
 
-        // 柔和起鏡（0.09）與平滑慣性收尾（0.11），消除突然啟動與急停頓挫
-        const followRate = targetVel !== 0 ? 0.09 : 0.11;
+        // 起鏡柔順追隨（0.18）、放手平滑收停（0.24）
+        const followRate = targetVel !== 0 ? 0.18 : 0.24;
         craneVelY += (targetVel - craneVelY) * followRate;
 
-        if (Math.abs(craneVelY) < 0.00004) {
+        if (Math.abs(craneVelY) < 0.00005) {
           craneVelY = 0;
           return;
         }
 
         const nextY = Math.max(0.25, Math.min(4.50, cam.y + craneVelY));
-        if (Math.abs(nextY - cam.y) > 0.00002) {
+        if (Math.abs(nextY - cam.y) > 0.00003) {
           cam.y = nextY;
           if (cam.cranePitchLock) {
             const lead = getLeadActor();
@@ -1787,7 +1794,7 @@
               const targetEyeY = (lead.height / 1.75) * 1.48;
               const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
               const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
-              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.22));
+              cam.tilt = Math.max(-55, Math.min(55, cam.tilt + (desiredTilt - cam.tilt) * 0.30));
             }
           }
           updateHUD();
@@ -2034,7 +2041,7 @@
       window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
       // ==========================
-      // 5. 鎖定倒數 2 秒後穩定開錄（預熱畫格防眨） + 錄完彈出預覽／分享／下載面板
+      // 5. 鎖定倒數 2 秒後穩定開錄（4 幀非同步預熱防眨） + 錄完彈出預覽／分享／下載面板
       // ==========================
       let isRecordingV2V = false;
       let isPrerolling = false;
@@ -2172,84 +2179,93 @@
         offscreenCanvas.height = Math.max(180, Math.round(sf.height * DPR));
         offscreenCtx = offscreenCanvas.getContext('2d');
 
-        // 先切好純淨渲染狀態並預熱畫格，避免開錄第一幀跳格閃爍
+        // 先切好純淨渲染狀態並用 requestAnimationFrame 連續預熱 4 幀，避免開錄第一秒閃跳
         cleanRenderFlag = true;
         updateHorizonGuidePosition();
-        for (let i = 0; i < 3; i++) {
+
+        let warmupLeft = 4;
+        function warmupStep() {
           renderFrame();
           offscreenCtx.drawImage(
             canvas,
             sf.left * DPR, sf.top * DPR, sf.width * DPR, sf.height * DPR,
             0, 0, offscreenCanvas.width, offscreenCanvas.height
           );
-        }
-
-        if (autoSaveStartFrame) {
-          const startLink = document.createElement('a');
-          startLink.href = offscreenCanvas.toDataURL('image/png');
-          startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
-          startLink.click();
-        }
-
-        const stream = offscreenCanvas.captureStream(30);
-        const candidates = [
-          'video/mp4;codecs=avc1',
-          'video/mp4',
-          'video/webm;codecs=vp9',
-          'video/webm'
-        ];
-        let chosenMime = '';
-        for (const m of candidates) {
-          if (MediaRecorder.isTypeSupported(m)) {
-            chosenMime = m;
-            break;
+          warmupLeft -= 1;
+          if (warmupLeft > 0) {
+            requestAnimationFrame(warmupStep);
+            return;
           }
-        }
 
-        recordedChunks = [];
-        try {
-          const recorder = chosenMime
-            ? new MediaRecorder(stream, { mimeType: chosenMime, videoBitsPerSecond: 4500000 })
-            : new MediaRecorder(stream);
-          recorder.ondataavailable = (e) => {
-            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
-          };
-          recorder.onstop = () => {
+          if (autoSaveStartFrame) {
+            const startLink = document.createElement('a');
+            startLink.href = offscreenCanvas.toDataURL('image/png');
+            startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
+            startLink.click();
+          }
+
+          const stream = offscreenCanvas.captureStream(30);
+          const candidates = [
+            'video/mp4;codecs=avc1',
+            'video/mp4',
+            'video/webm;codecs=vp9',
+            'video/webm'
+          ];
+          let chosenMime = '';
+          for (const m of candidates) {
+            if (MediaRecorder.isTypeSupported(m)) {
+              chosenMime = m;
+              break;
+            }
+          }
+
+          recordedChunks = [];
+          try {
+            const recorder = chosenMime
+              ? new MediaRecorder(stream, { mimeType: chosenMime, videoBitsPerSecond: 4500000 })
+              : new MediaRecorder(stream);
+            recorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+            recorder.onstop = () => {
+              cleanRenderFlag = false;
+              updateHorizonGuidePosition();
+              const isMp4 = (chosenMime || '').includes('mp4');
+              const ext = isMp4 ? 'mp4' : 'webm';
+              const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
+              const filename = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
+              openVideoPreviewModal(blob, filename);
+            };
+            recorder.start(100);
+            mediaRecorder = recorder;
+          } catch (err) {
             cleanRenderFlag = false;
             updateHorizonGuidePosition();
-            const isMp4 = (chosenMime || '').includes('mp4');
-            const ext = isMp4 ? 'mp4' : 'webm';
-            const blob = new Blob(recordedChunks, { type: chosenMime || 'video/mp4' });
-            const filename = `CineAI_V2V_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.${ext}`;
-            openVideoPreviewModal(blob, filename);
-          };
-          recorder.start(200);
-          mediaRecorder = recorder;
-        } catch (err) {
-          cleanRenderFlag = false;
-          updateHorizonGuidePosition();
-          resetRecIdleUI();
-          alert('無法啟動錄影：' + err.message);
-          return;
+            resetRecIdleUI();
+            alert('無法啟動錄影：' + err.message);
+            return;
+          }
+
+          isRecordingV2V = true;
+          recStartTime = Date.now();
+
+          const badge = document.getElementById('rec-badge');
+          badge.classList.remove('preroll');
+          badge.classList.add('recording');
+          document.getElementById('btn-record-v2v').classList.add('recording');
+          document.getElementById('rec-label-text').innerHTML =
+            '錄影中<br><span style="font-size:8.5px; color:#fca5a5; font-weight:700;">按此停機</span>';
+
+          recTimerInterval = setInterval(() => {
+            if (!isRecordingV2V) return;
+            const sec = Math.floor((Date.now() - recStartTime) / 1000);
+            const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+            const ss = String(sec % 60).padStart(2, '0');
+            document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
+          }, 200);
         }
 
-        isRecordingV2V = true;
-        recStartTime = Date.now();
-
-        const badge = document.getElementById('rec-badge');
-        badge.classList.remove('preroll');
-        badge.classList.add('recording');
-        document.getElementById('btn-record-v2v').classList.add('recording');
-        document.getElementById('rec-label-text').innerHTML =
-          '錄影中<br><span style="font-size:8.5px; color:#fca5a5; font-weight:700;">按此停機</span>';
-
-        recTimerInterval = setInterval(() => {
-          if (!isRecordingV2V) return;
-          const sec = Math.floor((Date.now() - recStartTime) / 1000);
-          const mm = String(Math.floor(sec / 60)).padStart(2, '0');
-          const ss = String(sec % 60).padStart(2, '0');
-          document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
-        }, 200);
+        requestAnimationFrame(warmupStep);
       }
 
       function stopV2VRecording() {
@@ -2585,6 +2601,11 @@
         e.currentTarget.textContent = env.showHorizonGuide ? '地平線基準線: 顯' : '地平線基準線: 隱';
         e.currentTarget.classList.toggle('active', env.showHorizonGuide);
         updateHorizonGuidePosition();
+      });
+      document.getElementById('btn-floor-grid').addEventListener('click', (e) => {
+        env.showFloorGrid = !env.showFloorGrid;
+        e.currentTarget.textContent = env.showFloorGrid ? '地面格線 (AI空間參考): 開' : '地面格線 (AI空間參考): 關';
+        e.currentTarget.classList.toggle('active', env.showFloorGrid);
       });
 
       document.getElementById('btn-af-mode').addEventListener('click', (e) => {
