@@ -431,7 +431,7 @@
       transform: scale(0.97);
     }
 
-    /* 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換 */
+    /* 底部中央：片幅（Full Frame / Super 35）+ 焦段快選條 + 比例切換 */
     #bottom-center-dock {
       position: absolute;
       left: 50%;
@@ -441,15 +441,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3.5px;
+      gap: 3px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 4.5px 8px;
+      padding: 4px 8px;
       border-radius: 13px;
     }
-    .lens-strip, .ar-strip {
+    .sensor-strip, .lens-strip, .ar-strip {
       display: flex;
       align-items: center;
       gap: 3.5px;
@@ -937,7 +937,7 @@
     <!-- 頂部取景器狀態與核心快捷鍵 -->
     <div id="top-hud-bar">
       <div class="hud-pill-group">
-        <span id="hud-info" class="osd-readout">35mm · 16:9 · AF 3.6m · H 1.60m</span>
+        <span id="hud-info" class="osd-readout">35mm FF · 16:9 · AF 3.6m · H 1.60m</span>
         <div id="rec-badge"><span class="rec-dot"></span><span id="rec-timer">00:00</span></div>
       </div>
 
@@ -979,8 +979,12 @@
       </div>
     </div>
 
-    <!-- 底部中央：焦段快選條（亦可雙指縮放）+ 比例切換 -->
+    <!-- 底部中央：片幅（Full Frame / Super 35）+ 焦段快選條（亦可雙指縮放）+ 比例切換 -->
     <div id="bottom-center-dock">
+      <div class="sensor-strip">
+        <button type="button" class="chip-btn fmt-btn active" data-fmt="ff">Full Frame</button>
+        <button type="button" class="chip-btn fmt-btn" data-fmt="s35">Super 35</button>
+      </div>
       <div class="lens-strip">
         <button type="button" class="chip-btn lens-btn" data-mm="16">16mm</button>
         <button type="button" class="chip-btn lens-btn" data-mm="24">24mm</button>
@@ -1180,6 +1184,15 @@
         </div>
 
         <div class="sec-box">
+          <div class="sec-title">陰影濃度 Shadow（50% / 75% / 100%）</div>
+          <div class="row-grid-3">
+            <button type="button" class="chip-btn shd-btn" data-shd="0.5">Shadow 50%</button>
+            <button type="button" class="chip-btn shd-btn active" data-shd="0.75">Shadow 75%</button>
+            <button type="button" class="chip-btn shd-btn" data-shd="1.0">Shadow 100%</button>
+          </div>
+        </div>
+
+        <div class="sec-box">
           <div class="sec-title">主光方向與色溫氛圍（同時作用於人物、骨架與實景）</div>
           <div class="row-grid-2">
             <button type="button" id="btn-l-left" class="chip-btn active">主光在左側</button>
@@ -1264,6 +1277,7 @@
         '4:3': 4 / 3
       };
       let currentAspect = '16:9';
+      let sensorFormat = 'ff'; // 'ff' Full Frame | 's35' Super 35 (1.5x crop)
       let clayMode = false;
       let cleanRenderFlag = false;
       let promptLang = 'zh';
@@ -1299,8 +1313,18 @@
 
       const light = {
         side: -1,
-        mood: 'golden'
+        mood: 'golden',
+        shadowStrength: 0.75 // 0.50 | 0.75 | 1.00
       };
+
+      function getEffectiveFocalMm() {
+        return sensorFormat === 's35' ? cam.focal * 1.5 : cam.focal;
+      }
+
+      function getEffectiveAspectRatio() {
+        const baseR = ASPECT_RATIOS[currentAspect] || (16 / 9);
+        return sensorFormat === 's35' ? Math.max(1.2, baseR * 0.92) : baseR;
+      }
 
       const SKY_MAP = {
         darkgrey: { top: '#232730', bot: '#14171d', fog: 'rgba(130, 142, 162, 0.22)', zh: '深灰色影棚背景', en: 'neutral dark grey studio backdrop' },
@@ -1349,8 +1373,8 @@
         const topHudBottom = 42;
         const kfBarH = 22;
         const availW = Math.max(200, W - 308);
-        const availH = Math.max(110, H - 186);
-        const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
+        const availH = Math.max(110, H - 208);
+        const r = getEffectiveAspectRatio();
         let fw = availW;
         let fh = fw / r;
         if (fh > availH) {
@@ -1415,7 +1439,7 @@
       function projectPoint(wx, wy, wz) {
         const c = worldToCam(wx, wy, wz);
         if (c.depth <= 0.15) return null;
-        const focalPx = (cam.focal / 24) * H;
+        const focalPx = (getEffectiveFocalMm() / 24) * H;
         return {
           sx: W / 2 + (c.cx / c.depth) * focalPx,
           sy: H / 2 - (c.cy / c.depth) * focalPx,
@@ -1433,9 +1457,11 @@
         const lz = Math.sin(pRad) * 0.78 * light.side - Math.cos(pRad) * (-0.35);
         const len = Math.hypot(lx, ly, lz) || 1;
         const diff = Math.max(0, nx * (lx / len) + ny * (ly / len) + nz * (lz / len));
-        const r = Math.min(255, Math.round(rgb[0] * (0.28 * (pal.amb[0] / 120) + diff * 1.05 * (pal.key[0] / 195))));
-        const g = Math.min(255, Math.round(rgb[1] * (0.28 * (pal.amb[1] / 120) + diff * 1.05 * (pal.key[1] / 195))));
-        const b = Math.min(255, Math.round(rgb[2] * (0.28 * (pal.amb[2] / 120) + diff * 1.05 * (pal.key[2] / 195))));
+        // Shadow 50% (0.50) 抬高暗部基底；Shadow 100% (1.00) 壓深暗部基底
+        const ambFloor = 0.56 - (light.shadowStrength - 0.5) * 0.56;
+        const r = Math.min(255, Math.round(rgb[0] * (ambFloor * (pal.amb[0] / 120) + diff * 1.05 * (pal.key[0] / 195))));
+        const g = Math.min(255, Math.round(rgb[1] * (ambFloor * (pal.amb[1] / 120) + diff * 1.05 * (pal.key[1] / 195))));
+        const b = Math.min(255, Math.round(rgb[2] * (ambFloor * (pal.amb[2] / 120) + diff * 1.05 * (pal.key[2] / 195))));
         return `rgb(${r},${g},${b})`;
       }
 
@@ -1570,7 +1596,7 @@
 
       function calcBlurPx(subjectDist) {
         if (cam.dofStrength <= 0.01) return 0;
-        const lensFactor = Math.pow(cam.focal / 35, 1.4);
+        const lensFactor = Math.pow(getEffectiveFocalMm() / 35, 1.4);
         const distDiff = Math.abs(subjectDist - cam.focusDist);
         const rawPx = distDiff * lensFactor * cam.dofStrength * 2.1;
         return Math.max(0, Math.min(15, +rawPx.toFixed(1)));
@@ -1597,10 +1623,12 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
+        const effFocal = getEffectiveFocalMm();
+
         // 獨立 3D 透視地面平面著色（按攝影機俯仰角計算地平線高度）
         const groundSpec = GROUND_MAP[env.ground];
         if (groundSpec) {
-          const focalPx = (cam.focal / 24) * H;
+          const focalPx = (effFocal / 24) * H;
           const horizonY = H * 0.5 + Math.tan((cam.tilt * Math.PI) / 180) * focalPx;
           if (horizonY < H) {
             const topY = Math.max(0, horizonY);
@@ -1627,7 +1655,7 @@
           const refDist = 3.6 + env.bgDepthDist;
           const curDist = Math.max(1.2, cam.z + env.bgDepthDist);
 
-          const opticalZoom = (cam.focal / refFocal) * (refDist / curDist);
+          const opticalZoom = (effFocal / refFocal) * (refDist / curDist);
           const totalScale = Math.max(1.10, 1.32 * opticalZoom);
 
           const imgR = env.bgImage.width / env.bgImage.height;
@@ -1641,7 +1669,7 @@
             dh = dw / imgR;
           }
 
-          const focalPx = (cam.focal / 24) * H;
+          const focalPx = (effFocal / 24) * H;
           const parallaxFactor = Math.max(0.22, Math.min(0.85, 6.5 / curDist));
           const panPx = -Math.tan((cam.pan * Math.PI) / 180) * focalPx * 0.48 - cam.x * (focalPx / curDist) * parallaxFactor;
           const tiltRad = (cam.tilt * Math.PI) / 180;
@@ -1710,10 +1738,11 @@
         }
 
         const activeList = actors.filter(a => a.active);
+        const shadowAlpha = Math.max(0.22, Math.min(0.65, 0.18 + light.shadowStrength * 0.44));
         activeList.forEach(a => {
           const pb = projectPoint(a.x, 0.01, a.z);
           if (pb) {
-            ctx.fillStyle = 'rgba(0,0,0,0.42)';
+            ctx.fillStyle = `rgba(0,0,0,${shadowAlpha.toFixed(2)})`;
             ctx.beginPath();
             ctx.ellipse(pb.sx, pb.sy, Math.max(10, 0.30 * pb.scale), Math.max(4, 0.11 * pb.scale), 0, 0, Math.PI * 2);
             ctx.fill();
@@ -1807,8 +1836,9 @@
 
       function updateHUD() {
         const fTag = cam.autoFocus ? `AF ${cam.focusDist.toFixed(1)}m` : `MF ${cam.focusDist.toFixed(1)}m`;
+        const fmtTag = sensorFormat === 's35' ? 'S35' : 'FF';
         document.getElementById('hud-info').textContent =
-          `${Math.round(cam.focal)}mm · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
+          `${Math.round(cam.focal)}mm ${fmtTag} · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
         document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
         document.getElementById('pt-readout').textContent = `P ${Math.round(cam.pan)}° · T ${Math.round(cam.tilt)}°`;
         updatePromptText();
@@ -2764,8 +2794,17 @@
       }
 
       // ==========================
-      // 6. 控制、3D 立體骨架、多實景相片切換、散景與 V2V 指令
+      // 6. 控制、片幅、陰影、3D 立體骨架、多實景相片切換、散景與 V2V 指令
       // ==========================
+      function setSensorFormat(fmt) {
+        sensorFormat = fmt;
+        document.querySelectorAll('.fmt-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.fmt === fmt);
+        });
+        updateSafeFrameLayout();
+        updateHUD();
+      }
+
       function setFocal(mm) {
         cam.focal = mm;
         document.querySelectorAll('.lens-btn').forEach(b => {
@@ -2920,8 +2959,11 @@
 
         const namesZh = actives.map(a => a.tag || a.name).join('、');
         const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
-        const dofZh = cam.dofStrength > 0.1 && cam.focal >= 50 ? '，大光圈淺景深柔化遠景散景' : '，自然電影景深層次';
-        const dofEn = cam.dofStrength > 0.1 && cam.focal >= 50 ? ', shallow depth of field with natural background bokeh' : ', natural cinematic depth of field';
+        const fmtZh = sensorFormat === 's35' ? 'Super 35 片幅' : 'Full Frame 全片幅';
+        const fmtEn = sensorFormat === 's35' ? 'Super 35 sensor' : 'Full Frame sensor';
+        const shdPct = Math.round(light.shadowStrength * 100);
+        const dofZh = cam.dofStrength > 0.1 && getEffectiveFocalMm() >= 50 ? '，大光圈淺景深柔化遠景散景' : '，自然電影景深層次';
+        const dofEn = cam.dofStrength > 0.1 && getEffectiveFocalMm() >= 50 ? ', shallow depth of field with natural background bokeh' : ', natural cinematic depth of field';
 
         const styleLineZh = styleText ? `畫面風格：${styleText}。` : '';
         const actionLineZh = actionText ? `；動作神態：${actionText}` : '';
@@ -2930,13 +2972,13 @@
 
         const zh = [
           `【造型與時代質感】${styleLineZh}場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節${actionLineZh}。`,
-          `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}${dofZh}，24fps。`,
+          `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，陰影強度 ${shdPct}%（${fmtZh}）${dofZh}，24fps。`,
           `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、雲台轉向與升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
         ].join('\n');
 
         const en = [
           `[Style & Character Consistency] ${styleLineEn}Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn})${actionLineEn}.`,
-          `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}${dofEn}, 24fps.`,
+          `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, shadow depth ${shdPct}% (${fmtEn})${dofEn}, 24fps.`,
           `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, pan/tilt and crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
         ].join('\n');
 
@@ -2991,6 +3033,9 @@
 
       document.getElementById('btn-record-v2v').addEventListener('click', toggleV2VRecording);
 
+      document.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.addEventListener('click', () => setSensorFormat(btn.dataset.fmt));
+      });
       document.querySelectorAll('.lens-btn').forEach(btn => {
         btn.addEventListener('click', () => setFocal(parseInt(btn.dataset.mm, 10)));
       });
@@ -3166,6 +3211,14 @@
         cam.dofStrength = parseFloat(e.target.value);
         document.getElementById('dof-str-val').textContent = `${cam.dofStrength.toFixed(1)}x`;
         updatePromptText();
+      });
+
+      document.querySelectorAll('.shd-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          light.shadowStrength = parseFloat(btn.dataset.shd);
+          document.querySelectorAll('.shd-btn').forEach(b => b.classList.toggle('active', b === btn));
+          updatePromptText();
+        });
       });
 
       document.getElementById('btn-l-left').addEventListener('click', () => {
