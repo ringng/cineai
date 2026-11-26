@@ -21,7 +21,7 @@
       --accent-red: #ef4444;
       --accent-green: #10b981;
       --safe-left: env(safe-area-inset-left, 12px);
-      --safe-right: env(safe-area-inset-right, 12px);
+      --safe-right: env(safe-right, env(safe-area-inset-right, 12px));
       --safe-top: env(safe-area-inset-top, 8px);
       --safe-bottom: env(safe-area-inset-bottom, 8px);
     }
@@ -256,6 +256,11 @@
       background: rgba(229, 163, 36, 0.95);
       color: #0b0d10;
     }
+    #rec-badge.keypath {
+      display: flex;
+      background: rgba(16, 185, 129, 0.94);
+      color: #061710;
+    }
     .rec-dot {
       width: 7px;
       height: 7px;
@@ -438,6 +443,11 @@
       border-color: #f7c252;
       color: #0b0d10;
     }
+    .chip-btn.recorded {
+      border-color: var(--accent-green);
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.15);
+    }
 
     /* 右手拇指區：直排上下疊放 — 加長行程垂直升降搖桿（上） + Pan/Tilt 雲台搖桿（下） */
     #right-thumb-zone {
@@ -610,57 +620,87 @@
       white-space: nowrap;
     }
 
-    /* 錄完即刻彈出影片預覽與儲存／分享面板 */
+    /* 錄完即刻彈出整合預覽面板（首幀圖 ＋ V2V 影片 ＋ 對應指令） */
     #video-preview-modal {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 80;
-      background: rgba(5, 7, 10, 0.86);
+      background: rgba(5, 7, 10, 0.88);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 12px;
     }
     #video-preview-modal.open { display: flex; }
     .preview-card {
-      width: min(460px, 92vw);
+      width: min(640px, 95vw);
+      max-height: 92dvh;
+      overflow-y: auto;
       background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
       border-radius: 16px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+      touch-action: pan-y;
     }
     .preview-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
+    }
+    .preview-media-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .media-pane {
+      background: rgba(8, 10, 14, 0.85);
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .media-pane-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
     }
     #v2v-preview-player {
       width: 100%;
-      max-height: 52dvh;
-      border-radius: 10px;
+      max-height: 40dvh;
+      border-radius: 7px;
       background: #000;
-      border: 1px solid var(--border-hairline);
+    }
+    #v2v-startframe-thumb {
+      width: 100%;
+      max-height: 30dvh;
+      object-fit: contain;
+      border-radius: 7px;
+      background: #000;
     }
     .preview-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 6px;
     }
     .preview-btn {
-      padding: 8px 10px;
-      border-radius: 9px;
+      padding: 7px 8px;
+      border-radius: 8px;
       border: 1px solid var(--border-subtle);
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-primary);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -668,6 +708,19 @@
       background: var(--accent-amber);
       border-color: #f7c252;
       color: #0b0d10;
+    }
+    #preview-prompt-text {
+      width: 100%;
+      height: 58px;
+      background: rgba(8, 10, 14, 0.9);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      line-height: 1.38;
+      user-select: text;
     }
 
     /* 可收合右側導演設定抽屜 */
@@ -925,17 +978,34 @@
     </div>
   </div>
 
-  <!-- 錄完即刻彈出影片預覽與儲存／分享面板 -->
+  <!-- 錄完即刻彈出整合預覽面板（首幀圖 ＋ V2V 影片 ＋ 對應指令） -->
   <div id="video-preview-modal">
     <div class="preview-card">
       <div class="preview-head">
-        <span id="preview-file-title">V2V 運鏡影片已完成</span>
+        <span id="preview-file-title">V2V 運鏡與首幀已就緒</span>
         <button type="button" id="btn-close-preview" class="hud-btn">關閉 ✕</button>
       </div>
-      <video id="v2v-preview-player" controls playsinline webkit-playsinline loop></video>
-      <div class="preview-actions">
-        <button type="button" id="btn-share-v2v" class="preview-btn primary">儲存 / 分享影片</button>
-        <button type="button" id="btn-download-v2v" class="preview-btn">直接下載檔案</button>
+      <div class="preview-media-grid">
+        <div class="media-pane">
+          <span class="media-pane-label">1. V2V 運鏡參考影片</span>
+          <video id="v2v-preview-player" controls playsinline webkit-playsinline loop></video>
+          <div class="preview-actions">
+            <button type="button" id="btn-share-v2v" class="preview-btn primary">儲存 / 分享影片</button>
+            <button type="button" id="btn-download-v2v" class="preview-btn">直接下載影片</button>
+          </div>
+        </div>
+        <div class="media-pane">
+          <span class="media-pane-label">2. 起鏡首幀參考圖 (Start Frame)</span>
+          <img id="v2v-startframe-thumb" alt="起鏡首幀圖" />
+          <button type="button" id="btn-save-startframe" class="preview-btn">儲存首幀 PNG</button>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="media-pane-label">3. 本鏡對應 V2V 質感指令</span>
+          <button type="button" id="btn-copy-preview-prompt" class="chip-btn active">一鍵複製指令</button>
+        </div>
+        <textarea id="preview-prompt-text" readonly></textarea>
       </div>
     </div>
   </div>
@@ -955,7 +1025,7 @@
     </div>
 
     <div class="drawer-body">
-      <!-- 分頁 1：角色走位 -->
+      <!-- 分頁 1：角色走位 + 三段式鏡頭運動記錄 (A -> B -> C) -->
       <div id="dp-cast" class="dpane active">
         <div class="sec-box">
           <div class="sec-title">場上人數與鏡頭預設</div>
@@ -972,10 +1042,32 @@
           </div>
         </div>
 
+        <div class="sec-box">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="sec-title">記錄鏡頭運動 (起點 A → 中途 B → 終點 C)</span>
+            <span id="kf-status-txt" style="font-size:9.5px; color:var(--text-secondary);">未設定</span>
+          </div>
+          <div class="row-grid-3">
+            <button type="button" id="btn-set-kfa" class="chip-btn">記起點 A</button>
+            <button type="button" id="btn-set-kfb" class="chip-btn">記中途 B</button>
+            <button type="button" id="btn-set-kfc" class="chip-btn">記終點 C</button>
+          </div>
+          <div class="row-grid-3">
+            <button type="button" class="chip-btn kfdur-btn" data-sec="4">全程 4s</button>
+            <button type="button" class="chip-btn kfdur-btn active" data-sec="6">全程 6s</button>
+            <button type="button" class="chip-btn kfdur-btn" data-sec="8">全程 8s</button>
+          </div>
+          <div class="row-grid-3">
+            <button type="button" id="btn-play-kf" class="chip-btn active">播放軌跡</button>
+            <button type="button" id="btn-rec-kf" class="chip-btn" style="border-color:var(--accent-red); color:#fca5a5;">播放並錄影</button>
+            <button type="button" id="btn-clear-kf" class="chip-btn">清除 A/B/C</button>
+          </div>
+        </div>
+
         <div id="cast-controls-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
 
-      <!-- 分頁 2：真實背景動態變化、3D 立體場景骨架、光影同步與散景 -->
+      <!-- 分頁 2：真實背景動態變化、獨立地面顏色、3D 立體場景骨架、光影同步與散景 -->
       <div id="dp-set" class="dpane">
         <div class="sec-box">
           <div class="sec-title">3D 立體場景骨架（即時近中遠透視試位）</div>
@@ -984,6 +1076,18 @@
             <button type="button" class="chip-btn prop-btn" data-prop="street">街巷騎樓</button>
             <button type="button" class="chip-btn prop-btn" data-prop="interior">室內廳堂</button>
             <button type="button" class="chip-btn prop-btn" data-prop="lake_hills">山丘湖畔</button>
+          </div>
+        </div>
+
+        <div class="sec-box">
+          <div class="sec-title">獨立地面顏色（3D 透視地面底色）</div>
+          <div class="row-grid-3">
+            <button type="button" class="chip-btn ground-btn active" data-g="auto">跟隨天空</button>
+            <button type="button" class="chip-btn ground-btn" data-g="concrete">深灰石屎地</button>
+            <button type="button" class="chip-btn ground-btn" data-g="earth">暖啡泥木地</button>
+            <button type="button" class="chip-btn ground-btn" data-g="lake">深藍湖水面</button>
+            <button type="button" class="chip-btn ground-btn" data-g="light">淺灰棚地</button>
+            <button type="button" id="btn-floor-grid" class="chip-btn active">地面格線: 開</button>
           </div>
         </div>
 
@@ -1014,10 +1118,6 @@
           <div class="row-grid-2">
             <button type="button" id="btn-bg-light-sync" class="chip-btn active">實景光影色溫同步: 開</button>
             <button type="button" id="btn-horizon-guide" class="chip-btn active">地平線基準線: 顯</button>
-          </div>
-          <div class="row-grid-2">
-            <button type="button" id="btn-floor-grid" class="chip-btn active">地面格線 (AI空間參考): 開</button>
-            <span style="font-size:10px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; border:1px solid var(--border-hairline); border-radius:7px; padding:4px;">含地平線空氣薄霧</span>
           </div>
         </div>
 
@@ -1142,6 +1242,7 @@
 
       const env = {
         sky: 'darkgrey',
+        ground: 'auto',
         setProp: 'none',
         bgSlots: [],
         activeBgIdx: -1,
@@ -1166,6 +1267,14 @@
         day:      { top: '#2563eb', bot: '#93c5fd', fog: 'rgba(186, 222, 255, 0.28)', zh: '晴朗日間藍天', en: 'clear daytime blue sky' },
         dusk:     { top: '#3b0764', bot: '#ea580c', fog: 'rgba(244, 154, 102, 0.28)', zh: '黃昏晚霞漸層天空', en: 'warm golden-orange sunset sky' },
         night:    { top: '#030712', bot: '#0f172a', fog: 'rgba(42, 68, 118, 0.24)',  zh: '深藍夜空背景', en: 'deep dark blue night sky' }
+      };
+
+      const GROUND_MAP = {
+        auto:     null,
+        concrete: { near: '#2a2e35', far: '#1a1d22', zh: '深灰石屎地面', en: 'dark grey concrete ground' },
+        earth:    { near: '#4a3828', far: '#291f16', zh: '暖啡泥木地面', en: 'warm brown earth/wood floor' },
+        lake:     { near: '#16425b', far: '#0b2536', zh: '深藍湖水水面', en: 'deep blue lake water surface' },
+        light:    { near: '#cdd4df', far: '#9aa4b4', zh: '淺灰影棚地面', en: 'light grey studio floor' }
       };
 
       const MOOD_MAP = {
@@ -1437,6 +1546,26 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
+        // 獨立 3D 透視地面平面著色（按攝影機俯仰角計算地平線高度）
+        const groundSpec = GROUND_MAP[env.ground];
+        if (groundSpec) {
+          const focalPx = (cam.focal / 24) * H;
+          const horizonY = H * 0.5 + Math.tan((cam.tilt * Math.PI) / 180) * focalPx;
+          if (horizonY < H) {
+            const topY = Math.max(0, horizonY);
+            const gGrad = ctx.createLinearGradient(0, topY, 0, H);
+            gGrad.addColorStop(0, groundSpec.far);
+            gGrad.addColorStop(1, groundSpec.near);
+            ctx.fillStyle = gGrad;
+            ctx.fillRect(0, topY, W, H - topY);
+
+            if (horizonY >= 0 && horizonY <= H) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
+              ctx.fillRect(0, horizonY - 1, W, 1.5);
+            }
+          }
+        }
+
         if (env.bgImage) {
           const sf = document.getElementById('safe-frame').getBoundingClientRect();
           const mood = MOOD_MAP[light.mood];
@@ -1490,7 +1619,6 @@
           ctx.drawImage(env.bgImage, dx, dy, dw, dh);
           ctx.filter = 'none';
 
-          // 地平線附近大氣薄霧過渡，提升前景角色與實景底圖的空間融合感
           const fogCenterY = sf.top + sf.height * 0.5 + horizonPx * 0.65;
           const fogBandH = Math.max(28, sf.height * 0.34);
           const hazeGrad = ctx.createLinearGradient(0, fogCenterY - fogBandH * 0.5, 0, fogCenterY + fogBandH * 0.5);
@@ -1518,12 +1646,13 @@
           ctx.restore();
         }
 
-        // 低調地面格線：錄影時亦保留（冇實景底圖時協助 AI 讀出升降與空間透視；有實景時自動調淡）
         if (env.showFloorGrid) {
+          const isLightGround = env.ground === 'light' || (env.ground === 'auto' && env.sky === 'white');
+          const baseRGB = isLightGround ? '20,24,32' : '255,255,255';
           const gridAlpha = env.bgImage ? 0.06 : 0.14;
           const centerAlpha = env.bgImage ? 0.16 : 0.30;
           for (let i = -8; i <= 8; i++) {
-            const col = i === 0 ? `rgba(229,163,36,${centerAlpha})` : `rgba(255,255,255,${gridAlpha})`;
+            const col = i === 0 ? `rgba(229,163,36,${centerAlpha})` : `rgba(${baseRGB},${gridAlpha})`;
             drawLine3D(i, 0, -8, i, 0, 8, col, i === 0 ? 1.2 : 0.9);
             drawLine3D(-8, 0, i, 8, 0, i, col, i === 0 ? 1.2 : 0.9);
           }
@@ -1646,7 +1775,7 @@
       function handleDeviceOrientation(e) {
         if (e.alpha === null || e.beta === null || e.gamma === null) return;
         gyroLatest = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
-        if (!gyroActive) return;
+        if (!gyroActive || kfPlay.active) return;
 
         if (!gyroBase) {
           gyroBase = { ...gyroLatest, camPan: cam.pan, camTilt: cam.tilt };
@@ -1724,6 +1853,7 @@
         const press = (e) => {
           e.preventDefault();
           e.stopPropagation();
+          if (kfPlay.active) stopKeyframePlayback(false);
           activeDollyDir = dir;
           btn.classList.add('pressed');
         };
@@ -1763,7 +1893,7 @@
       }
 
       // ==========================
-      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿（溫和漸進 1.45 次方，清晰可見變化且起鏡唔急）
+      // 3A. 右手拇指區（上）：垂直搖臂升降搖桿
       // ==========================
       const craneTrack = document.getElementById('crane-track');
       const craneKnob = document.getElementById('crane-knob');
@@ -1773,6 +1903,7 @@
       let craneVelY = 0;
 
       function updateCraneStick(clientY) {
+        if (kfPlay.active) stopKeyframePlayback(false);
         const rect = craneTrack.getBoundingClientRect();
         const maxTravel = Math.max(16, (rect.height - 28) / 2);
         const dy = Math.max(-maxTravel, Math.min(maxTravel, clientY - (rect.top + rect.height / 2)));
@@ -1866,7 +1997,7 @@
       }
 
       // ==========================
-      // 3B. 右手拇指區（下）：Pan / Tilt 雲台搖桿（預設 0.10°/幀 ＋ 漸進曲線）
+      // 3B. 右手拇指區（下）：Pan / Tilt 雲台搖桿
       // ==========================
       const ptPad = document.getElementById('pantilt-pad');
       const ptKnob = document.getElementById('pantilt-knob');
@@ -1876,6 +2007,7 @@
       let ptStickSpeed = 0.10;
 
       function updatePanTiltStick(clientX, clientY) {
+        if (kfPlay.active) stopKeyframePlayback(false);
         const rect = ptPad.getBoundingClientRect();
         const maxR = (rect.width - 22) / 2;
         let dx = clientX - (rect.left + rect.width / 2);
@@ -1950,6 +2082,144 @@
         cam.pan = +((((cam.pan + dirX * curveScale * ptStickSpeed + 540) % 360) - 180).toFixed(2));
         cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dirY * curveScale * (ptStickSpeed * 0.85))).toFixed(2);
         updateHUD();
+      }
+
+      // ==========================
+      // 3C. 三段式鏡頭運動記錄 (起點 A → 中途 B → 終點 C)
+      // ==========================
+      const keyframes = { A: null, B: null, C: null };
+      let kfTotalSec = 6;
+      const kfPlay = { active: false, startTime: 0, autoStopRec: false, points: [] };
+
+      function captureCamState() {
+        return {
+          x: cam.x,
+          y: cam.y,
+          z: cam.z,
+          pan: cam.pan,
+          tilt: cam.tilt,
+          focal: cam.focal
+        };
+      }
+
+      function applyCamState(st) {
+        cam.x = st.x;
+        cam.y = st.y;
+        cam.z = st.z;
+        cam.pan = st.pan;
+        cam.tilt = st.tilt;
+        if (Math.round(cam.focal) !== Math.round(st.focal)) {
+          cam.focal = Math.round(st.focal);
+          document.querySelectorAll('.lens-btn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.mm, 10) === cam.focal);
+          });
+        }
+        if (cam.cranePitchLock) {
+          const lead = getLeadActor();
+          if (lead) {
+            const targetEyeY = (lead.height / 1.75) * 1.48;
+            const horizDist = Math.max(0.6, Math.hypot(lead.x - cam.x, lead.z - cam.z));
+            const desiredTilt = Math.atan2(targetEyeY - cam.y, horizDist) * 180 / Math.PI;
+            cam.tilt = Math.max(-55, Math.min(55, desiredTilt));
+          }
+        }
+        updateHUD();
+      }
+
+      function updateKeyframeStatusUI() {
+        document.getElementById('btn-set-kfa').classList.toggle('recorded', !!keyframes.A);
+        document.getElementById('btn-set-kfb').classList.toggle('recorded', !!keyframes.B);
+        document.getElementById('btn-set-kfc').classList.toggle('recorded', !!keyframes.C);
+        const list = ['A', 'B', 'C'].filter(k => !!keyframes[k]);
+        document.getElementById('kf-status-txt').textContent = list.length ? `已記 ${list.join('→')}` : '未設定';
+      }
+
+      function catmullRom1D(p0, p1, p2, p3, t) {
+        const t2 = t * t;
+        const t3 = t2 * t;
+        return 0.5 * (
+          (2 * p1) +
+          (-p0 + p2) * t +
+          (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+          (-p0 + 3 * p1 - 3 * p2 + p3) * t3
+        );
+      }
+
+      function startKeyframePlayback(withRec = false) {
+        const pts = ['A', 'B', 'C'].map(k => keyframes[k]).filter(Boolean);
+        if (pts.length < 2) {
+          alert('請先至少記錄 2 個機位關鍵幀（例如起點 A、中途 B、終點 C）。');
+          return;
+        }
+        document.getElementById('drawer-backdrop').classList.remove('open');
+        document.getElementById('director-drawer').classList.remove('open');
+
+        applyCamState(pts[0]);
+        kfPlay.points = pts;
+        kfPlay.autoStopRec = withRec;
+        document.getElementById('btn-play-kf').textContent = '停止播放';
+
+        if (withRec) {
+          if (isRecordingV2V) stopV2VRecording();
+          clearPrerollTimers();
+          startV2VRecording(() => {
+            kfPlay.active = true;
+            kfPlay.startTime = performance.now();
+          });
+        } else {
+          kfPlay.active = true;
+          kfPlay.startTime = performance.now();
+          const badge = document.getElementById('rec-badge');
+          badge.classList.remove('recording', 'preroll');
+          badge.classList.add('keypath');
+          document.getElementById('rec-timer').textContent = 'A→B→C';
+        }
+      }
+
+      function stopKeyframePlayback(stopRecToo = false) {
+        kfPlay.active = false;
+        gyroBase = null;
+        document.getElementById('btn-play-kf').textContent = '播放軌跡';
+        if (!isRecordingV2V && !isPrerolling) {
+          document.getElementById('rec-badge').classList.remove('keypath');
+        }
+        if (stopRecToo && isRecordingV2V) {
+          stopV2VRecording();
+        }
+      }
+
+      function tickKeyframePlayback() {
+        if (!kfPlay.active) return;
+        const elapsedSec = (performance.now() - kfPlay.startTime) / 1000;
+        const rawU = Math.min(1, Math.max(0, elapsedSec / kfTotalSec));
+        // 平滑起鏡與柔和收尾（S 曲線，經過中途 B 點保持流暢不斷速）
+        const u = rawU * rawU * (3 - 2 * rawU);
+        const pts = kfPlay.points;
+        const segCount = pts.length - 1;
+        const scaled = u * segCount;
+        const segIdx = Math.min(segCount - 1, Math.floor(scaled));
+        const localT = scaled - segIdx;
+
+        const p0 = pts[Math.max(0, segIdx - 1)];
+        const p1 = pts[segIdx];
+        const p2 = pts[Math.min(pts.length - 1, segIdx + 1)];
+        const p3 = pts[Math.min(pts.length - 1, segIdx + 2)];
+
+        const interp = {
+          x: catmullRom1D(p0.x, p1.x, p2.x, p3.x, localT),
+          y: catmullRom1D(p0.y, p1.y, p2.y, p3.y, localT),
+          z: catmullRom1D(p0.z, p1.z, p2.z, p3.z, localT),
+          pan: catmullRom1D(p0.pan, p1.pan, p2.pan, p3.pan, localT),
+          tilt: catmullRom1D(p0.tilt, p1.tilt, p2.tilt, p3.tilt, localT),
+          focal: catmullRom1D(p0.focal, p1.focal, p2.focal, p3.focal, localT)
+        };
+        applyCamState(interp);
+
+        if (rawU >= 1) {
+          applyCamState(pts[pts.length - 1]);
+          const shouldStopRec = kfPlay.autoStopRec;
+          stopKeyframePlayback(shouldStopRec);
+        }
       }
 
       // ==========================
@@ -2073,6 +2343,7 @@
             renderCastControls();
             updateHUD();
           } else if (!candidateActor) {
+            if (kfPlay.active) stopKeyframePlayback(false);
             cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
             cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
             updateHUD();
@@ -2098,6 +2369,7 @@
         const dx = e.clientX - prevMousePt.x;
         const dy = e.clientY - prevMousePt.y;
         prevMousePt = { x: e.clientX, y: e.clientY };
+        if (kfPlay.active) stopKeyframePlayback(false);
         cam.pan = +((((cam.pan + dx * 0.22 + 540) % 360) - 180).toFixed(1));
         cam.tilt = +Math.max(-55, Math.min(55, cam.tilt - dy * 0.18)).toFixed(1);
         updateHUD();
@@ -2105,7 +2377,7 @@
       window.addEventListener('mouseup', () => { mouseDragCam = false; });
 
       // ==========================
-      // 5. 鎖定倒數 2 秒後穩定開錄（4 幀非同步預熱防眨） + 錄完彈出預覽／分享／下載面板
+      // 5. 鎖定倒數 2 秒後穩定開錄 + 整合預覽面板（首幀圖 ＋ 影片 ＋ 指令）
       // ==========================
       let isRecordingV2V = false;
       let isPrerolling = false;
@@ -2117,6 +2389,8 @@
       let latestVideoBlob = null;
       let latestVideoFilename = '';
       let latestVideoUrl = '';
+      let latestStartFrameDataUrl = '';
+      let latestStartFrameFilename = '';
       let offscreenCanvas = null;
       let offscreenCtx = null;
       let recStartTime = 0;
@@ -2132,7 +2406,7 @@
 
       function resetRecIdleUI() {
         document.getElementById('btn-record-v2v').classList.remove('recording');
-        document.getElementById('rec-badge').classList.remove('recording', 'preroll');
+        document.getElementById('rec-badge').classList.remove('recording', 'preroll', 'keypath');
         document.getElementById('rec-label-text').innerHTML =
           '錄 V2V<br><span style="font-size:8.5px; color:var(--text-secondary); font-weight:600;">倒數2秒</span>';
         document.getElementById('rec-timer').textContent = '00:00';
@@ -2154,6 +2428,13 @@
         player.src = latestVideoUrl;
         player.load();
         player.play().catch(() => {});
+
+        const thumb = document.getElementById('v2v-startframe-thumb');
+        if (latestStartFrameDataUrl) {
+          thumb.src = latestStartFrameDataUrl;
+        }
+
+        document.getElementById('preview-prompt-text').value = document.getElementById('prompt-box').value;
 
         const kb = Math.max(1, Math.round(blob.size / 1024));
         document.getElementById('preview-file-title').textContent = `${filename} (${kb} KB)`;
@@ -2193,6 +2474,16 @@
         a.remove();
       }
 
+      function saveStartFramePng() {
+        if (!latestStartFrameDataUrl) return;
+        const a = document.createElement('a');
+        a.href = latestStartFrameDataUrl;
+        a.download = latestStartFrameFilename || `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
       function toggleV2VRecording() {
         if (isPrerolling) {
           clearPrerollTimers();
@@ -2207,7 +2498,7 @@
         let leftSec = 2;
         isPrerolling = true;
         const badge = document.getElementById('rec-badge');
-        badge.classList.remove('recording');
+        badge.classList.remove('recording', 'keypath');
         badge.classList.add('preroll');
         document.getElementById('rec-timer').textContent = `預備 ${leftSec}s`;
         document.getElementById('rec-label-text').innerHTML =
@@ -2224,7 +2515,7 @@
         }, 1000);
       }
 
-      function startV2VRecording() {
+      function startV2VRecording(onStartedCallback) {
         clearPrerollTimers();
         if (recTimerInterval) {
           clearInterval(recTimerInterval);
@@ -2260,11 +2551,11 @@
             return;
           }
 
+          latestStartFrameDataUrl = offscreenCanvas.toDataURL('image/png');
+          latestStartFrameFilename = `CineAI_StartFrame_${Math.round(cam.focal)}mm_${Date.now().toString().slice(-5)}.png`;
+
           if (autoSaveStartFrame) {
-            const startLink = document.createElement('a');
-            startLink.href = offscreenCanvas.toDataURL('image/png');
-            startLink.download = `CineAI_StartFrame_${Math.round(cam.focal)}mm.png`;
-            startLink.click();
+            saveStartFramePng();
           }
 
           const stream = offscreenCanvas.captureStream(30);
@@ -2313,7 +2604,7 @@
           recStartTime = Date.now();
 
           const badge = document.getElementById('rec-badge');
-          badge.classList.remove('preroll');
+          badge.classList.remove('preroll', 'keypath');
           badge.classList.add('recording');
           document.getElementById('btn-record-v2v').classList.add('recording');
           document.getElementById('rec-label-text').innerHTML =
@@ -2326,6 +2617,10 @@
             const ss = String(sec % 60).padStart(2, '0');
             document.getElementById('rec-timer').textContent = `${mm}:${ss}`;
           }, 200);
+
+          if (typeof onStartedCallback === 'function') {
+            onStartedCallback();
+          }
         }
 
         requestAnimationFrame(warmupStep);
@@ -2398,6 +2693,7 @@
       }
 
       function applyQuickPreset(type) {
+        if (kfPlay.active) stopKeyframePlayback(false);
         if (type === 'two_shot') {
           setActorCount(2);
           actors[0].x = -0.85; actors[0].z = 0; actors[0].rot = 65; actors[0].headTurn = 15;
@@ -2545,6 +2841,7 @@
       // 綁定所有按鈕與滑桿事件
       document.getElementById('btn-gyro').addEventListener('click', toggleGyroMode);
       document.getElementById('btn-recenter').addEventListener('click', () => {
+        if (kfPlay.active) stopKeyframePlayback(false);
         gyroBase = null;
         cam.pan = 0; cam.tilt = 0; cam.roll = 0;
         updateHUD();
@@ -2571,6 +2868,13 @@
       document.getElementById('btn-close-preview').addEventListener('click', closeVideoPreviewModal);
       document.getElementById('btn-share-v2v').addEventListener('click', shareOrSaveVideo);
       document.getElementById('btn-download-v2v').addEventListener('click', triggerDirectVideoDownload);
+      document.getElementById('btn-save-startframe').addEventListener('click', saveStartFramePng);
+      document.getElementById('btn-copy-preview-prompt').addEventListener('click', () => {
+        const box = document.getElementById('preview-prompt-text');
+        box.select();
+        navigator.clipboard?.writeText(box.value).catch(() => {});
+        alert('已複製本鏡對應之 V2V 質感指令！');
+      });
 
       document.querySelectorAll('.dtab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2589,6 +2893,7 @@
         btn.addEventListener('click', () => setAspect(btn.dataset.ar));
       });
       document.getElementById('btn-reset-cam').addEventListener('click', () => {
+        if (kfPlay.active) stopKeyframePlayback(false);
         cam.x = 0; cam.y = 1.60; cam.z = 3.60;
         cam.pan = 0; cam.tilt = 0; cam.roll = 0;
         gyroBase = null;
@@ -2608,6 +2913,7 @@
         btn.addEventListener('click', () => applyQuickPreset(btn.dataset.preset));
       });
       document.getElementById('btn-auto-reverse').addEventListener('click', () => {
+        if (kfPlay.active) stopKeyframePlayback(false);
         const actives = actors.filter(a => a.active);
         if (actives.length < 2) return;
         const midX = (actives[0].x + actives[1].x) / 2;
@@ -2617,10 +2923,52 @@
         updateHUD();
       });
 
+      // 三段式鏡頭關鍵幀 A -> B -> C 事件
+      document.getElementById('btn-set-kfa').addEventListener('click', () => {
+        keyframes.A = captureCamState();
+        updateKeyframeStatusUI();
+      });
+      document.getElementById('btn-set-kfb').addEventListener('click', () => {
+        keyframes.B = captureCamState();
+        updateKeyframeStatusUI();
+      });
+      document.getElementById('btn-set-kfc').addEventListener('click', () => {
+        keyframes.C = captureCamState();
+        updateKeyframeStatusUI();
+      });
+      document.querySelectorAll('.kfdur-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          kfTotalSec = parseInt(btn.dataset.sec, 10);
+          document.querySelectorAll('.kfdur-btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
+      });
+      document.getElementById('btn-play-kf').addEventListener('click', () => {
+        if (kfPlay.active) stopKeyframePlayback(false);
+        else startKeyframePlayback(false);
+      });
+      document.getElementById('btn-rec-kf').addEventListener('click', () => {
+        if (kfPlay.active) stopKeyframePlayback(true);
+        else startKeyframePlayback(true);
+      });
+      document.getElementById('btn-clear-kf').addEventListener('click', () => {
+        stopKeyframePlayback(false);
+        keyframes.A = null;
+        keyframes.B = null;
+        keyframes.C = null;
+        updateKeyframeStatusUI();
+      });
+
       document.querySelectorAll('.prop-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           env.setProp = btn.dataset.prop;
           document.querySelectorAll('.prop-btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
+      });
+
+      document.querySelectorAll('.ground-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          env.ground = btn.dataset.g;
+          document.querySelectorAll('.ground-btn').forEach(b => b.classList.toggle('active', b === btn));
         });
       });
 
@@ -2674,7 +3022,7 @@
       });
       document.getElementById('btn-floor-grid').addEventListener('click', (e) => {
         env.showFloorGrid = !env.showFloorGrid;
-        e.currentTarget.textContent = env.showFloorGrid ? '地面格線 (AI空間參考): 開' : '地面格線 (AI空間參考): 關';
+        e.currentTarget.textContent = env.showFloorGrid ? '地面格線: 開' : '地面格線: 關';
         e.currentTarget.classList.toggle('active', env.showFloorGrid);
       });
 
@@ -2771,9 +3119,11 @@
       window.addEventListener('resize', resizeStage);
       resizeStage();
       renderCastControls();
+      updateKeyframeStatusUI();
       updateHUD();
 
       function mainLoop() {
+        tickKeyframePlayback();
         tickDollyMovement();
         tickCraneMovement();
         tickPanTiltStick();
