@@ -102,7 +102,7 @@
       display: block;
     }
 
-    /* 安全畫框遮罩（置中於畫面中間） */
+    /* 安全畫框遮罩（精準置中，不使用 transform 偏移以免與像素 left/top 疊加） */
     #safe-frame-layer {
       position: absolute;
       inset: 0;
@@ -111,14 +111,14 @@
     }
     #safe-frame {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      left: 0;
+      top: 0;
+      transform: none;
       width: 420px;
       height: 236px;
       border: 1.5px solid rgba(255, 255, 255, 0.84);
       box-shadow: 0 0 0 9999px rgba(6, 8, 11, 0.58);
-      transition: width 0.16s ease, height 0.16s ease;
+      transition: width 0.14s ease, height 0.14s ease, left 0.14s ease, top 0.14s ease;
     }
     .grid-v1, .grid-v2, .grid-h1, .grid-h2 {
       position: absolute;
@@ -144,23 +144,30 @@
     .center-mark::before { left: 8.5px; top: 0; width: 1px; height: 18px; }
     .center-mark::after { top: 8.5px; left: 0; height: 1px; width: 18px; }
 
-    /* 畫框上方正中 A / B / C 關鍵幀快捷條（嚴格保持在畫框外邊） */
+    /* 畫框上方正中精細 A / B / C 關鍵幀快捷條（保持在畫框外上方） */
     #above-frame-kf-bar {
       position: absolute;
       left: 50%;
+      top: 44px;
       transform: translateX(-50%);
       z-index: 19;
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 2.5px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 3px 6px;
+      padding: 2px 5px;
       border-radius: 999px;
       pointer-events: auto;
       white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    }
+    #above-frame-kf-bar .chip-btn {
+      padding: 2px 5.5px;
+      font-size: 8.8px;
+      border-radius: 6px;
     }
 
     /* 可拖曳實景地平線基準線 */
@@ -911,7 +918,7 @@
       </div>
     </div>
 
-    <!-- 畫框上方正中 A / B / C 關鍵幀快捷條（保持在畫框外邊，不遮畫框） -->
+    <!-- 畫框上方正中精細 A / B / C 關鍵幀快捷條（保持在畫框外上方） -->
     <div id="above-frame-kf-bar">
       <button type="button" id="hud-set-kfa" class="chip-btn">記 A</button>
       <button type="button" id="hud-set-kfb" class="chip-btn">記 B</button>
@@ -1329,14 +1336,14 @@
         updateSafeFrameLayout();
       }
 
-      // 讓安全畫框留出上方 A/B/C 控制條空間，確保控制條永遠在畫框外邊
+      // 以畫面正中 (W/2, H/2) 精準置中，並將 A/B/C 條固定放喺畫框外上方
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
         const kfBar = document.getElementById('above-frame-kf-bar');
-        const topBarH = 44;
-        const barH = 26;
-        const availW = Math.max(200, W - 304);
-        const availH = Math.max(110, H - 178);
+        const topHudBottom = 42;
+        const kfBarH = 22;
+        const availW = Math.max(200, W - 308);
+        const availH = Math.max(110, H - 186);
         const r = ASPECT_RATIOS[currentAspect] || (16 / 9);
         let fw = availW;
         let fh = fw / r;
@@ -1344,14 +1351,14 @@
           fh = availH;
           fw = fh * r;
         }
-        const frameTop = Math.round((H - fh) / 2);
         const frameLeft = Math.round((W - fw) / 2);
+        const frameTop = Math.round((H - fh) / 2);
         sf.style.left = `${frameLeft}px`;
         sf.style.top = `${frameTop}px`;
         sf.style.width = `${Math.round(fw)}px`;
         sf.style.height = `${Math.round(fh)}px`;
 
-        const barTop = Math.max(topBarH, frameTop - barH - 4);
+        const barTop = Math.max(topHudBottom, frameTop - kfBarH - 4);
         kfBar.style.top = `${barTop}px`;
       }
 
