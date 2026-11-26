@@ -21,7 +21,7 @@
       --accent-red: #ef4444;
       --accent-green: #10b981;
       --safe-left: env(safe-area-inset-left, 12px);
-      --safe-right: env(safe-right, env(safe-area-inset-right, 12px));
+      --safe-right: env(safe-area-inset-right, 12px);
       --safe-top: env(safe-area-inset-top, 8px);
       --safe-bottom: env(safe-area-inset-bottom, 8px);
     }
@@ -975,10 +975,20 @@
         <div id="cast-controls-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
 
-      <!-- 分頁 2：真實背景動態變化、光影同步與散景 -->
+      <!-- 分頁 2：真實背景動態變化、3D 立體場景骨架、光影同步與散景 -->
       <div id="dp-set" class="dpane">
         <div class="sec-box">
-          <div class="sec-title">實景相片底圖（支援多張切換與光影同步）</div>
+          <div class="sec-title">3D 立體場景骨架（即時近中遠透視試位）</div>
+          <div class="row-grid-2">
+            <button type="button" class="chip-btn prop-btn active" data-prop="none">純淨棚景</button>
+            <button type="button" class="chip-btn prop-btn" data-prop="street">街巷騎樓</button>
+            <button type="button" class="chip-btn prop-btn" data-prop="interior">室內廳堂</button>
+            <button type="button" class="chip-btn prop-btn" data-prop="lake_hills">山丘湖畔</button>
+          </div>
+        </div>
+
+        <div class="sec-box">
+          <div class="sec-title">實景相片底圖（多張切換、視差與大氣薄霧融合）</div>
           <div class="row-grid-2">
             <button type="button" id="btn-add-bg" class="chip-btn active">+ 加入實景相片</button>
             <button type="button" id="btn-clear-bg" class="chip-btn">清除目前底圖</button>
@@ -1007,7 +1017,7 @@
           </div>
           <div class="row-grid-2">
             <button type="button" id="btn-floor-grid" class="chip-btn active">地面格線 (AI空間參考): 開</button>
-            <span style="font-size:10px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; border:1px solid var(--border-hairline); border-radius:7px; padding:4px;">有實景時自動調淡</span>
+            <span style="font-size:10px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center; border:1px solid var(--border-hairline); border-radius:7px; padding:4px;">含地平線空氣薄霧</span>
           </div>
         </div>
 
@@ -1028,7 +1038,7 @@
         </div>
 
         <div class="sec-box">
-          <div class="sec-title">主光方向與色溫氛圍（同時作用於人物與實景）</div>
+          <div class="sec-title">主光方向與色溫氛圍（同時作用於人物、骨架與實景）</div>
           <div class="row-grid-2">
             <button type="button" id="btn-l-left" class="chip-btn active">主光在左側</button>
             <button type="button" id="btn-l-right" class="chip-btn">主光在右側</button>
@@ -1132,6 +1142,7 @@
 
       const env = {
         sky: 'darkgrey',
+        setProp: 'none',
         bgSlots: [],
         activeBgIdx: -1,
         bgImage: null,
@@ -1149,19 +1160,19 @@
       };
 
       const SKY_MAP = {
-        darkgrey: { top: '#232730', bot: '#14171d', zh: '深灰色影棚背景', en: 'neutral dark grey studio backdrop' },
-        black:    { top: '#050608', bot: '#090b0f', zh: '純黑色影棚背景', en: 'pitch-black studio background' },
-        white:    { top: '#eef2f7', bot: '#dce2ec', zh: '純白色無縫影棚', en: 'bright white cyclorama background' },
-        day:      { top: '#2563eb', bot: '#93c5fd', zh: '晴朗日間藍天', en: 'clear daytime blue sky' },
-        dusk:     { top: '#3b0764', bot: '#ea580c', zh: '黃昏晚霞漸層天空', en: 'warm golden-orange sunset sky' },
-        night:    { top: '#030712', bot: '#0f172a', zh: '深藍夜空背景', en: 'deep dark blue night sky' }
+        darkgrey: { top: '#232730', bot: '#14171d', fog: 'rgba(130, 142, 162, 0.22)', zh: '深灰色影棚背景', en: 'neutral dark grey studio backdrop' },
+        black:    { top: '#050608', bot: '#090b0f', fog: 'rgba(40, 48, 64, 0.16)',   zh: '純黑色影棚背景', en: 'pitch-black studio background' },
+        white:    { top: '#eef2f7', bot: '#dce2ec', fog: 'rgba(232, 238, 246, 0.30)', zh: '純白色無縫影棚', en: 'bright white cyclorama background' },
+        day:      { top: '#2563eb', bot: '#93c5fd', fog: 'rgba(186, 222, 255, 0.28)', zh: '晴朗日間藍天', en: 'clear daytime blue sky' },
+        dusk:     { top: '#3b0764', bot: '#ea580c', fog: 'rgba(244, 154, 102, 0.28)', zh: '黃昏晚霞漸層天空', en: 'warm golden-orange sunset sky' },
+        night:    { top: '#030712', bot: '#0f172a', fog: 'rgba(42, 68, 118, 0.24)',  zh: '深藍夜空背景', en: 'deep dark blue night sky' }
       };
 
       const MOOD_MAP = {
-        golden:    { key: [255, 218, 165], amb: [82, 102, 132], tint: 'rgba(255, 178, 88, 0.22)', contrast: 1.08, bright: 1.02, zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
-        moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   tint: 'rgba(56, 118, 224, 0.34)', contrast: 1.18, bright: 0.72, zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
-        tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   tint: 'rgba(245, 142, 48, 0.28)', contrast: 1.12, bright: 0.88, zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
-        overcast:  { key: [236, 240, 246], amb: [132, 140, 152],tint: 'rgba(210, 220, 235, 0.08)', contrast: 0.96, bright: 1.00, zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
+        golden:    { key: [255, 218, 165], amb: [82, 102, 132], tint: 'rgba(255, 178, 88, 0.22)', haze: 'rgba(248, 194, 128, 0.24)', contrast: 1.08, bright: 1.02, zh: '魔幻斜陽暖金主光配冷藍陰影', en: 'warm golden hour sunlight with cool shadows' },
+        moonlight: { key: [155, 205, 255], amb: [38, 58, 96],   tint: 'rgba(56, 118, 224, 0.34)', haze: 'rgba(82, 128, 198, 0.24)',  contrast: 1.18, bright: 0.72, zh: '冷月夜戲藍青色調', en: 'cold blue moonlight night tone' },
+        tungsten:  { key: [255, 182, 105], amb: [60, 46, 36],   tint: 'rgba(245, 142, 48, 0.28)', haze: 'rgba(232, 168, 108, 0.22)', contrast: 1.12, bright: 0.88, zh: '鎢絲燈暖琥珀室內色溫', en: 'warm tungsten interior lighting' },
+        overcast:  { key: [236, 240, 246], amb: [132, 140, 152],tint: 'rgba(210, 220, 235, 0.08)', haze: 'rgba(214, 222, 234, 0.22)', contrast: 0.96, bright: 1.00, zh: '陰天自然漫射光中性色溫', en: 'soft diffused overcast daylight' }
       };
 
       const actors = [
@@ -1313,6 +1324,42 @@
         });
       }
 
+      // 3D 立體場景骨架（街巷騎樓／室內廳堂／山丘湖畔）
+      function buildScenePropGeometry(polyList) {
+        if (env.setProp === 'street') {
+          const wallRGB = [108, 96, 86];
+          const pillarRGB = [82, 74, 68];
+          const farRGB = [76, 82, 94];
+          for (let i = 0; i < 3; i++) {
+            const zPos = -0.8 - i * 2.4;
+            draw3DBox(polyList, -2.55, 0, zPos, 0, 0, 1.55, 0, 0.85, 3.10, 2.10, wallRGB);
+            draw3DBox(polyList,  2.55, 0, zPos, 0, 0, 1.55, 0, 0.85, 3.10, 2.10, wallRGB);
+            draw3DBox(polyList, -1.95, 0, zPos + 0.55, 0, 0, 1.35, 0, 0.24, 2.70, 0.24, pillarRGB);
+            draw3DBox(polyList,  1.95, 0, zPos + 0.55, 0, 0, 1.35, 0, 0.24, 2.70, 0.24, pillarRGB);
+          }
+          draw3DBox(polyList, -1.35, 0, -6.8, 0, 0, 1.80, 0, 2.20, 3.60, 1.60, farRGB);
+          draw3DBox(polyList,  1.45, 0, -7.4, 0, 0, 1.45, 0, 2.40, 2.90, 1.60, farRGB);
+        } else if (env.setProp === 'interior') {
+          const wallRGB = [116, 110, 102];
+          const woodRGB = [138, 94, 58];
+          const trimRGB = [78, 84, 94];
+          draw3DBox(polyList, 0, 0, -3.4, 0, 0, 1.50, 0, 6.20, 3.00, 0.25, wallRGB);
+          draw3DBox(polyList, -2.95, 0, -1.0, 0, 0, 1.50, 0, 0.25, 3.00, 4.80, wallRGB);
+          draw3DBox(polyList,  2.95, 0, -1.0, 0, 0, 1.50, 0, 0.25, 3.00, 4.80, wallRGB);
+          draw3DBox(polyList, 0, 0, -1.65, 0, 0, 0.38, 0, 1.50, 0.76, 0.82, woodRGB);
+          draw3DBox(polyList, -1.45, 0, -1.35, 22, 0, 0.45, 0, 0.52, 0.90, 0.52, trimRGB);
+          draw3DBox(polyList,  1.45, 0, -1.35, -22, 0, 0.45, 0, 0.52, 0.90, 0.52, trimRGB);
+        } else if (env.setProp === 'lake_hills') {
+          const ridgeNear = [68, 86, 74];
+          const ridgeMid  = [88, 76, 98];
+          const peakFar   = [118, 112, 136];
+          draw3DBox(polyList, -3.6, 0, -6.5, 12, 0, 0.85, 0, 3.80, 1.70, 2.60, ridgeNear);
+          draw3DBox(polyList,  3.8, 0, -7.2, -14, 0, 1.15, 0, 4.20, 2.30, 2.80, ridgeNear);
+          draw3DBox(polyList, -1.6, 0, -9.5, 6, 0, 1.55, 0, 5.40, 3.10, 3.20, ridgeMid);
+          draw3DBox(polyList,  2.6, 0, -11.2, -8, 0, 2.15, 0, 6.20, 4.30, 3.60, peakFar);
+        }
+      }
+
       function buildActorGeometry(polyList, a) {
         const hs = a.height / 1.75;
         const pantsRGB = [34, 40, 52];
@@ -1443,6 +1490,17 @@
           ctx.drawImage(env.bgImage, dx, dy, dw, dh);
           ctx.filter = 'none';
 
+          // 地平線附近大氣薄霧過渡，提升前景角色與實景底圖的空間融合感
+          const fogCenterY = sf.top + sf.height * 0.5 + horizonPx * 0.65;
+          const fogBandH = Math.max(28, sf.height * 0.34);
+          const hazeGrad = ctx.createLinearGradient(0, fogCenterY - fogBandH * 0.5, 0, fogCenterY + fogBandH * 0.5);
+          const hazeColor = env.bgLightSync ? mood.haze : sky.fog;
+          hazeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+          hazeGrad.addColorStop(0.5, hazeColor);
+          hazeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = hazeGrad;
+          ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
+
           if (env.bgLightSync) {
             ctx.fillStyle = mood.tint;
             ctx.fillRect(sf.left, sf.top, sf.width, sf.height);
@@ -1496,6 +1554,14 @@
         });
 
         const polys = [];
+        if (env.setProp !== 'none') {
+          const propPolys = [];
+          buildScenePropGeometry(propPolys);
+          propPolys.forEach(pp => {
+            pp.blur = calcBlurPx(pp.depth);
+            polys.push(pp);
+          });
+        }
         activeList.forEach(a => {
           const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
           const actorBlur = calcBlurPx(distToCam);
@@ -1772,11 +1838,9 @@
         if (absNorm >= 0.04) {
           const sign = craneNormY < 0 ? 1 : -1;
           const activeMag = (absNorm - 0.04) / 0.96;
-          // 溫和漸進 1.45 次方：起鏡唔急，推郁就有清晰可見嘅高度與透視變化
           targetVel = sign * Math.pow(activeMag, 1.45) * 0.022;
         }
 
-        // 起鏡柔順追隨（0.18）、放手平滑收停（0.24）
         const followRate = targetVel !== 0 ? 0.18 : 0.24;
         craneVelY += (targetVel - craneVelY) * followRate;
 
@@ -2179,7 +2243,6 @@
         offscreenCanvas.height = Math.max(180, Math.round(sf.height * DPR));
         offscreenCtx = offscreenCanvas.getContext('2d');
 
-        // 先切好純淨渲染狀態並用 requestAnimationFrame 連續預熱 4 幀，避免開錄第一秒閃跳
         cleanRenderFlag = true;
         updateHorizonGuidePosition();
 
@@ -2306,7 +2369,7 @@
       }
 
       // ==========================
-      // 6. 控制、多實景相片切換、散景與 V2V 指令
+      // 6. 控制、3D 立體骨架、多實景相片切換、散景與 V2V 指令
       // ==========================
       function setFocal(mm) {
         cam.focal = mm;
@@ -2552,6 +2615,13 @@
         cam.pan = -cam.pan;
         gyroBase = null;
         updateHUD();
+      });
+
+      document.querySelectorAll('.prop-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          env.setProp = btn.dataset.prop;
+          document.querySelectorAll('.prop-btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
       });
 
       document.getElementById('btn-add-bg').addEventListener('click', () => {
