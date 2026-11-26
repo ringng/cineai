@@ -144,11 +144,11 @@
     .center-mark::before { left: 8.5px; top: 0; width: 1px; height: 18px; }
     .center-mark::after { top: 8.5px; left: 0; height: 1px; width: 18px; }
 
-    /* 畫框上方正中精細 A / B / C 關鍵幀快捷條（保持在畫框外上方） */
+    /* 畫框上方正中精細 A / B / C 關鍵幀快捷條（褪高至頂部列下方空隙，保持在畫框外上方） */
     #above-frame-kf-bar {
       position: absolute;
       left: 50%;
-      top: 44px;
+      top: calc(max(8px, var(--safe-top)) + 36px);
       transform: translateX(-50%);
       z-index: 19;
       display: flex;
@@ -431,7 +431,7 @@
       transform: scale(0.97);
     }
 
-    /* 底部中央：片幅（Full Frame / Super 35）+ 焦段快選條 + 比例切換 */
+    /* 底部中央：焦段快選條 + 比例 / FF / S35 / 歸零機位 */
     #bottom-center-dock {
       position: absolute;
       left: 50%;
@@ -441,28 +441,30 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 3.5px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 4px 8px;
+      padding: 4.5px 8px;
       border-radius: 13px;
     }
-    .sensor-strip, .lens-strip, .ar-strip {
+    .lens-strip, .ar-strip {
       display: flex;
       align-items: center;
-      gap: 3.5px;
+      gap: 3px;
+      flex-wrap: nowrap;
     }
     .chip-btn {
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.14);
       color: var(--text-primary);
       border-radius: 7px;
-      padding: 3px 6px;
-      font-size: 9.5px;
+      padding: 3px 5.5px;
+      font-size: 9px;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
     }
     .chip-btn.active {
       background: var(--accent-amber);
@@ -922,7 +924,7 @@
       </div>
     </div>
 
-    <!-- 畫框上方正中精細 A / B / C 關鍵幀快捷條（含 Undo 與一次清除，保持在畫框外上方） -->
+    <!-- 畫框上方正中精細 A / B / C 關鍵幀快捷條（褪高至頂部列下方，保持在畫框外上方） -->
     <div id="above-frame-kf-bar">
       <button type="button" id="hud-set-kfa" class="chip-btn">記 A</button>
       <button type="button" id="hud-set-kfb" class="chip-btn">記 B</button>
@@ -979,12 +981,8 @@
       </div>
     </div>
 
-    <!-- 底部中央：片幅（Full Frame / Super 35）+ 焦段快選條（亦可雙指縮放）+ 比例切換 -->
+    <!-- 底部中央：焦段快選條 + 比例 / FF / S35 / 歸零機位 -->
     <div id="bottom-center-dock">
-      <div class="sensor-strip">
-        <button type="button" class="chip-btn fmt-btn active" data-fmt="ff">Full Frame</button>
-        <button type="button" class="chip-btn fmt-btn" data-fmt="s35">Super 35</button>
-      </div>
       <div class="lens-strip">
         <button type="button" class="chip-btn lens-btn" data-mm="16">16mm</button>
         <button type="button" class="chip-btn lens-btn" data-mm="24">24mm</button>
@@ -998,6 +996,8 @@
         <button type="button" class="chip-btn ar-btn" data-ar="2.39:1">2.39:1</button>
         <button type="button" class="chip-btn ar-btn" data-ar="1.85:1">1.85:1</button>
         <button type="button" class="chip-btn ar-btn" data-ar="4:3">4:3</button>
+        <button type="button" class="chip-btn fmt-btn active" data-fmt="ff">FF</button>
+        <button type="button" class="chip-btn fmt-btn" data-fmt="s35">S35</button>
         <button type="button" id="btn-reset-cam" class="chip-btn">歸零機位</button>
       </div>
     </div>
@@ -1314,7 +1314,7 @@
       const light = {
         side: -1,
         mood: 'golden',
-        shadowStrength: 0.75 // 0.50 | 0.75 | 1.00
+        shadowStrength: 0.75
       };
 
       function getEffectiveFocalMm() {
@@ -1366,14 +1366,14 @@
         updateSafeFrameLayout();
       }
 
-      // 以畫面正中 (W/2, H/2) 精準置中，並將 A/B/C 條固定放喺畫框外上方
+      // 放大安全畫框並保留上方 A/B/C 條與下方焦段/比例列安全距離
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
         const kfBar = document.getElementById('above-frame-kf-bar');
-        const topHudBottom = 42;
-        const kfBarH = 22;
-        const availW = Math.max(200, W - 308);
-        const availH = Math.max(110, H - 208);
+        const topHudBottom = 36;
+        const kfBarH = 20;
+        const availW = Math.max(220, W - 268);
+        const availH = Math.max(130, H - 156);
         const r = getEffectiveAspectRatio();
         let fw = availW;
         let fh = fw / r;
@@ -1382,13 +1382,13 @@
           fw = fh * r;
         }
         const frameLeft = Math.round((W - fw) / 2);
-        const frameTop = Math.round((H - fh) / 2);
+        const frameTop = Math.round((H - fh) / 2 + 4);
         sf.style.left = `${frameLeft}px`;
         sf.style.top = `${frameTop}px`;
         sf.style.width = `${Math.round(fw)}px`;
         sf.style.height = `${Math.round(fh)}px`;
 
-        const barTop = Math.max(topHudBottom, frameTop - kfBarH - 4);
+        const barTop = Math.max(topHudBottom, frameTop - kfBarH - 5);
         kfBar.style.top = `${barTop}px`;
       }
 
@@ -1457,7 +1457,6 @@
         const lz = Math.sin(pRad) * 0.78 * light.side - Math.cos(pRad) * (-0.35);
         const len = Math.hypot(lx, ly, lz) || 1;
         const diff = Math.max(0, nx * (lx / len) + ny * (ly / len) + nz * (lz / len));
-        // Shadow 50% (0.50) 抬高暗部基底；Shadow 100% (1.00) 壓深暗部基底
         const ambFloor = 0.56 - (light.shadowStrength - 0.5) * 0.56;
         const r = Math.min(255, Math.round(rgb[0] * (ambFloor * (pal.amb[0] / 120) + diff * 1.05 * (pal.key[0] / 195))));
         const g = Math.min(255, Math.round(rgb[1] * (ambFloor * (pal.amb[1] / 120) + diff * 1.05 * (pal.key[1] / 195))));
