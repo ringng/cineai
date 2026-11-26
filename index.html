@@ -20,6 +20,7 @@
       --accent-amber: #e5a324;
       --accent-red: #ef4444;
       --accent-green: #10b981;
+      --accent-blue: #3b82f6;
       --safe-left: env(safe-area-inset-left, 12px);
       --safe-right: env(safe-area-inset-right, 12px);
       --safe-top: env(safe-area-inset-top, 8px);
@@ -102,7 +103,7 @@
       display: block;
     }
 
-    /* 安全畫框遮罩（精準置中，不使用 transform 偏移以免與像素 left/top 疊加） */
+    /* 安全畫框遮罩（精準置中） */
     #safe-frame-layer {
       position: absolute;
       inset: 0;
@@ -144,7 +145,7 @@
     .center-mark::before { left: 8.5px; top: 0; width: 1px; height: 18px; }
     .center-mark::after { top: 8.5px; left: 0; height: 1px; width: 18px; }
 
-    /* 畫框上方正中精細 A / B / C 關鍵幀快捷條（褪高至頂部列下方空隙，保持在畫框外上方） */
+    /* 畫框上方正中精細 A / B / C 關鍵幀 + 跟隨快捷條 */
     #above-frame-kf-bar {
       position: absolute;
       left: 50%;
@@ -168,6 +169,34 @@
       padding: 2px 5px;
       font-size: 8.6px;
       border-radius: 6px;
+    }
+
+    /* 獨立追車模式專屬浮動控制面板（進入追車模式時顯示） */
+    #chase-car-dock {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: calc(max(8px, var(--safe-top)) + 62px);
+      transform: translateX(-50%);
+      z-index: 19;
+      align-items: center;
+      gap: 4px;
+      background: rgba(14, 20, 32, 0.90);
+      border: 1px solid rgba(59, 130, 246, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 3px 7px;
+      border-radius: 999px;
+      pointer-events: auto;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+    }
+    #chase-car-dock.visible { display: flex; }
+    .chase-sep {
+      width: 1px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 2px;
     }
 
     /* 可拖曳實景地平線基準線 */
@@ -225,17 +254,17 @@
       pointer-events: auto;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       background: var(--bg-glass);
       border: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 4px 8px;
+      padding: 3.5px 7px;
       border-radius: 999px;
     }
     .osd-readout {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--accent-amber);
       white-space: nowrap;
@@ -245,8 +274,8 @@
       border: 1px solid rgba(255, 255, 255, 0.16);
       color: var(--text-primary);
       border-radius: 999px;
-      padding: 4px 9px;
-      font-size: 11px;
+      padding: 3.5px 8px;
+      font-size: 10.5px;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
@@ -262,6 +291,11 @@
       border-color: #6ee7b7;
       color: #061710;
     }
+    .hud-btn.chase-active {
+      background: var(--accent-blue);
+      border-color: #93c5fd;
+      color: #fff;
+    }
 
     /* 錄影狀態與 2 秒預備倒數指示燈 */
     #rec-badge {
@@ -270,10 +304,10 @@
       gap: 5px;
       background: rgba(220, 38, 38, 0.92);
       color: #fff;
-      padding: 3px 9px;
+      padding: 3px 8px;
       border-radius: 999px;
       font-family: ui-monospace, monospace;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
     }
     #rec-badge.recording { display: flex; }
@@ -470,6 +504,11 @@
       background: var(--accent-amber);
       border-color: #f7c252;
       color: #0b0d10;
+    }
+    .chip-btn.follow-on {
+      background: var(--accent-green);
+      border-color: #6ee7b7;
+      color: #061710;
     }
     .chip-btn.recorded {
       border-color: var(--accent-green);
@@ -924,7 +963,7 @@
       </div>
     </div>
 
-    <!-- 畫框上方正中精細 A / B / C 關鍵幀快捷條（褪高至頂部列下方，保持在畫框外上方） -->
+    <!-- 畫框上方正中精細 A / B / C 關鍵幀 + 跟隨快捷條 -->
     <div id="above-frame-kf-bar">
       <button type="button" id="hud-set-kfa" class="chip-btn">記 A</button>
       <button type="button" id="hud-set-kfb" class="chip-btn">記 B</button>
@@ -934,6 +973,20 @@
       <button type="button" id="hud-kf-dur" class="chip-btn">6s</button>
       <button type="button" id="hud-play-kf" class="chip-btn active">▶ 播</button>
       <button type="button" id="hud-rec-kf" class="chip-btn" style="border-color:var(--accent-red); color:#fca5a5;">● 錄</button>
+      <button type="button" id="hud-follow-btn" class="chip-btn" title="循環切換鏡頭跟隨目標">跟隨: 關</button>
+    </div>
+
+    <!-- 獨立追車模式專屬控制列（撳「追車模式 🚗」先出現） -->
+    <div id="chase-car-dock">
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0">定格</button>
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0.16">40km/h</button>
+      <button type="button" class="chip-btn cspd-btn active" data-cspd="0.32">70km/h</button>
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0.54">110km/h</button>
+      <span class="chase-sep"></span>
+      <button type="button" class="chip-btn cview-btn active" data-cview="rear_quarter">車尾追拍</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="side_track">車側並排</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="low_wheel">低角貼地</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="front_look">車頭回望</button>
     </div>
 
     <!-- 頂部取景器狀態與核心快捷鍵 -->
@@ -944,6 +997,7 @@
       </div>
 
       <div class="hud-pill-group">
+        <button type="button" id="btn-chase-mode" class="hud-btn">追車模式 🚗</button>
         <button type="button" id="btn-gyro" class="hud-btn">體感掌鏡: 關</button>
         <button type="button" id="btn-recenter" class="hud-btn">校正正中</button>
         <button type="button" id="btn-clay" class="hud-btn">Previz灰模</button>
@@ -1071,7 +1125,7 @@
     </div>
 
     <div class="drawer-body">
-      <!-- 分頁 1：角色走位 + 三段式鏡頭運動記錄 (A -> B -> C) -->
+      <!-- 分頁 1：角色走位 + 鏡頭跟隨 + 三段式鏡頭運動記錄 (A -> B -> C) -->
       <div id="dp-cast" class="dpane active">
         <div class="sec-box">
           <div class="sec-title">場上人數與鏡頭預設</div>
@@ -1085,6 +1139,19 @@
             <button type="button" class="chip-btn preset-btn" data-preset="ots">過肩正打 OTS</button>
             <button type="button" class="chip-btn preset-btn" data-preset="solo_cu">單人特寫 CU</button>
             <button type="button" id="btn-auto-reverse" class="chip-btn">對稱反打</button>
+          </div>
+        </div>
+
+        <div class="sec-box">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="sec-title">鏡頭跟隨模式（Follow Target）</span>
+            <span id="follow-status-txt" style="font-size:9.5px; color:var(--text-secondary);">自由機位</span>
+          </div>
+          <div class="row-grid-2">
+            <button type="button" class="chip-btn follow-opt-btn active" data-ft="none">跟隨: 關</button>
+            <button type="button" class="chip-btn follow-opt-btn" data-ft="A">跟隨角色 A</button>
+            <button type="button" class="chip-btn follow-opt-btn" data-ft="B">跟隨角色 B</button>
+            <button type="button" class="chip-btn follow-opt-btn" data-ft="C">跟隨角色 C</button>
           </div>
         </div>
 
@@ -1116,7 +1183,7 @@
       <!-- 分頁 2：真實背景動態變化、獨立地面顏色、3D 立體場景骨架、光影同步與散景 -->
       <div id="dp-set" class="dpane">
         <div class="sec-box">
-          <div class="sec-title">3D 立體場景骨架（即時近中遠透視試位）</div>
+          <div class="sec-title">3D 立體場景骨架（一般場景用；追車請按頂部「追車模式 🚗」）</div>
           <div class="row-grid-2">
             <button type="button" class="chip-btn prop-btn active" data-prop="none">純淨棚景</button>
             <button type="button" class="chip-btn prop-btn" data-prop="street">街巷騎樓</button>
@@ -1317,6 +1384,80 @@
         shadowStrength: 0.75
       };
 
+      // ==========================
+      // 獨立追車模式狀態（Car Chase / Road Mode）
+      // ==========================
+      const chaseMode = {
+        active: false,
+        speed: 0.32,         // 0=定格, 0.16=40km/h, 0.32=70km/h, 0.54=110km/h
+        roadScroll: 0,
+        carX: 0,
+        carZ: -1.4,
+        savedNormalCam: null,
+        savedNormalGround: 'auto',
+        savedNormalSky: 'darkgrey'
+      };
+
+      // ==========================
+      // 鏡頭跟隨模式（Follow Mode）
+      // ==========================
+      const followState = {
+        target: 'none',      // 'none' | 'A' | 'B' | 'C' | 'CAR'
+        lastTargetPos: null
+      };
+
+      function getFollowTargetPos(targetKey) {
+        if (targetKey === 'CAR' && chaseMode.active) {
+          return { x: chaseMode.carX, y: 1.15, z: chaseMode.carZ };
+        }
+        const actor = actors.find(a => a.id === targetKey && a.active);
+        if (actor) {
+          return { x: actor.x, y: (actor.height / 1.75) * 1.48, z: actor.z };
+        }
+        return null;
+      }
+
+      function setFollowTarget(targetKey) {
+        followState.target = targetKey;
+        const pos = getFollowTargetPos(targetKey);
+        followState.lastTargetPos = pos ? { ...pos } : null;
+
+        const btn = document.getElementById('hud-follow-btn');
+        const statusTxt = document.getElementById('follow-status-txt');
+        let label = '跟隨: 關';
+        if (targetKey === 'CAR') label = '跟隨: 車輛';
+        else if (targetKey !== 'none') label = `跟隨: ${targetKey}`;
+
+        btn.textContent = label;
+        btn.classList.toggle('follow-on', targetKey !== 'none');
+        if (statusTxt) {
+          statusTxt.textContent = targetKey === 'none' ? '自由機位' : `已鎖定${label}`;
+        }
+        document.querySelectorAll('.follow-opt-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.ft === targetKey);
+        });
+        updatePromptText();
+      }
+
+      function tickFollowCamera() {
+        if (followState.target === 'none' || kfPlay.active) return;
+        const curPos = getFollowTargetPos(followState.target);
+        if (!curPos) {
+          setFollowTarget('none');
+          return;
+        }
+        if (followState.lastTargetPos) {
+          const dx = curPos.x - followState.lastTargetPos.x;
+          const dz = curPos.z - followState.lastTargetPos.z;
+          if (Math.abs(dx) > 0.00005 || Math.abs(dz) > 0.00005) {
+            cam.x = Math.max(-8, Math.min(8, cam.x + dx));
+            cam.z = Math.max(-8, Math.min(8, cam.z + dz));
+            updateHUD();
+          }
+        }
+        followState.lastTargetPos = { ...curPos };
+      }
+
       function getEffectiveFocalMm() {
         return sensorFormat === 's35' ? cam.focal * 1.5 : cam.focal;
       }
@@ -1351,9 +1492,9 @@
       };
 
       const actors = [
-        { id: 'A', name: '角色 A', tag: '', archetype: 'male',   height: 1.78, x: -0.85, z: 0, rot: 65,  headTurn: 15,  color: [79, 134, 247], hex: '#4f86f7', active: true },
-        { id: 'B', name: '角色 B', tag: '', archetype: 'female', height: 1.64, x: 0.85,  z: 0, rot: -65, headTurn: -15, color: [224, 82, 99],  hex: '#e05263', active: true },
-        { id: 'C', name: '角色 C', tag: '', archetype: 'elder',  height: 1.68, x: 0,     z: -1.3, rot: 0, headTurn: 0,   color: [43, 182, 115], hex: '#2bb673', active: false }
+        { id: 'A', name: '角色 A', tag: '', archetype: 'male',   height: 1.78, x: -0.85, z: 0, rot: 65,  headTurn: 15,  color: [79, 134, 247], hex: '#4f86f7', active: true,  moveStart: null, moveEnd: null },
+        { id: 'B', name: '角色 B', tag: '', archetype: 'female', height: 1.64, x: 0.85,  z: 0, rot: -65, headTurn: -15, color: [224, 82, 99],  hex: '#e05263', active: true,  moveStart: null, moveEnd: null },
+        { id: 'C', name: '角色 C', tag: '', archetype: 'elder',  height: 1.68, x: 0,     z: -1.3, rot: 0, headTurn: 0,   color: [43, 182, 115], hex: '#2bb673', active: false, moveStart: null, moveEnd: null }
       ];
 
       function resizeStage() {
@@ -1366,14 +1507,14 @@
         updateSafeFrameLayout();
       }
 
-      // 放大安全畫框並保留上方 A/B/C 條與下方焦段/比例列安全距離
       function updateSafeFrameLayout() {
         const sf = document.getElementById('safe-frame');
         const kfBar = document.getElementById('above-frame-kf-bar');
+        const chaseDock = document.getElementById('chase-car-dock');
         const topHudBottom = 36;
         const kfBarH = 20;
         const availW = Math.max(220, W - 268);
-        const availH = Math.max(130, H - 156);
+        const availH = Math.max(130, H - (chaseMode.active ? 182 : 156));
         const r = getEffectiveAspectRatio();
         let fw = availW;
         let fh = fw / r;
@@ -1382,17 +1523,25 @@
           fw = fh * r;
         }
         const frameLeft = Math.round((W - fw) / 2);
-        const frameTop = Math.round((H - fh) / 2 + 4);
+        const frameTop = Math.round((H - fh) / 2 + (chaseMode.active ? 12 : 4));
         sf.style.left = `${frameLeft}px`;
         sf.style.top = `${frameTop}px`;
         sf.style.width = `${Math.round(fw)}px`;
         sf.style.height = `${Math.round(fh)}px`;
 
-        const barTop = Math.max(topHudBottom, frameTop - kfBarH - 5);
+        const barTop = Math.max(topHudBottom, frameTop - kfBarH - (chaseMode.active ? 28 : 5));
         kfBar.style.top = `${barTop}px`;
+        chaseDock.style.top = `${barTop + kfBarH + 3}px`;
       }
 
       function getLeadActor() {
+        if (chaseMode.active) {
+          return { x: chaseMode.carX, z: chaseMode.carZ, height: 1.45 };
+        }
+        if (followState.target !== 'none') {
+          const ft = actors.find(a => a.id === followState.target && a.active);
+          if (ft) return ft;
+        }
         const actives = actors.filter(a => a.active);
         if (!actives.length) return null;
         let best = actives[0];
@@ -1509,7 +1658,60 @@
         });
       }
 
-      // 3D 立體場景骨架（街巷騎樓／室內廳堂／山丘湖畔）
+      // 追車模式專用：3D 公路、流動路燈柱與簡化車輛骨架（含透明車窗框及車內司機／乘客方塊）
+      function buildChaseCarAndRoadGeometry(polyList) {
+        chaseMode.roadScroll = (chaseMode.roadScroll + chaseMode.speed) % 4.0;
+        const scroll = chaseMode.roadScroll;
+
+        const postRGB = [125, 132, 144];
+        const railRGB = [92, 98, 110];
+        const treeRGB = [56, 82, 62];
+        for (let i = -3; i <= 7; i++) {
+          const zPos = -i * 4.0 + scroll;
+          // 兩側路邊護欄與街燈柱
+          draw3DBox(polyList, -3.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
+          draw3DBox(polyList,  3.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
+          draw3DBox(polyList, -3.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
+          draw3DBox(polyList,  3.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
+          // 遠處路邊簡化樹冠方塊
+          draw3DBox(polyList, -5.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
+          draw3DBox(polyList,  5.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
+        }
+
+        // 簡化 3D 車輛骨架（參考 Blender + Seedance 簡化方塊車與車內人物）
+        const cx = chaseMode.carX;
+        const cz = chaseMode.carZ;
+        const bodyRGB = [62, 114, 198];
+        const roofRGB = [52, 98, 174];
+        const pillarRGB = [34, 42, 56];
+        const wheelRGB = [24, 26, 32];
+        const seatRGB = [40, 44, 52];
+
+        // 車身下盤（車頭朝 -Z 方向）
+        draw3DBox(polyList, cx, 0, cz, 0, 0, 0.56, 0, 1.86, 0.62, 4.30, bodyRGB);
+        // 車頂與四條 A/C 柱（留空車窗方便睇入車廂）
+        draw3DBox(polyList, cx, 0, cz, 0, 0, 1.44, 0.18, 1.58, 0.12, 2.15, roofRGB);
+        draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
+        draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
+        draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
+        draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
+
+        // 車內座椅與簡化司機／乘客方塊（方便 V2V 鎖定車內人影）
+        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
+        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
+        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 1.04, -0.32, 0.32, 0.46, 0.22, [224, 82, 99]);   // 司機身
+        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 1.34, -0.32, 0.18, 0.20, 0.18, [240, 196, 160]); // 司機頭
+        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 1.04, -0.32, 0.30, 0.44, 0.22, [43, 182, 115]);  // 乘客身
+        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 1.33, -0.32, 0.17, 0.19, 0.17, [240, 196, 160]); // 乘客頭
+
+        // 四個車輪
+        const wheelOffsets = [[-0.92, -1.35], [0.92, -1.35], [-0.92, 1.35], [0.92, 1.35]];
+        wheelOffsets.forEach(([wx, wz]) => {
+          draw3DBox(polyList, cx, 0, cz, 0, wx, 0.34, wz, 0.24, 0.68, 0.68, wheelRGB);
+        });
+      }
+
+      // 一般場景 3D 立體場景骨架（街巷騎樓／室內廳堂／山丘湖畔）
       function buildScenePropGeometry(polyList) {
         if (env.setProp === 'street') {
           const wallRGB = [108, 96, 86];
@@ -1624,8 +1826,9 @@
 
         const effFocal = getEffectiveFocalMm();
 
-        // 獨立 3D 透視地面平面著色（按攝影機俯仰角計算地平線高度）
-        const groundSpec = GROUND_MAP[env.ground];
+        // 獨立 3D 透視地面平面著色（追車模式強制使用柏油深灰路面）
+        const activeGroundKey = chaseMode.active ? 'concrete' : env.ground;
+        const groundSpec = GROUND_MAP[activeGroundKey];
         if (groundSpec) {
           const focalPx = (effFocal / 24) * H;
           const horizonY = H * 0.5 + Math.tan((cam.tilt * Math.PI) / 180) * focalPx;
@@ -1644,7 +1847,7 @@
           }
         }
 
-        if (env.bgImage) {
+        if (env.bgImage && !chaseMode.active) {
           const sf = document.getElementById('safe-frame').getBoundingClientRect();
           const mood = MOOD_MAP[light.mood];
           ctx.save();
@@ -1724,7 +1927,15 @@
           ctx.restore();
         }
 
-        if (env.showFloorGrid) {
+        // 地面格線或追車雙線公路標線
+        if (chaseMode.active) {
+          drawLine3D(-3.1, 0.01, -24, -3.1, 0.01, 10, 'rgba(255,255,255,0.65)', 1.8);
+          drawLine3D( 3.1, 0.01, -24,  3.1, 0.01, 10, 'rgba(255,255,255,0.65)', 1.8);
+          const dashOff = chaseMode.roadScroll;
+          for (let z = -24 + dashOff; z <= 10; z += 4.0) {
+            drawLine3D(0, 0.01, z, 0, 0.01, z + 1.8, 'rgba(229,163,36,0.90)', 2.2);
+          }
+        } else if (env.showFloorGrid) {
           const isLightGround = env.ground === 'light' || (env.ground === 'auto' && env.sky === 'white');
           const baseRGB = isLightGround ? '20,24,32' : '255,255,255';
           const gridAlpha = env.bgImage ? 0.06 : 0.14;
@@ -1736,50 +1947,73 @@
           }
         }
 
-        const activeList = actors.filter(a => a.active);
-        const shadowAlpha = Math.max(0.22, Math.min(0.65, 0.18 + light.shadowStrength * 0.44));
-        activeList.forEach(a => {
-          const pb = projectPoint(a.x, 0.01, a.z);
-          if (pb) {
-            ctx.fillStyle = `rgba(0,0,0,${shadowAlpha.toFixed(2)})`;
-            ctx.beginPath();
-            ctx.ellipse(pb.sx, pb.sy, Math.max(10, 0.30 * pb.scale), Math.max(4, 0.11 * pb.scale), 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            if (!cleanRenderFlag) {
-              const bRad = a.rot * Math.PI / 180;
-              const pt = projectPoint(a.x + Math.sin(bRad) * 0.55, 0.01, a.z + Math.cos(bRad) * 0.55);
-              if (pt) {
-                ctx.strokeStyle = a.hex;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pb.sx, pb.sy);
-                ctx.lineTo(pt.sx, pt.sy);
-                ctx.stroke();
-              }
-            }
-          }
-        });
-
         const polys = [];
-        if (env.setProp !== 'none') {
-          const propPolys = [];
-          buildScenePropGeometry(propPolys);
-          propPolys.forEach(pp => {
+        const shadowAlpha = Math.max(0.22, Math.min(0.65, 0.18 + light.shadowStrength * 0.44));
+
+        if (chaseMode.active) {
+          const carShadow = projectPoint(chaseMode.carX, 0.01, chaseMode.carZ);
+          if (carShadow) {
+            ctx.fillStyle = `rgba(0,0,0,${Math.min(0.75, shadowAlpha + 0.12).toFixed(2)})`;
+            ctx.beginPath();
+            ctx.ellipse(carShadow.sx, carShadow.sy, Math.max(24, 1.05 * carShadow.scale), Math.max(12, 2.15 * carShadow.scale), 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          const chasePolys = [];
+          buildChaseCarAndRoadGeometry(chasePolys);
+          chasePolys.forEach(pp => {
             pp.blur = calcBlurPx(pp.depth);
             polys.push(pp);
           });
-        }
-        activeList.forEach(a => {
-          const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
-          const actorBlur = calcBlurPx(distToCam);
-          const subPolys = [];
-          buildActorGeometry(subPolys, a);
-          subPolys.forEach(sp => {
-            sp.blur = actorBlur;
-            polys.push(sp);
+        } else {
+          const activeList = actors.filter(a => a.active);
+          activeList.forEach(a => {
+            // 繪製起點到終點走位虛線路徑（非純淨輸出時顯示）
+            if (!cleanRenderFlag && a.moveStart && a.moveEnd) {
+              drawLine3D(a.moveStart.x, 0.02, a.moveStart.z, a.moveEnd.x, 0.02, a.moveEnd.z, a.hex, 1.5, [5, 5]);
+            }
+
+            const pb = projectPoint(a.x, 0.01, a.z);
+            if (pb) {
+              ctx.fillStyle = `rgba(0,0,0,${shadowAlpha.toFixed(2)})`;
+              ctx.beginPath();
+              ctx.ellipse(pb.sx, pb.sy, Math.max(10, 0.30 * pb.scale), Math.max(4, 0.11 * pb.scale), 0, 0, Math.PI * 2);
+              ctx.fill();
+
+              if (!cleanRenderFlag) {
+                const bRad = a.rot * Math.PI / 180;
+                const pt = projectPoint(a.x + Math.sin(bRad) * 0.55, 0.01, a.z + Math.cos(bRad) * 0.55);
+                if (pt) {
+                  ctx.strokeStyle = a.hex;
+                  ctx.lineWidth = 2;
+                  ctx.beginPath();
+                  ctx.moveTo(pb.sx, pb.sy);
+                  ctx.lineTo(pt.sx, pt.sy);
+                  ctx.stroke();
+                }
+              }
+            }
           });
-        });
+
+          if (env.setProp !== 'none') {
+            const propPolys = [];
+            buildScenePropGeometry(propPolys);
+            propPolys.forEach(pp => {
+              pp.blur = calcBlurPx(pp.depth);
+              polys.push(pp);
+            });
+          }
+          activeList.forEach(a => {
+            const distToCam = Math.hypot(a.x - cam.x, a.z - cam.z);
+            const actorBlur = calcBlurPx(distToCam);
+            const subPolys = [];
+            buildActorGeometry(subPolys, a);
+            subPolys.forEach(sp => {
+              sp.blur = actorBlur;
+              polys.push(sp);
+            });
+          });
+        }
+
         polys.sort((a, b) => b.depth - a.depth);
 
         polys.forEach(p => {
@@ -1801,12 +2035,14 @@
           ctx.restore();
         });
 
-        if (!cleanRenderFlag) {
+        if (!cleanRenderFlag && !chaseMode.active) {
+          const activeList = actors.filter(a => a.active);
           activeList.forEach(a => {
             if (!a._hit || !a._hit.top) return;
             const lx = a._hit.top.sx;
             const ly = a._hit.top.sy - 18;
-            const label = a.tag ? `${a.id} · ${a.tag}` : a.name;
+            const moveTag = (a.moveStart && a.moveEnd) ? ' ➔' : '';
+            const label = (a.tag ? `${a.id} · ${a.tag}` : a.name) + moveTag;
             const bw = Math.max(46, label.length * 10 + 12);
             ctx.fillStyle = 'rgba(12, 15, 20, 0.85)';
             ctx.strokeStyle = a.hex;
@@ -1836,11 +2072,75 @@
       function updateHUD() {
         const fTag = cam.autoFocus ? `AF ${cam.focusDist.toFixed(1)}m` : `MF ${cam.focusDist.toFixed(1)}m`;
         const fmtTag = sensorFormat === 's35' ? 'S35' : 'FF';
+        const modeTag = chaseMode.active ? '追車 · ' : '';
         document.getElementById('hud-info').textContent =
-          `${Math.round(cam.focal)}mm ${fmtTag} · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
+          `${modeTag}${Math.round(cam.focal)}mm ${fmtTag} · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
         document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
         document.getElementById('pt-readout').textContent = `P ${Math.round(cam.pan)}° · T ${Math.round(cam.tilt)}°`;
         updatePromptText();
+      }
+
+      // ==========================
+      // 獨立追車模式切換與專屬視角
+      // ==========================
+      function applyChaseCameraPreset(viewType) {
+        if (kfPlay.active) stopKeyframePlayback(false);
+        if (viewType === 'rear_quarter') {
+          cam.x = -1.65; cam.y = 1.48; cam.z = 3.10; cam.pan = 16; cam.tilt = -4;
+          setFocal(35);
+        } else if (viewType === 'side_track') {
+          cam.x = -2.45; cam.y = 1.25; cam.z = -1.35; cam.pan = 88; cam.tilt = -2;
+          setFocal(35);
+        } else if (viewType === 'low_wheel') {
+          cam.x = -1.55; cam.y = 0.42; cam.z = 1.45; cam.pan = 24; cam.tilt = 6;
+          setFocal(24);
+        } else if (viewType === 'front_look') {
+          cam.x = -1.35; cam.y = 1.42; cam.z = -5.20; cam.pan = 162; cam.tilt = -3;
+          setFocal(50);
+        }
+        document.querySelectorAll('.cview-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.cview === viewType);
+        });
+        updateHUD();
+      }
+
+      function toggleChaseCarMode() {
+        if (kfPlay.active) stopKeyframePlayback(false);
+        const btn = document.getElementById('btn-chase-mode');
+        const dock = document.getElementById('chase-car-dock');
+
+        if (!chaseMode.active) {
+          chaseMode.savedNormalCam = captureCamState();
+          chaseMode.savedNormalGround = env.ground;
+          chaseMode.savedNormalSky = env.sky;
+          chaseMode.active = true;
+
+          if (env.sky === 'darkgrey') {
+            env.sky = 'dusk';
+            document.querySelectorAll('.sky-btn').forEach(b => b.classList.toggle('active', b.dataset.s === 'dusk'));
+          }
+          btn.textContent = '← 返回一般場景';
+          btn.classList.add('chase-active');
+          dock.classList.add('visible');
+          setFollowTarget('CAR');
+          applyChaseCameraPreset('rear_quarter');
+        } else {
+          chaseMode.active = false;
+          btn.textContent = '追車模式 🚗';
+          btn.classList.remove('chase-active');
+          dock.classList.remove('visible');
+          if (followState.target === 'CAR') setFollowTarget('none');
+          if (chaseMode.savedNormalSky) {
+            env.sky = chaseMode.savedNormalSky;
+            document.querySelectorAll('.sky-btn').forEach(b => b.classList.toggle('active', b.dataset.s === env.sky));
+          }
+          if (chaseMode.savedNormalCam) {
+            applyCamState(chaseMode.savedNormalCam);
+          }
+        }
+        updateSafeFrameLayout();
+        updateHorizonGuidePosition();
+        updateHUD();
       }
 
       // ==========================
@@ -2165,7 +2465,7 @@
       }
 
       // ==========================
-      // 3C. 三段式鏡頭運動記錄 (起點 A → 中途 B → 終點 C) + Undo + 一次清除
+      // 3C. 三段式鏡頭運動記錄 (起點 A → 中途 B → 終點 C) + Undo + 一次清除 + 角色走位聯動
       // ==========================
       const keyframes = { A: null, B: null, C: null };
       const kfUndoStack = [];
@@ -2273,16 +2573,39 @@
         );
       }
 
+      function syncActorsToProgress(u) {
+        if (chaseMode.active) return;
+        let changed = false;
+        actors.forEach(a => {
+          if (!a.active || !a.moveStart || !a.moveEnd) return;
+          a.x = +(a.moveStart.x + (a.moveEnd.x - a.moveStart.x) * u).toFixed(3);
+          a.z = +(a.moveStart.z + (a.moveEnd.z - a.moveStart.z) * u).toFixed(3);
+          changed = true;
+        });
+        if (changed && followState.target !== 'none') {
+          const p = getFollowTargetPos(followState.target);
+          if (p) followState.lastTargetPos = { ...p };
+        }
+      }
+
+      function hasAnyActorBlockingMove() {
+        return !chaseMode.active && actors.some(a => a.active && a.moveStart && a.moveEnd);
+      }
+
       function startKeyframePlayback(withRec = false) {
         const pts = ['A', 'B', 'C'].map(k => keyframes[k]).filter(Boolean);
-        if (pts.length < 2) {
-          alert('請先至少記錄 2 個機位關鍵幀（例如記 A、記 B、記 C）。');
+        const hasActorMove = hasAnyActorBlockingMove();
+        if (pts.length < 2 && !hasActorMove) {
+          alert('請先至少記錄 2 個機位關鍵幀（記 A、記 B），或為角色設定起點與終點走位。');
           return;
         }
         document.getElementById('drawer-backdrop').classList.remove('open');
         document.getElementById('director-drawer').classList.remove('open');
 
-        applyCamState(pts[0]);
+        syncActorsToProgress(0);
+        if (pts.length >= 2) {
+          applyCamState(pts[0]);
+        }
         kfPlay.points = pts;
         kfPlay.autoStopRec = withRec;
         document.getElementById('btn-play-kf').textContent = '停止播放';
@@ -2301,7 +2624,7 @@
           const badge = document.getElementById('rec-badge');
           badge.classList.remove('recording', 'preroll');
           badge.classList.add('keypath');
-          document.getElementById('rec-timer').textContent = 'A→B→C';
+          document.getElementById('rec-timer').textContent = pts.length >= 2 ? 'A→B→C' : '走位播放';
         }
       }
 
@@ -2323,29 +2646,38 @@
         const elapsedSec = (performance.now() - kfPlay.startTime) / 1000;
         const rawU = Math.min(1, Math.max(0, elapsedSec / kfTotalSec));
         const u = rawU * rawU * (3 - 2 * rawU);
+
+        syncActorsToProgress(u);
+
         const pts = kfPlay.points;
-        const segCount = pts.length - 1;
-        const scaled = u * segCount;
-        const segIdx = Math.min(segCount - 1, Math.floor(scaled));
-        const localT = scaled - segIdx;
+        if (pts.length >= 2) {
+          const segCount = pts.length - 1;
+          const scaled = u * segCount;
+          const segIdx = Math.min(segCount - 1, Math.floor(scaled));
+          const localT = scaled - segIdx;
 
-        const p0 = pts[Math.max(0, segIdx - 1)];
-        const p1 = pts[segIdx];
-        const p2 = pts[Math.min(pts.length - 1, segIdx + 1)];
-        const p3 = pts[Math.min(pts.length - 1, segIdx + 2)];
+          const p0 = pts[Math.max(0, segIdx - 1)];
+          const p1 = pts[segIdx];
+          const p2 = pts[Math.min(pts.length - 1, segIdx + 1)];
+          const p3 = pts[Math.min(pts.length - 1, segIdx + 2)];
 
-        const interp = {
-          x: catmullRom1D(p0.x, p1.x, p2.x, p3.x, localT),
-          y: catmullRom1D(p0.y, p1.y, p2.y, p3.y, localT),
-          z: catmullRom1D(p0.z, p1.z, p2.z, p3.z, localT),
-          pan: catmullRom1D(p0.pan, p1.pan, p2.pan, p3.pan, localT),
-          tilt: catmullRom1D(p0.tilt, p1.tilt, p2.tilt, p3.tilt, localT),
-          focal: catmullRom1D(p0.focal, p1.focal, p2.focal, p3.focal, localT)
-        };
-        applyCamState(interp);
+          const interp = {
+            x: catmullRom1D(p0.x, p1.x, p2.x, p3.x, localT),
+            y: catmullRom1D(p0.y, p1.y, p2.y, p3.y, localT),
+            z: catmullRom1D(p0.z, p1.z, p2.z, p3.z, localT),
+            pan: catmullRom1D(p0.pan, p1.pan, p2.pan, p3.pan, localT),
+            tilt: catmullRom1D(p0.tilt, p1.tilt, p2.tilt, p3.tilt, localT),
+            focal: catmullRom1D(p0.focal, p1.focal, p2.focal, p3.focal, localT)
+          };
+          applyCamState(interp);
+        } else {
+          updateHUD();
+        }
 
         if (rawU >= 1) {
-          applyCamState(pts[pts.length - 1]);
+          syncActorsToProgress(1);
+          if (pts.length >= 2) applyCamState(pts[pts.length - 1]);
+          renderCastControls();
           const shouldStopRec = kfPlay.autoStopRec;
           stopKeyframePlayback(shouldStopRec);
         }
@@ -2359,7 +2691,7 @@
       let draggingHorizon = false;
 
       function updateHorizonGuidePosition() {
-        const hasBg = !!env.bgImage && env.showHorizonGuide && !cleanRenderFlag;
+        const hasBg = !!env.bgImage && !chaseMode.active && env.showHorizonGuide && !cleanRenderFlag;
         horizonLineEl.classList.toggle('visible', hasBg);
         const topPct = 50 + env.horizonOffsetPct;
         horizonLineEl.style.top = `${Math.max(12, Math.min(88, topPct))}%`;
@@ -2430,12 +2762,14 @@
           candidateActor = null;
           draggedActor = null;
 
-          const actives = actors.filter(a => a.active && a._hit);
-          for (let i = actives.length - 1; i >= 0; i--) {
-            const h = actives[i]._hit;
-            if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.1) {
-              candidateActor = actives[i];
-              break;
+          if (!chaseMode.active) {
+            const actives = actors.filter(a => a.active && a._hit);
+            for (let i = actives.length - 1; i >= 0; i--) {
+              const h = actives[i]._hit;
+              if (Math.hypot(t.clientX - h.sx, t.clientY - h.sy) < h.r * 1.1) {
+                candidateActor = actives[i];
+                break;
+              }
             }
           }
         }
@@ -2793,7 +3127,7 @@
       }
 
       // ==========================
-      // 6. 控制、片幅、陰影、3D 立體骨架、多實景相片切換、散景與 V2V 指令
+      // 6. 控制、片幅、陰影、角色走位起終點與 V2V 指令
       // ==========================
       function setSensorFormat(fmt) {
         sensorFormat = fmt;
@@ -2858,6 +3192,9 @@
         const box = document.getElementById('cast-controls-list');
         box.innerHTML = '';
         actors.filter(a => a.active).forEach((a, idx) => {
+          const moveState = (a.moveStart && a.moveEnd)
+            ? `已設走位 (${a.moveStart.x.toFixed(1)},${a.moveStart.z.toFixed(1)})→(${a.moveEnd.x.toFixed(1)},${a.moveEnd.z.toFixed(1)})`
+            : (a.moveStart ? '已記起點' : (a.moveEnd ? '已記終點' : '定點企位'));
           const div = document.createElement('div');
           div.className = 'sec-box';
           div.innerHTML = `
@@ -2870,6 +3207,14 @@
               </select>
             </div>
             <input type="text" class="cast-tag" placeholder="角色人名/造型標註" value="${a.tag}" />
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+              <span style="font-size:9.5px; color:var(--text-secondary);">${moveState}</span>
+              <div style="display:flex; gap:3px;">
+                <button type="button" class="chip-btn btn-act-start ${a.moveStart?'recorded':''}">記起點</button>
+                <button type="button" class="chip-btn btn-act-end ${a.moveEnd?'recorded':''}">記終點</button>
+                <button type="button" class="chip-btn btn-act-clr">清除</button>
+              </div>
+            </div>
             <div class="row-grid-2">
               <div class="slider-line">
                 <div class="slider-head"><span>左右 X</span><span class="lbl-x">${a.x.toFixed(1)}m</span></div>
@@ -2897,6 +3242,22 @@
           });
           div.querySelector('.cast-tag').addEventListener('input', (e) => {
             actors[idx].tag = e.target.value.trim();
+            updatePromptText();
+          });
+          div.querySelector('.btn-act-start').addEventListener('click', () => {
+            actors[idx].moveStart = { x: actors[idx].x, z: actors[idx].z };
+            renderCastControls();
+            updatePromptText();
+          });
+          div.querySelector('.btn-act-end').addEventListener('click', () => {
+            actors[idx].moveEnd = { x: actors[idx].x, z: actors[idx].z };
+            renderCastControls();
+            updatePromptText();
+          });
+          div.querySelector('.btn-act-clr').addEventListener('click', () => {
+            actors[idx].moveStart = null;
+            actors[idx].moveEnd = null;
+            renderCastControls();
             updatePromptText();
           });
           div.querySelector('.rng-x').addEventListener('input', (e) => {
@@ -2956,8 +3317,6 @@
         const sky = SKY_MAP[env.sky];
         const mood = MOOD_MAP[light.mood];
 
-        const namesZh = actives.map(a => a.tag || a.name).join('、');
-        const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
         const fmtZh = sensorFormat === 's35' ? 'Super 35 片幅' : 'Full Frame 全片幅';
         const fmtEn = sensorFormat === 's35' ? 'Super 35 sensor' : 'Full Frame sensor';
         const shdPct = Math.round(light.shadowStrength * 100);
@@ -2969,22 +3328,74 @@
         const styleLineEn = styleText ? `Visual style: ${styleText}. ` : '';
         const actionLineEn = actionText ? `; action: ${actionText}` : '';
 
+        if (chaseMode.active) {
+          const zh = [
+            `【追車與時代質感】${styleLineZh}高速行駛中之車輛與車內司機／乘客細節真實自然，車輪轉動與路面動態模糊（Motion Blur）具真實速度感${actionLineZh}。`,
+            `【光影與公路環境】公路沿途護欄、路燈與遠景向後流動，${sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，陰影強度 ${shdPct}%（${fmtZh}）${dofZh}，24fps。`,
+            `【V2V 追車運鏡鎖定】嚴格跟隨輸入之 V2V 追車參考影片鏡頭軌跡、貼車角度、雲台轉向與焦段透視變化，保持車身結構與車內人物穩定不變形。`
+          ].join('\n');
+
+          const en = [
+            `[Vehicle & Period Realism] ${styleLineEn}Moving vehicle and interior driver/passenger details rendered photorealistically with natural wheel spin and road motion blur${actionLineEn}.`,
+            `[Lighting & Highway Atmosphere] Passing roadside guardrails, streetlamps and scenery, ${sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, shadow depth ${shdPct}% (${fmtEn})${dofEn}, 24fps.`,
+            `[V2V Chase Camera Lock] Strictly follow the input V2V tracking video's camera trajectory, vehicle proximity, pan/tilt rotation, and focal perspective while keeping vehicle geometry and occupants consistent.`
+          ].join('\n');
+
+          document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
+          return;
+        }
+
+        const namesZh = actives.map(a => a.tag || a.name).join('、');
+        const namesEn = actives.map(a => a.tag || a.archetype).join(', ');
+        const movingActors = actives.filter(a => a.moveStart && a.moveEnd);
+        const moveNoteZh = movingActors.length
+          ? `角色（${movingActors.map(a => a.tag || a.name).join('、')}）按預演路徑自然行走移動，`
+          : '';
+        const moveNoteEn = movingActors.length
+          ? `subjects (${movingActors.map(a => a.tag || a.archetype).join(', ')}) walk naturally along their blocked paths, `
+          : '';
+        const followNoteZh = followState.target !== 'none' ? `攝影機同步跟隨目標（${followState.target}）移動並` : '';
+        const followNoteEn = followState.target !== 'none' ? `camera tracks target (${followState.target}) while ` : '';
+
         const zh = [
           `【造型與時代質感】${styleLineZh}場上人物（${namesZh}）嚴格對齊參考圖之服飾、面容與年代細節${actionLineZh}。`,
           `【光影與環境色調】${env.bgImage ? '實景現場空間透視與光影一致' : sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，陰影強度 ${shdPct}%（${fmtZh}）${dofZh}，24fps。`,
-          `【V2V 運鏡與走位鎖定】嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、雲台轉向與升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
+          `【V2V 運鏡與雙向走位鎖定】${moveNoteZh}${followNoteZh}嚴格跟隨輸入之 V2V 參考影片鏡頭運動軌跡、雲台轉向與升降視角、透視變化、人物位置與前後遮擋關係，將 3D 預演畫面轉化為真實寫實電影鏡頭。`
         ].join('\n');
 
         const en = [
           `[Style & Character Consistency] ${styleLineEn}Preserve exact character wardrobe, facial identity, and period textures from reference images for (${namesEn})${actionLineEn}.`,
           `[Lighting & Atmosphere] ${env.bgImage ? 'Matched live-action location perspective and lighting' : sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, shadow depth ${shdPct}% (${fmtEn})${dofEn}, 24fps.`,
-          `[V2V Motion & Blocking Lock] Strictly follow the input V2V reference video's camera trajectory, pan/tilt and crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
+          `[V2V Motion & Blocking Lock] ${moveNoteEn}${followNoteEn}strictly follow the input V2V reference video's camera trajectory, pan/tilt and crane elevation, perspective shifts, subject positions, and occlusion while transforming the 3D previz into photorealistic live-action cinema.`
         ].join('\n');
 
         document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
       }
 
       // 綁定所有按鈕與滑桿事件
+      document.getElementById('btn-chase-mode').addEventListener('click', toggleChaseCarMode);
+      document.querySelectorAll('.cspd-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          chaseMode.speed = parseFloat(btn.dataset.cspd);
+          document.querySelectorAll('.cspd-btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
+      });
+      document.querySelectorAll('.cview-btn').forEach(btn => {
+        btn.addEventListener('click', () => applyChaseCameraPreset(btn.dataset.cview));
+      });
+
+      document.getElementById('hud-follow-btn').addEventListener('click', () => {
+        const order = chaseMode.active
+          ? ['none', 'CAR']
+          : ['none', ...actors.filter(a => a.active).map(a => a.id)];
+        const curIdx = order.indexOf(followState.target);
+        const nextTarget = order[(curIdx + 1) % order.length];
+        setFollowTarget(nextTarget);
+      });
+      document.querySelectorAll('.follow-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => setFollowTarget(btn.dataset.ft));
+      });
+
       document.getElementById('btn-gyro').addEventListener('click', toggleGyroMode);
       document.getElementById('btn-recenter').addEventListener('click', () => {
         if (kfPlay.active) stopKeyframePlayback(false);
@@ -3043,6 +3454,10 @@
       });
       document.getElementById('btn-reset-cam').addEventListener('click', () => {
         if (kfPlay.active) stopKeyframePlayback(false);
+        if (chaseMode.active) {
+          applyChaseCameraPreset('rear_quarter');
+          return;
+        }
         cam.x = 0; cam.y = 1.60; cam.z = 3.60;
         cam.pan = 0; cam.tilt = 0; cam.roll = 0;
         gyroBase = null;
@@ -3290,6 +3705,7 @@
 
       function mainLoop() {
         tickKeyframePlayback();
+        tickFollowCamera();
         tickDollyMovement();
         tickCraneMovement();
         tickPanTiltStick();
