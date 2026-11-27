@@ -180,23 +180,28 @@
       transform: translateX(-50%);
       z-index: 19;
       align-items: center;
-      gap: 4px;
-      background: rgba(14, 20, 32, 0.90);
+      gap: 3px;
+      background: rgba(14, 20, 32, 0.92);
       border: 1px solid rgba(59, 130, 246, 0.55);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 3px 7px;
+      padding: 2.5px 6px;
       border-radius: 999px;
       pointer-events: auto;
       white-space: nowrap;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
     }
     #chase-car-dock.visible { display: flex; }
+    #chase-car-dock .chip-btn {
+      padding: 2px 4.5px;
+      font-size: 8.4px;
+      border-radius: 6px;
+    }
     .chase-sep {
       width: 1px;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.2);
-      margin: 0 2px;
+      height: 11px;
+      background: rgba(255, 255, 255, 0.22);
+      margin: 0 1px;
     }
 
     /* 可拖曳實景地平線基準線 */
@@ -880,6 +885,7 @@
     }
     .row-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .row-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+    .row-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
     .slider-line {
       display: flex;
       flex-direction: column;
@@ -978,15 +984,22 @@
 
     <!-- 獨立追車模式專屬控制列（撳「追車模式 🚗」先出現） -->
     <div id="chase-car-dock">
-      <button type="button" class="chip-btn cspd-btn" data-cspd="0">定格</button>
-      <button type="button" class="chip-btn cspd-btn" data-cspd="0.16">40km/h</button>
-      <button type="button" class="chip-btn cspd-btn active" data-cspd="0.32">70km/h</button>
-      <button type="button" class="chip-btn cspd-btn" data-cspd="0.54">110km/h</button>
+      <button type="button" class="chip-btn cveh-btn active" data-veh="car">🚗私家車</button>
+      <button type="button" class="chip-btn cveh-btn" data-veh="moto">🏍️電單車</button>
       <span class="chase-sep"></span>
-      <button type="button" class="chip-btn cview-btn active" data-cview="rear_quarter">車尾追拍</button>
-      <button type="button" class="chip-btn cview-btn" data-cview="side_track">車側並排</button>
-      <button type="button" class="chip-btn cview-btn" data-cview="low_wheel">低角貼地</button>
-      <button type="button" class="chip-btn cview-btn" data-cview="front_look">車頭回望</button>
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0">定格</button>
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0.16">40k</button>
+      <button type="button" class="chip-btn cspd-btn active" data-cspd="0.32">70k</button>
+      <button type="button" class="chip-btn cspd-btn" data-cspd="0.54">110k</button>
+      <span class="chase-sep"></span>
+      <button type="button" class="chip-btn ctraffic-btn active" data-tr="0">鄰車0</button>
+      <button type="button" class="chip-btn ctraffic-btn" data-tr="1">+1車</button>
+      <button type="button" class="chip-btn ctraffic-btn" data-tr="2">+2車</button>
+      <span class="chase-sep"></span>
+      <button type="button" class="chip-btn cview-btn active" data-cview="rear_quarter">車尾追</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="side_track">車側</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="low_wheel">貼地</button>
+      <button type="button" class="chip-btn cview-btn" data-cview="front_look">回望</button>
     </div>
 
     <!-- 頂部取景器狀態與核心快捷鍵 -->
@@ -1125,34 +1138,69 @@
     </div>
 
     <div class="drawer-body">
-      <!-- 分頁 1：角色走位 + 鏡頭跟隨 + 三段式鏡頭運動記錄 (A -> B -> C) -->
+      <!-- 分頁 1：一般角色走位 或 追車車廂1-5人與獨立頭部轉向 -->
       <div id="dp-cast" class="dpane active">
-        <div class="sec-box">
-          <div class="sec-title">場上人數與鏡頭預設</div>
-          <div class="row-grid-3">
-            <button type="button" class="chip-btn cnt-btn" data-c="1">1 人</button>
-            <button type="button" class="chip-btn cnt-btn active" data-c="2">2 人</button>
-            <button type="button" class="chip-btn cnt-btn" data-c="3">3 人</button>
+        <!-- 一般場景控制區 -->
+        <div id="normal-cast-panel" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sec-box">
+            <div class="sec-title">場上人數與鏡頭預設</div>
+            <div class="row-grid-3">
+              <button type="button" class="chip-btn cnt-btn" data-c="1">1 人</button>
+              <button type="button" class="chip-btn cnt-btn active" data-c="2">2 人</button>
+              <button type="button" class="chip-btn cnt-btn" data-c="3">3 人</button>
+            </div>
+            <div class="row-grid-2">
+              <button type="button" class="chip-btn preset-btn" data-preset="two_shot">雙人中景</button>
+              <button type="button" class="chip-btn preset-btn" data-preset="ots">過肩正打 OTS</button>
+              <button type="button" class="chip-btn preset-btn" data-preset="solo_cu">單人特寫 CU</button>
+              <button type="button" id="btn-auto-reverse" class="chip-btn">對稱反打</button>
+            </div>
           </div>
-          <div class="row-grid-2">
-            <button type="button" class="chip-btn preset-btn" data-preset="two_shot">雙人中景</button>
-            <button type="button" class="chip-btn preset-btn" data-preset="ots">過肩正打 OTS</button>
-            <button type="button" class="chip-btn preset-btn" data-preset="solo_cu">單人特寫 CU</button>
-            <button type="button" id="btn-auto-reverse" class="chip-btn">對稱反打</button>
+
+          <div class="sec-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="sec-title">鏡頭跟隨模式（Follow Target）</span>
+              <span id="follow-status-txt" style="font-size:9.5px; color:var(--text-secondary);">自由機位</span>
+            </div>
+            <div class="row-grid-2">
+              <button type="button" class="chip-btn follow-opt-btn active" data-ft="none">跟隨: 關</button>
+              <button type="button" class="chip-btn follow-opt-btn" data-ft="A">跟隨角色 A</button>
+              <button type="button" class="chip-btn follow-opt-btn" data-ft="B">跟隨角色 B</button>
+              <button type="button" class="chip-btn follow-opt-btn" data-ft="C">跟隨角色 C</button>
+            </div>
           </div>
         </div>
 
-        <div class="sec-box">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="sec-title">鏡頭跟隨模式（Follow Target）</span>
-            <span id="follow-status-txt" style="font-size:9.5px; color:var(--text-secondary);">自由機位</span>
+        <!-- 追車模式專屬車廂人數（1-5人）＋ 獨立頭部移動轉向 ＋ 鄰車數量 -->
+        <div id="chase-cast-panel" style="display:none; flex-direction:column; gap:10px;">
+          <div class="sec-box">
+            <div class="sec-title">載具類型與馬路鄰車設定</div>
+            <div class="row-grid-2">
+              <button type="button" class="chip-btn cveh-btn active" data-veh="car">🚗 私家車 (1–5人)</button>
+              <button type="button" class="chip-btn cveh-btn" data-veh="moto">🏍️ 電單車 (1–2人)</button>
+            </div>
+            <div class="row-grid-3">
+              <button type="button" class="chip-btn ctraffic-btn active" data-tr="0">鄰車 0 架</button>
+              <button type="button" class="chip-btn ctraffic-btn" data-tr="1">+1 架鄰車</button>
+              <button type="button" class="chip-btn ctraffic-btn" data-tr="2">+2 架鄰車</button>
+            </div>
           </div>
-          <div class="row-grid-2">
-            <button type="button" class="chip-btn follow-opt-btn active" data-ft="none">跟隨: 關</button>
-            <button type="button" class="chip-btn follow-opt-btn" data-ft="A">跟隨角色 A</button>
-            <button type="button" class="chip-btn follow-opt-btn" data-ft="B">跟隨角色 B</button>
-            <button type="button" class="chip-btn follow-opt-btn" data-ft="C">跟隨角色 C</button>
+
+          <div class="sec-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="sec-title">載具人數（私家車 1–5 人 / 電單車 1–2 人）</span>
+              <span id="chase-occ-txt" style="font-size:9.5px; color:var(--text-secondary);">2 人</span>
+            </div>
+            <div class="row-grid-5">
+              <button type="button" class="chip-btn cocc-btn" data-occ="1">1 人</button>
+              <button type="button" class="chip-btn cocc-btn active" data-occ="2">2 人</button>
+              <button type="button" class="chip-btn cocc-btn" data-occ="3">3 人</button>
+              <button type="button" class="chip-btn cocc-btn" data-occ="4">4 人</button>
+              <button type="button" class="chip-btn cocc-btn" data-occ="5">5 人</button>
+            </div>
           </div>
+
+          <div id="chase-occupants-list" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
 
         <div class="sec-box">
@@ -1385,18 +1433,44 @@
       };
 
       // ==========================
-      // 獨立追車模式狀態（Car Chase / Road Mode）
+      // 獨立追車模式狀態（私家車 1-5人 / 電單車 1-2人 / 獨立頭部移動轉向 / 馬路鄰車 0-2架）
       // ==========================
       const chaseMode = {
         active: false,
-        speed: 0.32,         // 0=定格, 0.16=40km/h, 0.32=70km/h, 0.54=110km/h
+        vehicle: 'car',      // 'car' | 'moto'
+        occupantCount: 2,    // 1..5 (moto clamps to 1..2)
+        extraCarsCount: 0,   // 0 | 1 | 2
+        speed: 0.32,
         roadScroll: 0,
         carX: 0,
         carZ: -1.4,
+        trafficCars: [
+          { x: 2.35, z: 6.0, relSpeed: -0.22, dir: 1,  rgb: [215, 76, 62] },   // 同向超車快車（由後向前超越）
+          { x: -2.45, z: -26.0, relSpeed: 0.78, dir: -1, rgb: [228, 178, 54] } // 對頭車（由遠迎面擦過）
+        ],
+        carSeats: [
+          { id: 1, role: '司機',   baseX:  0.40, baseY: 1.04, baseZ: -0.32, dx: 0, dy: 0, dz: 0, headYaw: 0,   headPitch: 0, color: [224, 82, 99],  hex: '#e05263' },
+          { id: 2, role: '副駕',   baseX: -0.40, baseY: 1.04, baseZ: -0.32, dx: 0, dy: 0, dz: 0, headYaw: 18,  headPitch: 0, color: [43, 182, 115], hex: '#2bb673' },
+          { id: 3, role: '後排左', baseX:  0.42, baseY: 1.06, baseZ:  0.56, dx: 0, dy: 0, dz: 0, headYaw: -12, headPitch: 0, color: [79, 134, 247], hex: '#4f86f7' },
+          { id: 4, role: '後排右', baseX: -0.42, baseY: 1.06, baseZ:  0.56, dx: 0, dy: 0, dz: 0, headYaw: 15,  headPitch: 0, color: [232, 154, 48], hex: '#e89a30' },
+          { id: 5, role: '後排中', baseX:  0.00, baseY: 1.06, baseZ:  0.60, dx: 0, dy: 0, dz: 0, headYaw: 0,   headPitch: 4, color: [168, 85, 247], hex: '#a855f7' }
+        ],
+        motoSeats: [
+          { id: 1, role: '電單車手', baseX: 0, baseY: 0.94, baseZ: -0.10, dx: 0, dy: 0, dz: 0, headYaw: 0,  headPitch: 0, color: [224, 82, 99],  hex: '#e05263' },
+          { id: 2, role: '後座乘客', baseX: 0, baseY: 1.02, baseZ:  0.42, dx: 0, dy: 0, dz: 0, headYaw: 20, headPitch: 0, color: [43, 182, 115], hex: '#2bb673' }
+        ],
         savedNormalCam: null,
         savedNormalGround: 'auto',
         savedNormalSky: 'darkgrey'
       };
+
+      function getActiveChaseSeats() {
+        const isMoto = chaseMode.vehicle === 'moto';
+        const maxCount = isMoto ? 2 : 5;
+        const count = Math.max(1, Math.min(maxCount, chaseMode.occupantCount));
+        const list = isMoto ? chaseMode.motoSeats : chaseMode.carSeats;
+        return list.slice(0, count);
+      }
 
       // ==========================
       // 鏡頭跟隨模式（Follow Mode）
@@ -1425,7 +1499,7 @@
         const btn = document.getElementById('hud-follow-btn');
         const statusTxt = document.getElementById('follow-status-txt');
         let label = '跟隨: 關';
-        if (targetKey === 'CAR') label = '跟隨: 車輛';
+        if (targetKey === 'CAR') label = chaseMode.vehicle === 'moto' ? '跟隨: 電單車' : '跟隨: 車輛';
         else if (targetKey !== 'none') label = `跟隨: ${targetKey}`;
 
         btn.textContent = label;
@@ -1536,7 +1610,7 @@
 
       function getLeadActor() {
         if (chaseMode.active) {
-          return { x: chaseMode.carX, z: chaseMode.carZ, height: 1.45 };
+          return { x: chaseMode.carX, z: chaseMode.carZ, height: chaseMode.vehicle === 'moto' ? 1.32 : 1.45 };
         }
         if (followState.target !== 'none') {
           const ft = actors.find(a => a.id === followState.target && a.active);
@@ -1613,20 +1687,26 @@
         return `rgb(${r},${g},${b})`;
       }
 
-      function draw3DBox(polyList, ox, oy, oz, rotDeg, lx, ly, lz, w, h, d, rgb) {
+      function draw3DBox(polyList, ox, oy, oz, rotDeg, lx, ly, lz, w, h, d, rgb, pitchDeg = 0) {
         const rRad = rotDeg * Math.PI / 180;
+        const pRad = pitchDeg * Math.PI / 180;
         const sinR = Math.sin(rRad), cosR = Math.cos(rRad);
+        const sinP = Math.sin(pRad), cosP = Math.cos(pRad);
         const hw = w / 2, hh = h / 2, hd = d / 2;
         const localV = [
           [-hw, -hh, -hd], [hw, -hh, -hd], [hw, hh, -hd], [-hw, hh, -hd],
           [-hw, -hh,  hd], [hw, -hh,  hd], [hw, hh,  hd], [-hw, hh,  hd]
         ];
         const worldV = localV.map(([vx, vy, vz]) => {
-          const px = lx + vx, pz = lz + vz;
+          // 先繞局部 X 軸做 Pitch（點頭/仰望），再繞 Y 軸做 Yaw（左右轉頭）
+          const py1 = vy * cosP - vz * sinP;
+          const pz1 = vy * sinP + vz * cosP;
+          const px2 = lx + vx;
+          const pz2 = lz + pz1;
           return {
-            x: ox + px * cosR + pz * sinR,
-            y: oy + ly + vy,
-            z: oz - px * sinR + pz * cosR
+            x: ox + px2 * cosR + pz2 * sinR,
+            y: oy + ly + py1,
+            z: oz - px2 * sinR + pz2 * cosR
           };
         });
         const faces = [
@@ -1637,9 +1717,11 @@
           { idx: [7, 6, 2, 3], n: [0, 1, 0] }
         ];
         faces.forEach(f => {
-          const wnX = f.n[0] * cosR + f.n[2] * sinR;
-          const wnY = f.n[1];
-          const wnZ = -f.n[0] * sinR + f.n[2] * cosR;
+          const ny1 = f.n[1] * cosP - f.n[2] * sinP;
+          const nz1 = f.n[1] * sinP + f.n[2] * cosP;
+          const wnX = f.n[0] * cosR + nz1 * sinR;
+          const wnY = ny1;
+          const wnZ = -f.n[0] * sinR + nz1 * cosR;
           const fv = f.idx.map(i => worldV[i]);
           const cx = (fv[0].x + fv[2].x) / 2;
           const cy = (fv[0].y + fv[2].y) / 2;
@@ -1658,7 +1740,47 @@
         });
       }
 
-      // 追車模式專用：3D 公路、流動路燈柱與簡化車輛骨架（含透明車窗框及車內司機／乘客方塊）
+      // 繪製車廂／電單車乘客（含獨立頭部移動與左右/上下轉向 + 視線指示）
+      function drawVehicleOccupant(polyList, vx, vz, occ, isMoto) {
+        const px = vx + occ.baseX + occ.dx;
+        const py = occ.baseY + occ.dy;
+        const pz = vz + occ.baseZ + occ.dz;
+        const skinRGB = [240, 196, 160];
+        const hairRGB = [26, 22, 24];
+
+        // 軀幹（上身微向車頭 -Z 方向）
+        const torsoW = isMoto ? 0.34 : 0.30;
+        draw3DBox(polyList, px, 0, pz, 180, 0, py, 0, torsoW, 0.44, 0.21, occ.color);
+
+        // 頭部（180° 預設望向車頭 -Z，再加上 headYaw 左右轉頭及 headPitch 上下點頭）
+        const headYawWorld = 180 + occ.headYaw;
+        const headY = py + 0.31;
+        draw3DBox(polyList, px, 0, pz, headYawWorld, 0, headY, 0, 0.17, 0.20, 0.18, skinRGB, occ.headPitch);
+        draw3DBox(polyList, px, 0, pz, headYawWorld, 0, headY + 0.08, -0.01, 0.18, 0.07, 0.19, hairRGB, occ.headPitch);
+
+        // 電單車頭盔護目鏡／私家車雙眼方向參考，方便睇清擰頭方向
+        if (!clayMode) {
+          if (isMoto) {
+            draw3DBox(polyList, px, 0, pz, headYawWorld, 0, headY + 0.01, 0.095, 0.16, 0.07, 0.02, [28, 34, 46], occ.headPitch);
+          } else {
+            draw3DBox(polyList, px, 0, pz, headYawWorld, -0.038, headY + 0.012, 0.092, 0.024, 0.014, 0.01, [20, 22, 28], occ.headPitch);
+            draw3DBox(polyList, px, 0, pz, headYawWorld,  0.038, headY + 0.012, 0.092, 0.024, 0.014, 0.01, [20, 22, 28], occ.headPitch);
+          }
+        }
+      }
+
+      // 繪製鄰線額外車輛（馬路多車動態）
+      function drawTrafficSedan(polyList, tx, tz, rgb, facingOpp) {
+        const rot = facingOpp ? 180 : 0;
+        draw3DBox(polyList, tx, 0, tz, rot, 0, 0.54, 0, 1.78, 0.58, 4.10, rgb);
+        draw3DBox(polyList, tx, 0, tz, rot, 0, 1.12, 0.16, 1.48, 0.56, 2.05, [48, 56, 68]);
+        const wheels = [[-0.86, -1.25], [0.86, -1.25], [-0.86, 1.25], [0.86, 1.25]];
+        wheels.forEach(([wx, wz]) => {
+          draw3DBox(polyList, tx, 0, tz, rot, wx, 0.32, wz, 0.22, 0.64, 0.64, [24, 26, 32]);
+        });
+      }
+
+      // 追車模式專用：3D 公路、流動路燈柱、主載具（私家車1-5人 / 電單車1-2人）與馬路鄰車
       function buildChaseCarAndRoadGeometry(polyList) {
         chaseMode.roadScroll = (chaseMode.roadScroll + chaseMode.speed) % 4.0;
         const scroll = chaseMode.roadScroll;
@@ -1668,46 +1790,78 @@
         const treeRGB = [56, 82, 62];
         for (let i = -3; i <= 7; i++) {
           const zPos = -i * 4.0 + scroll;
-          // 兩側路邊護欄與街燈柱
-          draw3DBox(polyList, -3.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
-          draw3DBox(polyList,  3.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
-          draw3DBox(polyList, -3.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
-          draw3DBox(polyList,  3.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
-          // 遠處路邊簡化樹冠方塊
-          draw3DBox(polyList, -5.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
-          draw3DBox(polyList,  5.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
+          draw3DBox(polyList, -4.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
+          draw3DBox(polyList,  4.4, 0, zPos, 0, 0, 0.42, 0, 0.14, 0.84, 3.8, railRGB);
+          draw3DBox(polyList, -4.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
+          draw3DBox(polyList,  4.7, 0, zPos, 0, 0, 2.10, 0, 0.14, 4.20, 0.14, postRGB);
+          draw3DBox(polyList, -6.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
+          draw3DBox(polyList,  6.6, 0, zPos - 1.5, 0, 0, 1.80, 0, 1.35, 3.60, 1.35, treeRGB);
         }
 
-        // 簡化 3D 車輛骨架（參考 Blender + Seedance 簡化方塊車與車內人物）
+        // 馬路額外鄰車（0 / 1 / 2 架）
+        if (chaseMode.extraCarsCount >= 1) {
+          const c1 = chaseMode.trafficCars[0];
+          if (chaseMode.speed > 0.01) {
+            c1.z += c1.relSpeed * (chaseMode.speed / 0.32);
+            if (c1.z < -26) c1.z = 11.0;
+            if (c1.z > 12) c1.z = -25.0;
+          }
+          drawTrafficSedan(polyList, c1.x, c1.z, c1.rgb, false);
+        }
+        if (chaseMode.extraCarsCount >= 2) {
+          const c2 = chaseMode.trafficCars[1];
+          if (chaseMode.speed > 0.01) {
+            c2.z += c2.relSpeed * (chaseMode.speed / 0.32);
+            if (c2.z > 12) c2.z = -28.0;
+          }
+          drawTrafficSedan(polyList, c2.x, c2.z, c2.rgb, true);
+        }
+
         const cx = chaseMode.carX;
         const cz = chaseMode.carZ;
-        const bodyRGB = [62, 114, 198];
-        const roofRGB = [52, 98, 174];
-        const pillarRGB = [34, 42, 56];
-        const wheelRGB = [24, 26, 32];
-        const seatRGB = [40, 44, 52];
+        const isMoto = chaseMode.vehicle === 'moto';
+        const occupants = getActiveChaseSeats();
 
-        // 車身下盤（車頭朝 -Z 方向）
-        draw3DBox(polyList, cx, 0, cz, 0, 0, 0.56, 0, 1.86, 0.62, 4.30, bodyRGB);
-        // 車頂與四條 A/C 柱（留空車窗方便睇入車廂）
-        draw3DBox(polyList, cx, 0, cz, 0, 0, 1.44, 0.18, 1.58, 0.12, 2.15, roofRGB);
-        draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
-        draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
-        draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
-        draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
+        if (isMoto) {
+          // 簡化 3D 電單車骨架
+          const frameRGB = [46, 52, 64];
+          const tankRGB  = [210, 62, 54];
+          const wheelRGB = [24, 26, 32];
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.32, -0.78, 0.16, 0.64, 0.64, wheelRGB); // 前輪
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.32,  0.78, 0.18, 0.64, 0.64, wheelRGB); // 後輪
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.56,  0.00, 0.34, 0.36, 1.48, frameRGB); // 車架引擎
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.84, -0.28, 0.36, 0.24, 0.52, tankRGB);  // 油箱
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.72,  0.26, 0.32, 0.14, 0.72, [34, 38, 46]); // 坐墊
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 1.02, -0.48, 0.68, 0.08, 0.10, [140, 148, 160]); // 手柄
+        } else {
+          // 簡化 3D 私家車骨架（留空車窗框透視車廂）
+          const bodyRGB = [62, 114, 198];
+          const roofRGB = [52, 98, 174];
+          const pillarRGB = [34, 42, 56];
+          const wheelRGB = [24, 26, 32];
+          const seatRGB = [40, 44, 52];
 
-        // 車內座椅與簡化司機／乘客方塊（方便 V2V 鎖定車內人影）
-        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
-        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
-        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 1.04, -0.32, 0.32, 0.46, 0.22, [224, 82, 99]);   // 司機身
-        draw3DBox(polyList, cx, 0, cz, 0,  0.40, 1.34, -0.32, 0.18, 0.20, 0.18, [240, 196, 160]); // 司機頭
-        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 1.04, -0.32, 0.30, 0.44, 0.22, [43, 182, 115]);  // 乘客身
-        draw3DBox(polyList, cx, 0, cz, 0, -0.40, 1.33, -0.32, 0.17, 0.19, 0.17, [240, 196, 160]); // 乘客頭
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 0.56, 0, 1.86, 0.62, 4.30, bodyRGB);
+          draw3DBox(polyList, cx, 0, cz, 0, 0, 1.44, 0.18, 1.58, 0.12, 2.15, roofRGB);
+          draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
+          draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12, -0.78, 0.10, 0.56, 0.12, pillarRGB);
+          draw3DBox(polyList, cx, 0, cz, 0, -0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
+          draw3DBox(polyList, cx, 0, cz, 0,  0.74, 1.12,  1.12, 0.10, 0.56, 0.12, pillarRGB);
 
-        // 四個車輪
-        const wheelOffsets = [[-0.92, -1.35], [0.92, -1.35], [-0.92, 1.35], [0.92, 1.35]];
-        wheelOffsets.forEach(([wx, wz]) => {
-          draw3DBox(polyList, cx, 0, cz, 0, wx, 0.34, wz, 0.24, 0.68, 0.68, wheelRGB);
+          // 前後排座椅
+          draw3DBox(polyList, cx, 0, cz, 0,  0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
+          draw3DBox(polyList, cx, 0, cz, 0, -0.40, 0.96, -0.15, 0.44, 0.54, 0.14, seatRGB);
+          draw3DBox(polyList, cx, 0, cz, 0,  0.00, 0.96,  0.76, 1.36, 0.54, 0.14, seatRGB);
+
+          const wheelOffsets = [[-0.92, -1.35], [0.92, -1.35], [-0.92, 1.35], [0.92, 1.35]];
+          wheelOffsets.forEach(([wx, wz]) => {
+            draw3DBox(polyList, cx, 0, cz, 0, wx, 0.34, wz, 0.24, 0.68, 0.68, wheelRGB);
+          });
+        }
+
+        // 繪製車內／車上 1–5 位角色（含各自頭部移動與轉向）
+        occupants.forEach(occ => {
+          drawVehicleOccupant(polyList, cx, cz, occ, isMoto);
         });
       }
 
@@ -1927,13 +2081,14 @@
           ctx.restore();
         }
 
-        // 地面格線或追車雙線公路標線
+        // 地面格線或追車三線公路標線
         if (chaseMode.active) {
-          drawLine3D(-3.1, 0.01, -24, -3.1, 0.01, 10, 'rgba(255,255,255,0.65)', 1.8);
-          drawLine3D( 3.1, 0.01, -24,  3.1, 0.01, 10, 'rgba(255,255,255,0.65)', 1.8);
+          drawLine3D(-4.1, 0.01, -26, -4.1, 0.01, 12, 'rgba(255,255,255,0.68)', 1.8);
+          drawLine3D( 4.1, 0.01, -26,  4.1, 0.01, 12, 'rgba(255,255,255,0.68)', 1.8);
           const dashOff = chaseMode.roadScroll;
-          for (let z = -24 + dashOff; z <= 10; z += 4.0) {
-            drawLine3D(0, 0.01, z, 0, 0.01, z + 1.8, 'rgba(229,163,36,0.90)', 2.2);
+          for (let z = -26 + dashOff; z <= 12; z += 4.0) {
+            drawLine3D(-1.35, 0.01, z, -1.35, 0.01, z + 1.8, 'rgba(229,163,36,0.90)', 2.0);
+            drawLine3D( 1.35, 0.01, z,  1.35, 0.01, z + 1.8, 'rgba(255,255,255,0.52)', 1.6);
           }
         } else if (env.showFloorGrid) {
           const isLightGround = env.ground === 'light' || (env.ground === 'auto' && env.sky === 'white');
@@ -1953,9 +2108,16 @@
         if (chaseMode.active) {
           const carShadow = projectPoint(chaseMode.carX, 0.01, chaseMode.carZ);
           if (carShadow) {
+            const isMoto = chaseMode.vehicle === 'moto';
             ctx.fillStyle = `rgba(0,0,0,${Math.min(0.75, shadowAlpha + 0.12).toFixed(2)})`;
             ctx.beginPath();
-            ctx.ellipse(carShadow.sx, carShadow.sy, Math.max(24, 1.05 * carShadow.scale), Math.max(12, 2.15 * carShadow.scale), 0, 0, Math.PI * 2);
+            ctx.ellipse(
+              carShadow.sx,
+              carShadow.sy,
+              Math.max(isMoto ? 10 : 24, (isMoto ? 0.34 : 1.05) * carShadow.scale),
+              Math.max(10, (isMoto ? 1.05 : 2.15) * carShadow.scale),
+              0, 0, Math.PI * 2
+            );
             ctx.fill();
           }
           const chasePolys = [];
@@ -1967,7 +2129,6 @@
         } else {
           const activeList = actors.filter(a => a.active);
           activeList.forEach(a => {
-            // 繪製起點到終點走位虛線路徑（非純淨輸出時顯示）
             if (!cleanRenderFlag && a.moveStart && a.moveEnd) {
               drawLine3D(a.moveStart.x, 0.02, a.moveStart.z, a.moveEnd.x, 0.02, a.moveEnd.z, a.hex, 1.5, [5, 5]);
             }
@@ -2072,7 +2233,9 @@
       function updateHUD() {
         const fTag = cam.autoFocus ? `AF ${cam.focusDist.toFixed(1)}m` : `MF ${cam.focusDist.toFixed(1)}m`;
         const fmtTag = sensorFormat === 's35' ? 'S35' : 'FF';
-        const modeTag = chaseMode.active ? '追車 · ' : '';
+        const modeTag = chaseMode.active
+          ? `${chaseMode.vehicle === 'moto' ? '電單車' : '追車'}${getActiveChaseSeats().length}人 · `
+          : '';
         document.getElementById('hud-info').textContent =
           `${modeTag}${Math.round(cam.focal)}mm ${fmtTag} · ${currentAspect} · ${fTag} · H ${cam.y.toFixed(2)}m`;
         document.getElementById('height-readout').textContent = `${cam.y.toFixed(2)}m`;
@@ -2081,8 +2244,119 @@
       }
 
       // ==========================
-      // 獨立追車模式切換與專屬視角
+      // 獨立追車模式切換、載具切換、人數與獨立頭部控制
       // ==========================
+      function setChaseVehicleType(veh) {
+        chaseMode.vehicle = veh;
+        if (veh === 'moto' && chaseMode.occupantCount > 2) {
+          chaseMode.occupantCount = 2;
+        }
+        document.querySelectorAll('.cveh-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.veh === veh);
+        });
+        syncChaseOccupantButtons();
+        renderChaseOccupantsControls();
+        if (followState.target === 'CAR') setFollowTarget('CAR');
+        updateHUD();
+      }
+
+      function setChaseOccupantCount(cnt) {
+        const maxCnt = chaseMode.vehicle === 'moto' ? 2 : 5;
+        chaseMode.occupantCount = Math.max(1, Math.min(maxCnt, cnt));
+        syncChaseOccupantButtons();
+        renderChaseOccupantsControls();
+        updateHUD();
+      }
+
+      function syncChaseOccupantButtons() {
+        const isMoto = chaseMode.vehicle === 'moto';
+        const cur = getActiveChaseSeats().length;
+        document.getElementById('chase-occ-txt').textContent = `${cur} 人`;
+        document.querySelectorAll('.cocc-btn').forEach(b => {
+          const val = parseInt(b.dataset.occ, 10);
+          b.disabled = isMoto && val > 2;
+          b.classList.toggle('active', val === cur);
+        });
+      }
+
+      function setChaseExtraCarsCount(cnt) {
+        chaseMode.extraCarsCount = cnt;
+        document.querySelectorAll('.ctraffic-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.tr, 10) === cnt);
+        });
+        updatePromptText();
+      }
+
+      function renderChaseOccupantsControls() {
+        const box = document.getElementById('chase-occupants-list');
+        if (!box) return;
+        box.innerHTML = '';
+        const list = getActiveChaseSeats();
+        list.forEach((occ) => {
+          const div = document.createElement('div');
+          div.className = 'sec-box';
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:11.5px; color:${occ.hex};">${occ.id} · ${occ.role}</strong>
+              <button type="button" class="chip-btn btn-occ-reset">重置頭部</button>
+            </div>
+            <div class="row-grid-2">
+              <div class="slider-line">
+                <div class="slider-head"><span>頭部左右轉向</span><span class="lbl-yaw">${occ.headYaw}°</span></div>
+                <input type="range" class="rng-yaw" min="-110" max="110" step="5" value="${occ.headYaw}" />
+              </div>
+              <div class="slider-line">
+                <div class="slider-head"><span>點頭 / 仰望</span><span class="lbl-pitch">${occ.headPitch}°</span></div>
+                <input type="range" class="rng-pitch" min="-45" max="45" step="5" value="${occ.headPitch}" />
+              </div>
+            </div>
+            <div class="row-grid-3">
+              <div class="slider-line">
+                <div class="slider-head"><span>左右移</span><span class="lbl-dx">${occ.dx.toFixed(2)}</span></div>
+                <input type="range" class="rng-dx" min="-0.25" max="0.25" step="0.02" value="${occ.dx}" />
+              </div>
+              <div class="slider-line">
+                <div class="slider-head"><span>前後移</span><span class="lbl-dz">${occ.dz.toFixed(2)}</span></div>
+                <input type="range" class="rng-dz" min="-0.25" max="0.25" step="0.02" value="${occ.dz}" />
+              </div>
+              <div class="slider-line">
+                <div class="slider-head"><span>高低移</span><span class="lbl-dy">${occ.dy.toFixed(2)}</span></div>
+                <input type="range" class="rng-dy" min="-0.15" max="0.15" step="0.02" value="${occ.dy}" />
+              </div>
+            </div>
+          `;
+          div.querySelector('.rng-yaw').addEventListener('input', (e) => {
+            occ.headYaw = parseInt(e.target.value, 10);
+            div.querySelector('.lbl-yaw').textContent = `${occ.headYaw}°`;
+            updatePromptText();
+          });
+          div.querySelector('.rng-pitch').addEventListener('input', (e) => {
+            occ.headPitch = parseInt(e.target.value, 10);
+            div.querySelector('.lbl-pitch').textContent = `${occ.headPitch}°`;
+            updatePromptText();
+          });
+          div.querySelector('.rng-dx').addEventListener('input', (e) => {
+            occ.dx = parseFloat(e.target.value);
+            div.querySelector('.lbl-dx').textContent = occ.dx.toFixed(2);
+          });
+          div.querySelector('.rng-dz').addEventListener('input', (e) => {
+            occ.dz = parseFloat(e.target.value);
+            div.querySelector('.lbl-dz').textContent = occ.dz.toFixed(2);
+          });
+          div.querySelector('.rng-dy').addEventListener('input', (e) => {
+            occ.dy = parseFloat(e.target.value);
+            div.querySelector('.lbl-dy').textContent = occ.dy.toFixed(2);
+          });
+          div.querySelector('.btn-occ-reset').addEventListener('click', () => {
+            occ.headYaw = 0; occ.headPitch = 0;
+            occ.dx = 0; occ.dy = 0; occ.dz = 0;
+            renderChaseOccupantsControls();
+            updatePromptText();
+          });
+          box.appendChild(div);
+        });
+      }
+
       function applyChaseCameraPreset(viewType) {
         if (kfPlay.active) stopKeyframePlayback(false);
         if (viewType === 'rear_quarter') {
@@ -2104,6 +2378,23 @@
         updateHUD();
       }
 
+      function syncDrawerModePanels() {
+        const normalPanel = document.getElementById('normal-cast-panel');
+        const normalList = document.getElementById('cast-controls-list');
+        const chasePanel = document.getElementById('chase-cast-panel');
+        if (chaseMode.active) {
+          normalPanel.style.display = 'none';
+          normalList.style.display = 'none';
+          chasePanel.style.display = 'flex';
+          syncChaseOccupantButtons();
+          renderChaseOccupantsControls();
+        } else {
+          normalPanel.style.display = 'flex';
+          normalList.style.display = 'flex';
+          chasePanel.style.display = 'none';
+        }
+      }
+
       function toggleChaseCarMode() {
         if (kfPlay.active) stopKeyframePlayback(false);
         const btn = document.getElementById('btn-chase-mode');
@@ -2122,6 +2413,7 @@
           btn.textContent = '← 返回一般場景';
           btn.classList.add('chase-active');
           dock.classList.add('visible');
+          syncDrawerModePanels();
           setFollowTarget('CAR');
           applyChaseCameraPreset('rear_quarter');
         } else {
@@ -2129,6 +2421,7 @@
           btn.textContent = '追車模式 🚗';
           btn.classList.remove('chase-active');
           dock.classList.remove('visible');
+          syncDrawerModePanels();
           if (followState.target === 'CAR') setFollowTarget('none');
           if (chaseMode.savedNormalSky) {
             env.sky = chaseMode.savedNormalSky;
@@ -3329,16 +3622,28 @@
         const actionLineEn = actionText ? `; action: ${actionText}` : '';
 
         if (chaseMode.active) {
+          const isMoto = chaseMode.vehicle === 'moto';
+          const occList = getActiveChaseSeats();
+          const vehNameZh = isMoto ? '電單車' : '私家車';
+          const vehNameEn = isMoto ? 'motorcycle' : 'passenger sedan';
+          const headNotesZh = occList
+            .filter(o => Math.abs(o.headYaw) >= 10 || Math.abs(o.headPitch) >= 10)
+            .map(o => `${o.role}頭部轉向${o.headYaw > 0 ? '左' : (o.headYaw < 0 ? '右' : '')}${Math.abs(o.headYaw)}°`)
+            .join('、');
+          const headDetailZh = headNotesZh ? `（其中${headNotesZh}）` : '';
+          const trafficZh = chaseMode.extraCarsCount > 0 ? `，馬路隔離線另有 ${chaseMode.extraCarsCount} 架車輛同時行駛交錯` : '';
+          const trafficEn = chaseMode.extraCarsCount > 0 ? `, with ${chaseMode.extraCarsCount} additional traffic vehicle(s) passing on adjacent lanes` : '';
+
           const zh = [
-            `【追車與時代質感】${styleLineZh}高速行駛中之車輛與車內司機／乘客細節真實自然，車輪轉動與路面動態模糊（Motion Blur）具真實速度感${actionLineZh}。`,
-            `【光影與公路環境】公路沿途護欄、路燈與遠景向後流動，${sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，陰影強度 ${shdPct}%（${fmtZh}）${dofZh}，24fps。`,
-            `【V2V 追車運鏡鎖定】嚴格跟隨輸入之 V2V 追車參考影片鏡頭軌跡、貼車角度、雲台轉向與焦段透視變化，保持車身結構與車內人物穩定不變形。`
+            `【追車與時代質感】${styleLineZh}高速行駛中之${vehNameZh}載有 ${occList.length} 人${headDetailZh}，車身細節、車輪轉動與路面動態模糊（Motion Blur）具真實速度感${actionLineZh}。`,
+            `【光影與公路環境】公路沿途護欄、路燈與遠景向後流動${trafficZh}，${sky.zh}，主光來自畫面${light.side === -1 ? '左側' : '右側'}，${mood.zh}，陰影強度 ${shdPct}%（${fmtZh}）${dofZh}，24fps。`,
+            `【V2V 追車運鏡鎖定】嚴格跟隨輸入之 V2V 追車參考影片鏡頭軌跡、貼車角度、雲台轉向與焦段透視變化，保持${vehNameZh}結構與車上人物頭部轉向穩定不變形。`
           ].join('\n');
 
           const en = [
-            `[Vehicle & Period Realism] ${styleLineEn}Moving vehicle and interior driver/passenger details rendered photorealistically with natural wheel spin and road motion blur${actionLineEn}.`,
-            `[Lighting & Highway Atmosphere] Passing roadside guardrails, streetlamps and scenery, ${sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, shadow depth ${shdPct}% (${fmtEn})${dofEn}, 24fps.`,
-            `[V2V Chase Camera Lock] Strictly follow the input V2V tracking video's camera trajectory, vehicle proximity, pan/tilt rotation, and focal perspective while keeping vehicle geometry and occupants consistent.`
+            `[Vehicle & Period Realism] ${styleLineEn}Moving ${vehNameEn} carrying ${occList.length} occupant(s) with exact head turns and poses preserved, photorealistic wheel spin and road motion blur${actionLineEn}.`,
+            `[Lighting & Highway Atmosphere] Passing roadside guardrails, streetlamps and scenery${trafficEn}, ${sky.en}, key light from camera-${light.side === -1 ? 'left' : 'right'}, ${mood.en}, shadow depth ${shdPct}% (${fmtEn})${dofEn}, 24fps.`,
+            `[V2V Chase Camera Lock] Strictly follow the input V2V tracking video's camera trajectory, vehicle proximity, pan/tilt rotation, and focal perspective while keeping ${vehNameEn} geometry and occupant head orientations consistent.`
           ].join('\n');
 
           document.getElementById('prompt-box').value = promptLang === 'en' ? en : zh;
@@ -3374,6 +3679,15 @@
 
       // 綁定所有按鈕與滑桿事件
       document.getElementById('btn-chase-mode').addEventListener('click', toggleChaseCarMode);
+      document.querySelectorAll('.cveh-btn').forEach(btn => {
+        btn.addEventListener('click', () => setChaseVehicleType(btn.dataset.veh));
+      });
+      document.querySelectorAll('.cocc-btn').forEach(btn => {
+        btn.addEventListener('click', () => setChaseOccupantCount(parseInt(btn.dataset.occ, 10)));
+      });
+      document.querySelectorAll('.ctraffic-btn').forEach(btn => {
+        btn.addEventListener('click', () => setChaseExtraCarsCount(parseInt(btn.dataset.tr, 10)));
+      });
       document.querySelectorAll('.cspd-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           chaseMode.speed = parseFloat(btn.dataset.cspd);
@@ -3700,6 +4014,7 @@
       window.addEventListener('resize', resizeStage);
       resizeStage();
       renderCastControls();
+      renderChaseOccupantsControls();
       updateKeyframeStatusUI();
       updateHUD();
 
